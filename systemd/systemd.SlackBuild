@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
+VERSION=${VERSION:-208}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -47,6 +47,8 @@ if [ -z "$ARCH" ]; then
        *) ARCH=$( uname -m ) ;;
   esac
 fi
+
+wget -c http://www.freedesktop.org/software/${PKGNAM}/${PKGNAM}-${VERSION}.tar.xz
 
 NUMJOBS=${NUMJOBS:--j7}
 
@@ -75,7 +77,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.xz
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
 cd $PKGNAM-$VERSION
 chown -R root:root .
 find . \

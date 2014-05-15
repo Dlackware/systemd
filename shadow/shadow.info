@@ -1,7 +1,0 @@
-PRGNAM="shadow"
-VERSION="4.1.5.1"
-HOMEPAGE="http://pkg-shadow.alioth.debian.org/"
-DOWNLOAD="ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/shadow/shadow-4.1.5.1.tar.xz"
-MD5SUM="6562bf4cdb21b1a4b9da173d7e681cbd"
-MAINTAINER="bartgymnast"
-EMAIL="bartgymnast@hotmail.com"

@@ -1,7 +1,0 @@
-PRGNAM="libpwquality"
-VERSION="1.2.3"
-HOMEPAGE="https://fedorahosted.org/releases/l/i/libpwquality"
-DOWNLOAD="https://fedorahosted.org/releases/l/i/libpwquality/libpwquality-1.2.3.tar.bz2"
-MD5SUM="a8d4cf5d40a1c301f965432e6f3b821b"
-MAINTAINER="bartgymnast"
-EMAIL="bartgymnast@hotmail.com"

@@ -22,7 +22,7 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=libpwquality
-VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
+VERSION=${VERSION:-1.2.3}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -36,6 +36,8 @@ if [ -z "$ARCH" ]; then
        *) export ARCH=$( uname -m ) ;;
   esac
 fi
+
+wget -c https://fedorahosted.org/releases/l/i/${PKGNAM}/${PKGNAM}-${VERSION}.tar.bz2
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -60,7 +62,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.bz2
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
 cd $PKGNAM-$VERSION
 chown -R root:root .
 find . \
