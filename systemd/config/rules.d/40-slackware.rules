@@ -1,0 +1,23 @@
+# /lib/udev/rules.d/40-slackware.rules
+#
+# Slackware custom udev rules
+# Also see the following Slackware-provided custom rules files:
+# 65-permissions.rules and 90-network.rules
+#
+# Any change in this file will be overwritten in upgrades. Put your
+# custom rules somewhere else (90-local.rules is a good idea).
+#
+# See the udev man page to know the parameters you can use in udev
+# rules.
+#
+
+# input devices
+KERNEL=="mice",		SYMLINK+="mouse"
+
+# js? in /dev
+#KERNEL=="js[0-9]*", MODE="0644", SYMLINK+="%k"
+
+# old devfs path, removing this could break systems
+KERNEL=="md[0-9]*",	SYMLINK+="md/%n"
+KERNEL=="loop[0-9]*",	SYMLINK+="loop/%n"
+KERNEL=="ram[0-9]*",	SYMLINK+="rd/%n"

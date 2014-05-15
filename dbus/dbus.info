@@ -1,0 +1,7 @@
+PRGNAM="dbus"
+VERSION="1.6.18"
+HOMEPAGE="http://dbus.freedesktop.org"
+DOWNLOAD="http://dbus.freedesktop.org/releases/dbus/dbus-1.6.18.tar.gz"
+MD5SUM="b02e9c95027a416987b81f9893831061"
+MAINTAINER="bartgymnast"
+EMAIL="bartgymnast@hotmail.com"

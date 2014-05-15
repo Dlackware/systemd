@@ -1,0 +1,21 @@
+# 
+# This is the service file to use rc.inet1 for networking
+# This conflicts with NetworkManager.service
+#
+
+[Unit]
+Description=Network Connectivity
+Conflicts=NetworkManager.service
+Before=network.target
+After=syslog.target
+Wants=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/rc.d/rc.inet1 start
+ExecStop=/etc/rc.d/rc.inet1 stop
+
+[Install]
+WantedBy=network.target
+Alias=network.service
