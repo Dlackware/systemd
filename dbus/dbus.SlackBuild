@@ -102,7 +102,6 @@ CXXFLAGS="$SLKCFLAGS" \
   --with-session-socket-dir=/tmp \
   --with-init-scripts=slackware \
   --with-systemdsystemunitdir=/lib/systemd/system \
-  --enable-systemd \
   --build=$ARCH-slackware-linux
 
 make $NUMJOBS || make || exit 1

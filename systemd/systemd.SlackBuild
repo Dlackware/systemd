@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-208}
+VERSION=${VERSION:-213}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -86,6 +86,13 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
+# Force file regeneration
+( cd units
+  for i in *.in ;do
+    rm -fv ${i%.in}
+  done
+)
+
 sed -i \
   -e 's|@RC_LOCAL_SCRIPT_PATH_START@|/etc/rc.d/rc.local|g' \
   -e '/^ConditionFileIsExecutable=/aConditionFileIsExecutable=/etc/rc.d/rc.local_shutdown' \
@@ -102,10 +109,12 @@ sed -i -e '/udevadm/s|@rootbindir@|/sbin|g' \
   units/systemd-udev-settle.service.in \
   units/systemd-udev-trigger.service.in || exit 1
 
+# Slackware file is upper case
 sed -i -e 's|/etc/hostname|/etc/HOSTNAME|g' \
   src/hostname/hostnamed.c src/core/hostname-setup.c || exit 1
 
-sed -i -e "s|/usr/lib|/usr/lib${LIBDIRSUFFIX}|g" \
+# This should be multilib aware...
+sed -i -e "/locale/s|/lib/|/lib${LIBDIRSUFFIX}/|g" \
   src/locale/localectl.c || exit 1
 
 mkdir -p ${PKG}/lib/udev/rules.d
@@ -115,9 +124,6 @@ find . -name "*.[1-8]" -exec touch '{}' ';'
 
 # Patch to handle newer crypt() that may return NULL:
 patch -p0 --verbose <${CWD}/patches/60-cdrom_id.rules.diff || exit 1
-
-# Patch to handle newer crypt() that may return NULL:
-patch -p1 --verbose <${CWD}/patches/backlight.patch || exit 1
 
 unset SBO_PAMOPTS
 if [ "${SBO_PAM}" = "YES" ] ;then
@@ -133,7 +139,7 @@ fi
 # Our host is $ARCH-slackware-linux not $ARCH-slackware-linux-gnu:
 #sed -i -e 's#linux|linux-gnu|#linux|linux|#' config.sub || exit 1
 
-CFLAGS="${SLKCFLAGS}" \
+CFLAGS="${SLKCFLAGS} -fno-lto"
 CXXFLAGS="${SLKCFLAGS}" \
 ./configure \
   --prefix=/usr \
@@ -146,15 +152,16 @@ CXXFLAGS="${SLKCFLAGS}" \
   --infodir=/usr/info \
   --mandir=/usr/man \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
-  --disable-silent-rules \
+  --enable-dependency-tracking \
   --enable-split-usr \
   ${SBO_PAMOPTS} \
   --disable-audit \
-  --disable-tcpwrap \
   --disable-selinux \
+  --disable-kdbus \
   --with-sysvinit-path="" \
   --with-sysvrcnd-path="" \
-  --with-firmware-path="/lib/firmware/updates:/lib/firmware" \
+  --with-firmware-path="/lib/firmware/updates:/usr/lib/firmware/updates:/lib/firmware:/usr/lib/firmware" \
+  --disable-silent-rules \
   --build=$ARCH-slackware-linux
 
 make $NUMJOBS || make || exit 1
@@ -209,7 +216,6 @@ mv ${PKG}/lib/systemd/systemd ${PKG}/lib/systemd/systemd.new || exit 1
 chmod 0755 ${PKG}/lib/systemd/systemd.new
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd || exit 1
 
-
 if [ "${SBO_INIT}" = "YES" ] ;then
 mkdir -p ${PKG}/sbin
   ln -s ../lib/systemd/systemd ${PKG}/sbin/init
@@ -226,9 +232,11 @@ else
 fi
 
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd
-ln -sf ../../../dev/null ${PKG}/etc/udev/rules.d/80-net-name-slot.rules
+#ln -sf ../../../dev/null ${PKG}/etc/udev/rules.d/80-net-name-slot.rules
 
-if [ "${SBO_PAM}" = "NO" ] ;then
+if [ "${SBO_PAM}" = "YES" ] ; then
+  mv ${PKG}/etc/pam.d/systemd-user ${PKG}/etc/pam.d/systemd-user.new || exit 1
+else
   rm -f ${PKG}/usr/man/man8/pam*
 fi
 
@@ -237,10 +245,15 @@ touch ${PKG}/etc/vconsole.conf.new
 touch ${PKG}/etc/locale.conf.new
 touch ${PKG}/etc/machine-id.new
 touch ${PKG}/etc/machine-info.new
-touch ${PKG}/etc/systemd/system/default.target
+#touch ${PKG}/etc/systemd/system/default.target
 
 mkdir -p ${PKG}/{etc,lib}/systemd/system-preset
 mkdir -p ${PKG}/{etc,lib}/systemd/user-preset
+mkdir -p ${PKG}/{etc,lib}/systemd/network
+
+# Make sure the shutdown/sleep drop-in dirs exist
+mkdir -p ${PKG}/lib/systemd/system-shutdown/
+mkdir -p ${PKG}/lib/systemd/system-sleep/
 
 # Make sure the NTP units dir exists
 mkdir -p ${PKG}/usr/lib/systemd/ntp-units.d/
@@ -264,6 +277,30 @@ mkdir -p ${PKG}/lib/systemd/system/shutdown.target.wants
 mkdir -p ${PKG}/lib/systemd/system/syslog.target.wants
 mkdir -p ${PKG}/etc/systemd/system/network.target.wants
 
+# Temporary workaround for rhbz#1002806
+mkdir -p ${PKG}/lib/systemd/system/poweroff.target.wants
+mkdir -p ${PKG}/lib/systemd/system/rescue.target.wants
+mkdir -p ${PKG}/lib/systemd/system/multi-user.target.wants
+mkdir -p ${PKG}/lib/systemd/system/graphical.target.wants
+mkdir -p ${PKG}/lib/systemd/system/reboot.target.wants
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/poweroff.target.wants/
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/rescue.target.wants/
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/multi-user.target.wants/
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/graphical.target.wants/
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/reboot.target.wants/
+
+# Make sure the user generators dir exists too
+mkdir -p ${PKG}/lib/systemd/system-generators
+mkdir -p ${PKG}/lib/systemd/user-generators
+
+# Mask legacy stuff
+ln -s rescue.service ${PKG}/lib/systemd/system/single.service
+
+rm -f ${PKG}/etc/systemd/system/multi-user.target.wants/systemd-networkd.service
+ln -sf ../systemd-networkd.service ${PKG}/lib/systemd/system/multi-user.target.wants/
+
+echo 'd /run/console 755 root root' > ${PKG}/usr/lib/tmpfiles.d/console.conf || exit 1
+
 for file in ${CWD}/config/services/*.service ;do
   install -m0644 ${file} \
     ${PKG}/lib/systemd/system/ || exit 1
@@ -279,17 +316,10 @@ ln -s ../systemd-clean-dead-links.service \
   ${PKG}/lib/systemd/system/shutdown.target.wants/systemd-clean-dead-links.service || exit 1
 ln -sf ../display-manager.service \
   ${PKG}/lib/systemd/system/graphical.target.wants/display-manager.service || exit 1
-ln -sf ../../../../lib/systemd/system/inet1.service \
-  ${PKG}/etc/systemd/system/network.target.wants/inet1.service || exit 1
+#ln -sf ../../../../lib/systemd/system/inet1.service \
+#  ${PKG}/etc/systemd/system/network.target.wants/inet1.service || exit 1
 ln -sf ../ldconfig.service \
   ${PKG}/lib/systemd/system/multi-user.target.wants/ldconfig.service || exit 1
-
-
-# Mask legacy stuff
-ln -s rescue.service ${PKG}/lib/systemd/system/single.service
-
-sed -i 's@0775 root lock@0755 root root@g' ${PKG}/usr/lib/tmpfiles.d/legacy.conf || exit 1
-echo 'd /run/console 755 root root' > ${PKG}/usr/lib/tmpfiles.d/console.conf || exit 1
 
 for file in bootchart journald logind system user ;do
   mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
@@ -329,13 +359,9 @@ for file in ${CWD}/config/slack-scripts/* ; do
 done
 
 # Add various helper scripts:
-for file in ${CWD}/config/scripts/* ; do
-  install -m0755 ${file} ${PKG}/lib/udev/ || exit 1
-done
+install -m0644 ${CWD}/config/scripts/20-dhcp.network ${PKG}/lib/systemd/network/ || exit 1
 
 chmod 755 ${PKG}/lib/udev/*
-
-
 
 ################################# End of udev ##################################
 
