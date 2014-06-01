@@ -151,6 +151,9 @@ enableservice () {
 # And symlink what we found to the new-style default.target
 ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 
+# Lets make sure DNS resolve works
+ln -sf /run/systemd/network/resolv.conf /etc/resolv.conf
+
 if [ -r /lib/systemd/systemd ]; then
   mv -f /lib/systemd/systemd /lib/systemd/systemd.old
 fi
