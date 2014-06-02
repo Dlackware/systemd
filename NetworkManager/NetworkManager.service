@@ -5,7 +5,6 @@
 
 [Unit]
 Description=Network Manager
-Conflicts=inet1.service
 Wants=network.target
 Before=network.target
 

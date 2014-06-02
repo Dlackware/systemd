@@ -25,9 +25,10 @@
 # Modified 2011, 2012  by Eric Hameleers, Eindhoven, NL
 
 PKGNAM=NetworkManager
-VERSION=${VERSION:-0.9.8.10}
+VERSION=${VERSION:-0.9.9.10}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
+TAR=$PKGNAM-$VERSION.tar.xz
 
 # Set to NO to disable systemd session support instead consolekit/needs pam
 SBO_SYSTEMD=${SBO_SYSTEMD:-YES}
@@ -42,7 +43,8 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c https://download.gnome.org/sources/${PKGNAM}/0.9/${PKGNAM}-${VERSION}.tar.xz
+
+#wget -c https://download.gnome.org/sources/${PKGNAM}/0.9/${PKGNAM}-${VERSION}.tar.xz
 
 NUMJOBS=${NUMJOBS:--j6}
 
@@ -50,6 +52,19 @@ CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-$PKGNAM
 OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+if [ ! -e "$CWD/$TAR" ];then
+    git clone git://anongit.freedesktop.org/$PKGNAM/$PKGNAM $PKGNAM-$VERSION
+    (
+	cd $PKGNAM-$VERSION
+	git checkout v$VERSION
+	#update submodules
+	git submodule update --init
+    )
+    rm -r $PKGNAM-$VERSION/.git/
+    tar cvf $TAR $PKGNAM-$VERSION
+    rm -r $PKGNAM-$VERSION    
+fi
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
@@ -93,9 +108,13 @@ PPPD=$( basename $(find /usr/lib${LIBDIRSUFFIX}/pppd -type d -maxdepth 1 -mindep
 unset SBO_SYSTEMDOPTS
 [ "${SBO_SYSTEMD}" = "YES" ] && SBO_SYSTEMDOPTS=systemd
 
+patch -p1 -E --backup --verbose -i $CWD/02-dbus_access_network_manager.patch
+patch -p1 -E --backup --verbose -i $CWD/disable_set_hostname.patch
+patch -p0 -E --backup --verbose -i $CWD/networkmanager-0.9.8.8-systemd209.patch
+
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-./configure \
+./autogen.sh \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
@@ -113,7 +132,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --enable-concheck \
   --disable-qt \
   --disable-wimax \
-  --enable-more-warnings=no \
+  --disable-libndp \
   --with-session-tracking=${SBO_SYSTEMDOPTS:-consolekit} \
   --with-suspend-resume=${SBO_SYSTEMDOPTS:-upower} \
   --with-systemdsystemunitdir=/lib/systemd/system \
