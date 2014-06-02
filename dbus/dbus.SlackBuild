@@ -23,7 +23,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=dbus
-VERSION=${VERSION:-1.6.18}
+VERSION=${VERSION:-1.8.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -74,12 +74,17 @@ find . \
  -exec chmod 644 {} \;
 
 patch -p1 --verbose <$CWD/dbus-1.6.x-allow_root_globally.diff || exit 1
+patch -p0 -E --backup --verbose <$CWD/dbus-1.8.0-systemd209.patch || exit 1
+
+
+autoreconf -ivf
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
   --with-dbus-user=messagebus \
   --prefix=/usr \
+  --bindir=/bin \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --libexecdir=/lib/dbus-1 \
   --sysconfdir=/etc \
@@ -96,6 +101,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --disable-verbose-mode \
   --disable-tests \
   --disable-asserts \
+  --disable-libaudit \
   --enable-x11-autolaunch \
   --with-system-pid-file=/var/run/dbus/dbus.pid \
   --with-system-socket=/var/run/dbus/system_bus_socket \

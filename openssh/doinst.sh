@@ -36,10 +36,10 @@ if [ ! -r var/log/btmp ]; then
 fi
 
 # Enable sshd in systemd
-chroot . /bin/systemctl enable sshd.socket
+/bin/systemctl enable sshd.socket
 
 
 if [ -x bin/systemctl ] ; then
-  chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
+  /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
 

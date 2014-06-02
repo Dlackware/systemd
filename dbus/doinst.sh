@@ -20,9 +20,9 @@ if [ -r etc/rc.d/rc.messagebus -a -r etc/rc.d/rc.messagebus.new ]; then
 fi
 
 # Fix some ownership
-chroot . /bin/chown root.messagebus /lib/dbus-1/dbus-daemon-launch-helper
-chroot . /bin/chmod 4750 /lib/dbus-1/dbus-daemon-launch-helper
-chroot . /bin/chown messagebus.root /var/lib/dbus
+/bin/chown root.messagebus /lib/dbus-1/dbus-daemon-launch-helper
+/bin/chmod 4750 /lib/dbus-1/dbus-daemon-launch-helper
+/bin/chown messagebus.root /var/lib/dbus
 
 if [ -x bin/systemctl ] ; then
   chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
