@@ -3,7 +3,7 @@
 # Copyright 2009, 2011  Robby Workman, Northport, Alabama, USA
 # Copyright 2010  Eric Hameleers, Eindhoven, NL
 # Copyright 2009, 2010, 2011, 2012, 2013  Patrick J. Volkerding, Sebeka, MN, USA
-# Copyright 2013  Bart van der Hall, Istanbul, TR
+# Copyright 2013, 2014  Bart van der Hall, Istanbul, TR
 # All rights reserved.
 
 # Redistribution and use of this script, with or without modification, is
@@ -26,12 +26,12 @@
 PKGNAM=polkit
 VERSION=${VERSION:-0.112}
 BUILD=${BUILD:-1}
-TAG=${TAG:-_SBo}
+TAG=${TAG:-_dlack}
 
 # Set to YES to enable pam support.
-SBO_PAM=${SBO_PAM:-NO}
+SBO_PAM=${SBO_PAM:-YES}
 # Set to YES to force systemd support (drops ConsoleKit support/needs PAM)
-SBO_SYSTEMD=${SBO_SYSTEMD:-NO}
+SBO_SYSTEMD=${SBO_SYSTEMD:-YES}
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -43,12 +43,15 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
+wget -c http://www.freedesktop.org/software/polkit/releases/$PKGNAM-$VERSION.tar.gz
+
+
 NUMJOBS=${NUMJOBS:--j6}
 
 CWD=$(pwd)
-TMP=${TMP:-/tmp/SBo}
+TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-$PKGNAM
-OUTPUT=${OUTPUT:-/tmp}
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
@@ -79,7 +82,11 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-zcat $CWD/05_revert-admin-identities-unix-group-wheel.patch.gz | patch -p1 --verbose || exit 1
+cat $CWD/05_revert-admin-identities-unix-group-wheel.patch | patch -p1 --verbose || exit 1
+cat $CWD/polkit-0.112-XDG_RUNTIME_DIR.patch | patch -p1 --verbose || exit 1
+cat $CWD/polkit-0.112-systemd209.patch | patch -p0 --verbose || exit 1
+
+autoreconf -ivf
 
 unset SBO_PAMOPTS SBO_SYSTEMDOPTS
 if [ "${SBO_SYSTEMD}" = "YES" ] ;then
@@ -163,7 +170,7 @@ if [ -r ChangeLog ]; then
 fi
 
 mkdir -p $PKG/install
-zcat $CWD/doinst.sh > $PKG/install/doinst.sh
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 # Create the package itself:
