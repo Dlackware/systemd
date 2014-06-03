@@ -17,3 +17,5 @@ done
 config var/log/faillog.new
 rm -f var/log/faillog.new
 
+mv /etc/login.defs /etc/login.defs.old
+mv /etc/login.defs.new /etc/login.defs
