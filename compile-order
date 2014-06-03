@@ -1,0 +1,13 @@
+### [systemd-min] begin
+cracklib
+pam
+libpwquality
+shadow
+systemd
+dbus
+openssh
+polkit
+libndp
+NetworkManager
+### [systemd-min] end
+### [systemd-all] begin
