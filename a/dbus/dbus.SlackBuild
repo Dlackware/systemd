@@ -1,0 +1,188 @@
+#!/bin/sh
+
+# Copyright 2007-2010  Robby Workman, Northport, Alabama, USA
+# Copyright 2007-2012  Patrick Volkerding, Sebeka, MN, USA
+# Copyright 2013-2013  Bart van der Hall, Istanbul, TR
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+PKGNAM=dbus
+VERSION=${VERSION:-1.8.2}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_dlack}
+
+NUMJOBS=${NUMJOBS:-" -j7 "}
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i486 ;;
+    arm*) export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+wget -c http://${PKGNAM}.freedesktop.org/releases/${PKGNAM}/${PKGNAM}-${VERSION}.tar.gz
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware}
+PKG=$TMP/package-$PKGNAM
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "s390" ]; then
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+fi
+
+rm -rf $PKG
+mkdir -p $TMP $PKG
+cd $TMP
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z* || exit 1
+cd $PKGNAM-$VERSION || exit 1
+chown -R root:root .
+find . \
+ \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+ -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+ -exec chmod 644 {} \;
+
+patch -p1 --verbose <$CWD/dbus-1.6.x-allow_root_globally.diff || exit 1
+patch -p0 -E --backup --verbose <$CWD/dbus-1.8.0-systemd209.patch || exit 1
+
+
+autoreconf -ivf
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+  --with-dbus-user=messagebus \
+  --prefix=/usr \
+  --bindir=/bin \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --libexecdir=/lib/dbus-1 \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --with-console-auth-dir=/run/console/ \
+  --mandir=/usr/man \
+  --infodir=/usr/info \
+  --docdir=/usr/doc/$PKGNAM-$VERSION \
+  --disable-doxygen-docs \
+  --enable-shared=yes \
+  --enable-static=no \
+  --enable-inotify \
+  --disable-modular-tests \
+  --disable-verbose-mode \
+  --disable-tests \
+  --disable-asserts \
+  --disable-libaudit \
+  --enable-x11-autolaunch \
+  --with-system-pid-file=/var/run/dbus/dbus.pid \
+  --with-system-socket=/var/run/dbus/system_bus_socket \
+  --with-session-socket-dir=/tmp \
+  --with-init-scripts=slackware \
+  --with-systemdsystemunitdir=/lib/systemd/system \
+  --build=$ARCH-slackware-linux
+
+make $NUMJOBS || make || exit 1
+make install DESTDIR=$PKG
+
+# Install a custom init script for dbus - the included one is not good for us
+rm $PKG/etc/rc.d/*
+cat $CWD/rc.messagebus > $PKG/etc/rc.d/rc.messagebus.new
+chmod 0755 $PKG/etc/rc.d/rc.messagebus.new
+
+# Fix some directory ownership
+chown messagebus $PKG/var/lib/dbus
+
+mkdir -p ${PKG}/etc/X11/xinit/xinitrc.d
+install -pm0755 ${CWD}/00-start-message-bus.sh \
+  ${PKG}/etc/X11/xinit/xinitrc.d/00-start-message-bus.sh || exit 1
+
+mkdir -p ${PKG}/usr/share/dbus-1/interfaces
+mkdir -p ${PKG}/var/lib/dbus
+
+find $PKG | xargs file | grep -e "executable" -e "shared object" \
+  | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+mkdir -p ${PKG}/lib${LIBDIRSUFFIX}
+mv ${PKG}/usr/lib${LIBDIRSUFFIX}/lib*.so.* ${PKG}/lib${LIBDIRSUFFIX}/ || exit 1
+
+# Make /usr/lib/libdbus-1.so a symlink to /lib:
+libname=libdbus-1
+reldir=$(echo /usr/lib${LIBDIRSUFFIX} | sed 's,/$,,;s,/[^/]\+,../,g')lib${LIBDIRSUFFIX}
+oldlink=$(readlink ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so)
+ln -sf ${reldir}/$(basename ${oldlink}) ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so || exit 1
+rm -f ${PKG}/lib*/*.so
+# Fix shared library perms:
+chmod 755 ${PKG}/lib${LIBDIRSUFFIX}/*.so.*
+
+# Let's not clobber existing config files
+mv ${PKG}/etc/dbus-1/session.conf \
+   ${PKG}/etc/dbus-1/session.conf.new
+mv ${PKG}/etc/dbus-1/system.conf \
+   ${PKG}/etc/dbus-1/system.conf.new
+
+
+# Compress and link manpages, if any:
+if [ -d $PKG/usr/man ]; then
+  ( cd $PKG/usr/man
+    for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd $manpagedir
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink $eachpage ).gz $eachpage.gz
+          rm $eachpage
+        done
+        gzip -9 *.?
+      )
+    done
+  )
+fi
+
+# Add documentation
+mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
+cp -a \
+  AUTHORS COPYING* HACKING INSTALL NEWS README* doc/*.{txt,html,dtd} \
+  $PKG/usr/doc/$PKGNAM-$VERSION
+find $PKG/usr/doc/$PKGNAM-$VERSION -type f -exec chmod 0644 {} \;
+
+# If there's a ChangeLog, installing at least part of the recent history
+# is useful, but don't let it get totally out of control:
+if [ -r ChangeLog ]; then
+  DOCSDIR=$(echo $PKG/usr/doc/*-$VERSION)
+  cat ChangeLog | head -n 1000 > $DOCSDIR/ChangeLog
+  touch -r ChangeLog $DOCSDIR/ChangeLog
+fi
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz

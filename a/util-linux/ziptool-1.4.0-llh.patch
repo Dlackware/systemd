@@ -1,0 +1,12 @@
+--- ziptool.c.orig	2002-08-28 00:07:36.000000000 -0300
++++ ziptool.c	2008-06-13 03:48:14.000000000 -0300
+@@ -85,6 +85,9 @@
+ #define MOUNT_CMD			"/bin/mount"
+ #define UMOUNT_CMD			"/bin/umount"
+ 
++#define    SCSI_REMOVAL_ALLOW      0
++#define    SCSI_REMOVAL_PREVENT    1
++
+ /*
+  *	Model list, last entry must be a NULL pointer. Casing is
+  *	insensitive.

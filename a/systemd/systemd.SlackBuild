@@ -1,0 +1,401 @@
+#!/bin/sh
+# Copyright 2013 Bart van der Hall, Istanbul, TR
+# All rights reserved.
+#
+#   Permission to use, copy, modify, and distribute this software for
+#   any purpose with or without fee is hereby granted, provided that
+#   the above copyright notice and this permission notice appear in all
+#   copies.
+#
+#   THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+#   WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+#   IN NO EVENT SHALL THE AUTHORS AND COPYRIGHT HOLDERS AND THEIR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+#   USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+#   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+#   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+#   SUCH DAMAGE.
+# -----------------------------------------------------------------------------
+#
+# Slackware SlackBuild script for systemd
+#
+# http://www.freedesktop.org/wiki/Software/systemd
+#
+
+PKGNAM=systemd
+VERSION=${VERSION:-213}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_dlack}
+
+# Set to NO to disable pam support
+SBO_PAM=${SBO_PAM:-YES}
+# Set YES to set systemd as default init
+SBO_INIT=${SBO_INIT:-YES}
+
+# If you have set NO for default init, you need to change your boot loader startup
+# Add the kernel parameter " init=/lib/systemd/systemd"
+
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i486 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+wget -c http://www.freedesktop.org/software/${PKGNAM}/${PKGNAM}-${VERSION}.tar.xz
+
+NUMJOBS=${NUMJOBS:--j7}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware}
+PKG=$TMP/package-$PKGNAM
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+fi
+
+set -e # Exit on most errors
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
+cd $PKGNAM-$VERSION
+chown -R root:root .
+find . \
+ \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+ -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+ -exec chmod 644 {} \;
+
+# Force file regeneration
+( cd units
+  for i in *.in ;do
+    rm -fv ${i%.in}
+  done
+)
+
+sed -i \
+  -e 's|@RC_LOCAL_SCRIPT_PATH_START@|/etc/rc.d/rc.local|g' \
+  -e '/^ConditionFileIsExecutable=/aConditionFileIsExecutable=/etc/rc.d/rc.local_shutdown' \
+  -e '/^After=/s|$| local-fs.target|g' \
+  -e '/^ExecStart/s| start||g' \
+  -e 's|^Type=.*$|ExecStop=/etc/rc.d/rc.local_shutdown|g' \
+  units/rc-local.service.in || exit 1
+
+sed -i -e '/^exec_prefix=/s|=.*$|=/|g' \
+  src/libudev/libudev.pc.in || exit 1
+
+sed -i -e '/udevadm/s|@rootbindir@|/sbin|g' \
+  src/login/71-seat.rules.in \
+  units/systemd-udev-settle.service.in \
+  units/systemd-udev-trigger.service.in || exit 1
+
+# Slackware file is upper case
+sed -i -e 's|/etc/hostname|/etc/HOSTNAME|g' \
+  src/hostname/hostnamed.c src/core/hostname-setup.c || exit 1
+
+# This should be multilib aware...
+sed -i -e "/locale/s|/lib/|/lib${LIBDIRSUFFIX}/|g" \
+  src/locale/localectl.c || exit 1
+
+mkdir -p ${PKG}/lib/udev/rules.d
+mkdir -p ${PKG}/run
+
+find . -name "*.[1-8]" -exec touch '{}' ';'
+
+# Patch to handle newer crypt() that may return NULL:
+patch -p0 --verbose <${CWD}/patches/60-cdrom_id.rules.diff || exit 1
+
+unset SBO_PAMOPTS
+if [ "${SBO_PAM}" = "YES" ] ;then
+  SBO_PAMOPTS='--enable-pam --with-pamlibdir=/lib${LIBDIRSUFFIX}/security'
+else
+  SBO_PAMOPTS='--disable-pam'
+fi
+
+# Silly upstream, using the bleeding edge.  Reconf:
+#autoreconf --force --install 
+
+# Autoconf changes linux to linux-gnu.
+# Our host is $ARCH-slackware-linux not $ARCH-slackware-linux-gnu:
+#sed -i -e 's#linux|linux-gnu|#linux|linux|#' config.sub || exit 1
+
+CFLAGS="${SLKCFLAGS} -fno-lto"
+CXXFLAGS="${SLKCFLAGS}" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --libexecdir=/lib \
+  --with-rootprefix= \
+  --with-rootlibdir=/lib${LIBDIRSUFFIX} \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --infodir=/usr/info \
+  --mandir=/usr/man \
+  --docdir=/usr/doc/${PKGNAM}-${VERSION} \
+  --enable-dependency-tracking \
+  --enable-split-usr \
+  ${SBO_PAMOPTS} \
+  --disable-audit \
+  --disable-selinux \
+  --disable-kdbus \
+  --with-sysvinit-path="" \
+  --with-sysvrcnd-path="" \
+  --with-firmware-path="/lib/firmware/updates:/usr/lib/firmware/updates:/lib/firmware:/usr/lib/firmware" \
+  --disable-silent-rules \
+  --build=$ARCH-slackware-linux
+
+make $NUMJOBS || make || exit 1
+make install DESTDIR=$PKG \
+  pkgconfigdatadir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
+  sharepkgconfigdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
+  || exit 1
+
+rm -rf ${PKG}/etc/init.d
+rm -rf ${PKG}/etc/rc.d/init.d
+
+mv ${PKG}/usr/lib${LIBDIRSUFFIX}/libnss_myhostname.so.* \
+  ${PKG}/lib${LIBDIRSUFFIX}/ || exit 1
+
+ln -sf ../lib${LIBDIRSUFFIX}/libudev.so.1 ${PKG}/lib${LIBDIRSUFFIX}/libudev.so.0
+
+# Good to have on path
+mkdir -p ${PKG}/sbin
+( cd ${PKG}/sbin
+  ln -s ../lib/udev/scsi_id scsi_id || exit 1
+  ln -s ../lib/systemd/systemd-udevd udevd || exit 1
+) || exit 1
+
+mv ${PKG}/bin/udevadm ${PKG}/sbin/ || exit 1
+ln -s ../sbin/udevadm ${PKG}/bin/udevadm
+
+ln -s ../systemd/systemd-udevd ${PKG}/lib/udev/udevd || exit 1
+
+find $PKG | xargs file | grep -e "executable" -e "shared object" \
+  | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+################################### systemd ####################################
+# Slackware inittab compliance
+ln -sf graphical.target ${PKG}/lib/systemd/system/runlevel4.target || exit 1
+
+install -pm0644 ${CWD}/config/services/var-{lock,run}.mount ${PKG}/lib/systemd/system/ || exit 1
+ln -sf ../var-lock.mount \
+  ${PKG}/lib/systemd/system/local-fs.target.wants/var-lock.mount || exit 1
+ln -sf ../var-run.mount \
+  ${PKG}/lib/systemd/system/local-fs.target.wants/var-run.mount || exit 1
+
+# rc.local and rc.local_shutdown
+install -pm0644 units/rc-local.service.in \
+  ${PKG}/lib/systemd/system/rc-local.service || exit 1
+
+ln -s ../rc-local.service \
+  ${PKG}/lib/systemd/system/multi-user.target.wants/rc-local.service || exit 1
+
+install -pm0644 tmpfiles.d/legacy.conf ${PKG}/usr/lib/tmpfiles.d/ || exit 1
+
+mv ${PKG}/lib/systemd/systemd ${PKG}/lib/systemd/systemd.new || exit 1
+chmod 0755 ${PKG}/lib/systemd/systemd.new
+ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd || exit 1
+
+if [ "${SBO_INIT}" = "YES" ] ;then
+mkdir -p ${PKG}/sbin
+  ln -s ../lib/systemd/systemd ${PKG}/sbin/init
+  ln -s ../bin/systemctl ${PKG}/sbin/reboot
+  ln -s ../bin/systemctl ${PKG}/sbin/halt
+  ln -s ../bin/systemctl ${PKG}/sbin/poweroff
+  ln -s ../bin/systemctl ${PKG}/sbin/shutdown
+  ln -s ../bin/systemctl ${PKG}/sbin/telinit
+  ln -s ../bin/systemctl ${PKG}/sbin/runlevel
+else
+  for manpage in telinit halt reboot poweroff runlevel shutdown; do
+    mv ${PKG}/usr/man/man8/{,systemd.}"${manpage}.8" || exit 1
+  done
+fi
+
+ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd
+#ln -sf ../../../dev/null ${PKG}/etc/udev/rules.d/80-net-name-slot.rules
+
+if [ "${SBO_PAM}" = "YES" ] ; then
+  mv ${PKG}/etc/pam.d/systemd-user ${PKG}/etc/pam.d/systemd-user.new || exit 1
+else
+  rm -f ${PKG}/usr/man/man8/pam*
+fi
+
+#touch ${PKG}/etc/hostname.new
+touch ${PKG}/etc/vconsole.conf.new
+touch ${PKG}/etc/locale.conf.new
+touch ${PKG}/etc/machine-id.new
+touch ${PKG}/etc/machine-info.new
+#touch ${PKG}/etc/systemd/system/default.target
+
+mkdir -p ${PKG}/{etc,lib}/systemd/system-preset
+mkdir -p ${PKG}/{etc,lib}/systemd/user-preset
+mkdir -p ${PKG}/{etc,lib}/systemd/network
+
+# Make sure the shutdown/sleep drop-in dirs exist
+mkdir -p ${PKG}/lib/systemd/system-shutdown/
+mkdir -p ${PKG}/lib/systemd/system-sleep/
+
+# Make sure the NTP units dir exists
+mkdir -p ${PKG}/usr/lib/systemd/ntp-units.d/
+
+# Make sure directories in /var exist
+mkdir -p ${PKG}/var/lib/systemd/coredump
+mkdir -p ${PKG}/var/lib/systemd/catalog
+mkdir -p ${PKG}/var/log/journal
+touch ${PKG}/var/lib/systemd/catalog/database.new
+touch ${PKG}/etc/udev/hwdb.bin
+
+# Make sure these directories are properly owned
+mkdir -p ${PKG}/lib/systemd/system/basic.target.wants
+mkdir -p ${PKG}/lib/systemd/system/default.target.wants
+mkdir -p ${PKG}/lib/systemd/system/dbus.target.wants
+mkdir -p ${PKG}/lib/systemd/system/graphical.target.wants
+mkdir -p ${PKG}/lib/systemd/system/local-fs.target.wants
+mkdir -p ${PKG}/lib/systemd/system/multi-user.target.wants
+mkdir -p ${PKG}/lib/systemd/system/network.target.wants
+mkdir -p ${PKG}/lib/systemd/system/shutdown.target.wants
+mkdir -p ${PKG}/lib/systemd/system/syslog.target.wants
+mkdir -p ${PKG}/etc/systemd/system/network.target.wants
+
+# Temporary workaround for rhbz#1002806
+mkdir -p ${PKG}/lib/systemd/system/poweroff.target.wants
+mkdir -p ${PKG}/lib/systemd/system/rescue.target.wants
+mkdir -p ${PKG}/lib/systemd/system/multi-user.target.wants
+mkdir -p ${PKG}/lib/systemd/system/graphical.target.wants
+mkdir -p ${PKG}/lib/systemd/system/reboot.target.wants
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/poweroff.target.wants/
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/rescue.target.wants/
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/multi-user.target.wants/
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/graphical.target.wants/
+ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/reboot.target.wants/
+
+# Make sure the user generators dir exists too
+mkdir -p ${PKG}/lib/systemd/system-generators
+mkdir -p ${PKG}/lib/systemd/user-generators
+
+# Mask legacy stuff
+ln -s rescue.service ${PKG}/lib/systemd/system/single.service
+
+rm -f ${PKG}/etc/systemd/system/multi-user.target.wants/systemd-networkd.service
+ln -sf ../systemd-networkd.service ${PKG}/lib/systemd/system/multi-user.target.wants/
+
+echo 'd /run/console 755 root root' > ${PKG}/usr/lib/tmpfiles.d/console.conf || exit 1
+
+for file in ${CWD}/config/services/*.service ;do
+  install -m0644 ${file} \
+    ${PKG}/lib/systemd/system/ || exit 1
+done
+
+ln -s ../slackware-motd.service \
+  ${PKG}/lib/systemd/system/basic.target.wants/slackware-motd.service || exit 1
+ln -s ../slackware-depmod.service \
+  ${PKG}/lib/systemd/system/local-fs.target.wants/slackware-depmod.service || exit 1
+ln -s ../slackware-lvm-init.service \
+  ${PKG}/lib/systemd/system/local-fs.target.wants/slackware-lvm-init.service || exit 1
+ln -s ../systemd-clean-dead-links.service \
+  ${PKG}/lib/systemd/system/shutdown.target.wants/systemd-clean-dead-links.service || exit 1
+ln -sf ../display-manager.service \
+  ${PKG}/lib/systemd/system/graphical.target.wants/display-manager.service || exit 1
+#ln -sf ../../../../lib/systemd/system/inet1.service \
+#  ${PKG}/etc/systemd/system/network.target.wants/inet1.service || exit 1
+ln -sf ../ldconfig.service \
+  ${PKG}/lib/systemd/system/multi-user.target.wants/ldconfig.service || exit 1
+
+for file in bootchart journald logind system user ;do
+  mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
+done
+
+rm -f ${PKG}/usr/lib/sysctl.d/50-coredump.conf
+
+################################ End of systemd ################################
+
+##################################### udev #####################################
+
+mkdir -p ${PKG}/etc/udev/{keymaps,rules.d} \
+  ${PKG}/lib/firmware \
+  ${PKG}/lib/modprobe.d \
+  ${PKG}/etc/modprobe.d \
+  ${PKG}/etc/rc.d
+
+install -pm0644 ${CWD}/config/rc.d/rc.local_shutdown.new ${PKG}/etc/rc.d/rc.local_shutdown.new || exit 1
+chmod 0755 ${PKG}/etc/rc.d/rc.local_shutdown.new || exit 1
+
+rm -f ${PKG}/etc/udev/udev.conf
+install -m0644 ${CWD}/config/udev.conf ${PKG}/etc/udev/udev.conf || exit 1
+# Copy Slackware custom rules
+install -m0644 ${CWD}/config/rules.d/* ${PKG}/lib/udev/rules.d/ || exit 1
+
+install -m0755 ${CWD}/config/rc.d/rc.udev.new \
+  ${PKG}/etc/rc.d/rc.udev.new || exit 1
+for file in ${CWD}/config/modprobe.d/*.conf ;do
+  install -m0644 ${file} \
+    ${PKG}/lib/modprobe.d/ || exit 1
+done
+install -pm0644 ${CWD}/config/modprobe.d/README ${PKG}/etc/modprobe.d/ || exit 1
+
+# Add some slack-scripts
+for file in ${CWD}/config/slack-scripts/* ; do
+  install -m0755 ${file} ${PKG}/lib/systemd/ || exit 1
+done
+
+# Add various helper scripts:
+install -m0644 ${CWD}/config/scripts/20-dhcp.network ${PKG}/lib/systemd/network/ || exit 1
+
+chmod 755 ${PKG}/lib/udev/*
+
+################################# End of udev ##################################
+
+# Add a documentation directory:
+mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
+cp -a \
+  README NEWS TODO \
+  $PKG/usr/doc/$PKGNAM-$VERSION
+cat $CWD/$PKGNAM.SlackBuild > $PKG/usr/doc/$PKGNAM-$VERSION/$PKGNAM.SlackBuild
+
+# Compress and link manpages, if any:
+if [ -d ${PKG}/usr/share/man ]; then
+  mv ${PKG}/usr/share/man ${PKG}/usr/man
+  rmdir ${PKG}/usr/share
+fi
+if [ -d ${PKG}/usr/man ]; then
+  ( cd ${PKG}/usr/man
+    for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd ${manpagedir}
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink ${eachpage} ).gz ${eachpage}.gz
+          rm -f ${eachpage}
+        done
+        gzip -9 *.?
+        # Prevent errors
+        rm -f *.gz.gz
+      )
+    done
+  )
+fi
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz

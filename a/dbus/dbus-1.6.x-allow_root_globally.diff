@@ -1,0 +1,18 @@
+diff -Nur dbus-1.6.0.orig/bus/system.conf.in dbus-1.6.0/bus/system.conf.in
+--- dbus-1.6.0.orig/bus/system.conf.in	2012-01-04 11:49:23.000000000 -0600
++++ dbus-1.6.0/bus/system.conf.in	2012-06-12 23:07:14.541913190 -0500
+@@ -70,6 +70,14 @@
+           send_member="UpdateActivationEnvironment"/>
+   </policy>
+ 
++  <!-- Allow root to do anything over the messagebus.
++       Don't whine about "security" - anyone with root privileges
++       can edit this file anyway, so -ENOHOLE here. -->
++  <policy user="root">
++    <allow send_destination="*"/>
++    <allow send_interface="*"/>
++  </policy>
++
+   <!-- Config files are placed here that among other things, punch 
+        holes in the above policy for specific services. -->
+   <includedir>system.d</includedir>

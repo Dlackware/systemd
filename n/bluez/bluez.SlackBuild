@@ -1,0 +1,137 @@
+#!/bin/sh
+
+# Slackware build script for bluez
+
+# Copyright 2014 Eugene Wissner, Dachau, Germany
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+PKGNAM=bluez
+VERSION=${VERSION:-5.19}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_dlack}
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i486 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+wget -c http://www.kernel.org/pub/linux/bluetooth/$PKGNAM-$VERSION.tar.xz
+
+NUMJOBS=${NUMJOBS:-"-j4"}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware}
+PKG=$TMP/package-$PKGNAM
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+if [ "$ARCH" = "i486" ]; then
+	SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+	LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i686" ]; then
+	SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+	LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+	SLKCFLAGS="-O2 -fPIC"
+	LIBDIRSUFFIX="64"
+else
+	SLKCFLAGS="-O2"
+	LIBDIRSUFFIX=""
+fi
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
+cd $PKGNAM-$VERSION
+chown -R root:root .
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+ -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+ -exec chmod 644 {} \;
+
+patch -p1 --verbose< $CWD/bluez-dbus-config.patch
+sed -i -e 's|-lreadline|\0 -lncursesw|g' Makefile.{in,tools}
+
+libtoolize -f -c
+autoreconf -ivf
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+	--prefix=/usr \
+	--libdir=/usr/lib${LIBDIRSUFFIX} \
+	--sysconfdir=/etc \
+	--localstatedir=/var \
+	--disable-static \
+	--mandir=/usr/man \
+	--docdir=/usr/doc/$PKGNAM-$VERSION \
+	--enable-datafiles \
+	--enable-library \
+	--enable-tools\
+	--enable-cups \
+	--enable-test \
+	--with-systemdsystemunitdir=/lib/systemd/system \
+	--build=$ARCH-slackware-linux
+
+make $NUMJOBS
+make install-strip DESTDIR=$PKG
+
+mkdir -p $PKG/etc/bluetooth
+# Do not overwrite configuration
+# Well, let the dbus file be overwritten, as it is not usually user-edited.
+install -m0644 profiles/network/network.conf $PKG/etc/bluetooth/network.conf.new
+install -m0644 profiles/input/input.conf $PKG/etc/bluetooth/input.conf.new
+install -m0644 profiles/proximity/proximity.conf $PKG/etc/bluetooth/proximity.conf.new
+
+mkdir -p ${PKG}/lib/modprobe.d
+install -m0644 $CWD/bluetooth.conf $PKG/lib/modprobe.d
+
+## Add the wrapper script
+install -m0755 $CWD/bluetooth.sh $PKG/lib/udev/bluetooth.sh
+
+mkdir -p ${PKG}/var/lib/bluetooth
+
+# Add an init script
+mkdir $PKG/etc/rc.d
+install -m0644 $CWD/rc.bluetooth $PKG/etc/rc.d/rc.bluetooth.new
+
+# Compress man pages:
+find $PKG/usr/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+
+mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
+cp -a \
+  AUTHORS COPYING ChangeLog INSTALL README TODO \
+  $PKG/usr/doc/$PKGNAM-$VERSION
+cat $CWD/$PKGNAM.SlackBuild > $PKG/usr/doc/$PKGNAM-$VERSION/$PKGNAM.SlackBuild
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}

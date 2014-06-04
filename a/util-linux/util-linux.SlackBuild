@@ -1,0 +1,329 @@
+#!/bin/sh
+
+# Copyright 2008, 2009, 2010, 2011, 2012, 2013  Patrick J. Volkerding, Sebeka, MN, USA
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Slackware build script for util-linux
+
+PKGNAM=util-linux
+VERSION=${VERSION:-2.24.2}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_dlack}
+
+ADJTIMEXVERS=1.29
+SETSERIALVERS=2.17
+ZIPTOOLVERS=1.4.0
+NETTOOLVERS="1.60.20131012git"
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i486 ;;
+    arm*) export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+wget -c http://www.kernel.org/pub/linux/utils/${PKGNAM}/v2.24/${PKGNAM}-${VERSION}.tar.xz \
+	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/adjtimex_${ADJTIMEXVERS}.orig.tar.gz \
+	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/bsdstrings.tar.gz \
+	http://dropline.omgwtfroflol.com/download/net-tools-${NETTOOLVERS}.tar.xz \
+	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/setserial-${SETSERIALVERS}.tar.gz \
+	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/ziptool-${ZIPTOOLVERS}.tar.xz
+
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "s390" ]; then
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+fi
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware}
+PKG=$TMP/package-$PKGNAM
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP || exit 1
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/util-linux-$VERSION.tar.xz || exit 1
+cd util-linux-$VERSION || exit 1
+chown -R root.root .
+find . \
+ \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+ -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+ -exec chmod 644 {} \;
+
+# Disabled login stuff from being built, as this is provided by shadow
+#
+# /sbin/elvtune is not built, as configure says it only works with 2.2 and 
+#   2.4 kernels
+
+# This block is handled near the bottom of the script in symlink creation
+# /bin/setterm -- now located in /usr/bin/setterm 
+# /bin/getopt -- same as setterm
+# /usr/bin/readprofile -- now in /usr/sbin
+# /usr/bin/tunelp -- same as readprofile
+
+# Changing the fdisk -l output (this was done prior to util-linux-ng) broke
+# our installation scripts, so we have changed the name of partition type
+# 83 back to "Linux swap":
+patch -p1 --verbose< $CWD/util-linux-ng.fdisk-no-solaris.diff || exit 1
+
+patch -p1 --verbose< $CWD/2.23-login-lastlog-create.patch || exit 1
+
+export ac_cv_header_security_pam_misc_h
+
+# Regenerate, since patch 0001 hits mount/Makefile.am:
+./autogen.sh
+
+CFLAGS="$SLKCFLAGS" \
+./configure \
+	--prefix=/usr \
+	--libdir=/usr/lib${LIBDIRSUFFIX} \
+	--sysconfdir=/etc \
+	--localstatedir=/run \
+	--mandir=/usr/man \
+	--infodir=/usr/info \
+	--docdir=/usr/doc/util-linux-$VERSION \
+	--disable-static \
+	--enable-eject \
+	--enable-agetty \
+	--enable-kill \
+	--disable-last \
+	--enable-line \
+	--enable-mesg \
+	--enable-partx \
+	--enable-raw \
+	--enable-rename \
+	--enable-reset \
+	--disable-login \
+	--disable-nologin \
+	--disable-su \
+	--disable-sulogin \
+	--enable-schedutils \
+	--enable-wall \
+	--enable-write \
+	--enable-tunelp \
+	--enable-use-tty-group \
+	--enable-libblkid \
+	--enable-libmount \
+	--enable-libuuid \
+	--with-systemdsystemunitdir=/lib/systemd/system \
+	--enable-socket-activation \
+	--build=$ARCH-slackware-linux \
+	|| exit 1
+
+make || exit 1
+make install DESTDIR=$PKG || make install DESTDIR=$PKG
+
+# Move the libblkid, libmount, and libuuid libraries to /lib${LIBSUFFIX}
+mkdir -p $PKG/lib${LIBDIRSUFFIX}
+( cd $PKG/usr/lib${LIBDIRSUFFIX}
+  mv libblkid.so.1* $PKG/lib${LIBDIRSUFFIX}
+  mv libmount.so.1* $PKG/lib${LIBDIRSUFFIX}
+  mv libuuid.so.1* $PKG/lib${LIBDIRSUFFIX}
+  rm -f libblkid.so libmount.so libuuid.so
+  ln -sf ../../lib${LIBDIRSUFFIX}/libblkid.so.1 libblkid.so
+  ln -sf ../../lib${LIBDIRSUFFIX}/libmount.so.1 libmount.so
+  ln -sf ../../lib${LIBDIRSUFFIX}/libuuid.so.1 libuuid.so
+)
+
+# Moving things around that have been in the same place
+# for 15 years is, IMHO, not a wise idea AT ALL.
+# If this had to be moved, some place out of /usr might
+# have shown a grain of insight...
+if [ -r $PKG/usr/sbin/fdformat ]; then
+  mkdir -p $PKG/usr/bin
+  mv $PKG/usr/sbin/fdformat $PKG/usr/bin/fdformat
+  # Now since stuff will start looking in this new place,
+  # we have no choice but to link these:
+  ( cd $PKG/usr/sbin
+    ln -sf ../bin/fdformat .
+  )
+fi
+
+# Build ziptool
+cd $TMP || exit 1
+rm -rf ziptool-$ZIPTOOLVERS
+tar xvf $CWD/ziptool-$ZIPTOOLVERS.tar.xz || exit 1
+cd ziptool-$ZIPTOOLVERS || exit 1
+patch -p0 -E --backup --verbose< $CWD/ziptool-1.4.0-llh.patch || exit 1
+chown -R root:root .
+make LINUX_SRC_DIR=/usr || exit 1
+strip ziptool
+cat ziptool > $PKG/sbin/ziptool
+chmod 0755 $PKG/sbin/ziptool
+mkdir -p $PKG/usr/doc/ziptool-$ZIPTOOLVERS
+cp -a README $PKG/usr/doc/ziptool-$ZIPTOOLVERS
+chmod 644 $PKG/usr/doc/ziptool-$ZIPTOOLVERS/*
+cat ziptool.1.gz > $PKG/usr/man/man1/ziptool.1.gz
+
+# Build bsdstrings
+cd $TMP || exit 1
+rm -rf bsdstrings
+tar xvf $CWD/bsdstrings.tar.gz || exit 1
+cd bsdstrings || exit 1
+make || exit 1
+strip strings
+cat strings > $PKG/usr/bin/strings
+chmod 0755 $PKG/usr/bin/strings
+cat strings.1 | gzip -9c > $PKG/usr/man/man1/strings.1.gz
+
+# Add just the hostname utilities from net-tools, so that anyone
+# installing just the A series will not have a hostname (null):
+cd $TMP || exit 1
+rm -rf net-tools-${NETTOOLVERS}
+tar xvf $CWD/net-tools-${NETTOOLVERS}.tar.xz
+cd net-tools-${NETTOOLVERS}
+cat $CWD/net-tools.config.h > config.h
+make
+make hostname
+strip hostname
+cat hostname > $PKG/bin/hostname
+chmod 755 $PKG/bin/hostname
+chown root:root $PKG/bin/hostname
+( cd $PKG/bin
+  ln -sf hostname dnsdomainname
+  ln -sf hostname nisdomainname
+  ln -sf hostname ypdomainname
+  ln -sf hostname domainname
+)
+cd man/en_US
+for page in hostname.1 dnsdomainname.1 nisdomainname.1 ypdomainname.1 \
+domainname.1 ; do
+  cat $page | gzip -9c > $PKG/usr/man/man1/$page.gz
+done
+
+# Build adjtimex
+cd $TMP || exit 1
+rm -rf adjtimex-$ADJTIMEXVERS
+tar xvf $CWD/adjtimex_${ADJTIMEXVERS}.orig.tar.gz || exit 1
+cd adjtimex-$ADJTIMEXVERS || exit 1
+chown -R root:root .
+patch -p1< $CWD/adjtimex_1.29-2.2.diff || exit 1
+CFLAGS=-O2 ./configure --prefix=/usr || exit 1
+make || exit 1
+strip adjtimex
+cat adjtimex > $PKG/sbin/adjtimex
+chmod 0755 $PKG/sbin/adjtimex
+cat adjtimex.8 | gzip -9c > $PKG/usr/man/man8/adjtimex.8.gz
+mkdir -p $PKG/usr/doc/adjtimex-$ADJTIMEXVERS
+cp -a COPYING COPYRIGHT README README.ru adjtimex.lsm \
+  $PKG/usr/doc/adjtimex-$ADJTIMEXVERS
+
+# Build setserial
+cd $TMP || exit 1
+rm -rf setserial-$SETSERIALVERS
+tar xvf $CWD/setserial-$SETSERIALVERS.tar.gz || exit 1
+cd setserial-$SETSERIALVERS || exit 1
+chown -R root:root .
+patch -E -p1 --verbose< $CWD/setserial-rc.serial.diff || exit 1
+patch -E -p1 --verbose< $CWD/setserial-hayesesp.patch || exit 1
+
+./configure --prefix=/usr || exit 1
+make || exit 1
+strip setserial
+cat setserial > $PKG/sbin/setserial
+chmod 0755 $PKG/sbin/setserial
+mkdir -p $PKG/etc/rc.d
+cat rc.serial > $PKG/etc/rc.d/rc.serial.new
+cat serial.conf > $PKG/etc/serial.conf.new
+cat setserial.8 | gzip -9c > $PKG/usr/man/man8/setserial.8.gz
+
+# These have always traditionally been available before /usr
+# might be mounted:
+( cd $PKG/usr/bin
+  mv getopt setterm $PKG/bin
+  cd $PKG/usr/bin
+  ln -s ../../bin/getopt .
+  ln -s ../../bin/setterm .
+)
+
+cd $TMP/util-linux-$VERSION # Go back home :)
+
+# Now let's add some important symlinks :)
+( cd $PKG/sbin
+  ln -s ../bin/mount .
+  ln -s ../bin/umount .
+  ln -s ziptool jaztool
+  ln -s hwclock clock
+  cd $PKG/usr/sbin
+  ln -s ../../sbin/cfdisk .
+  ln -s ../../sbin/ctrlaltdel .
+  ln -s ../../sbin/sfdisk .
+  cd $PKG/usr/bin
+  ln -s ../sbin/readprofile .
+  ln -s ../sbin/tunelp .
+  ln -s ../../bin/more .
+  ln -s ../../sbin/raw .
+  cd $PKG/usr/man/man1
+  ln -s ziptool.1 jaztool.1
+  cd $PKG/usr/man/man8
+  ln -s hwclock.8 clock.8
+)
+
+ln -sf ../proc/self/mounts $PKG/etc/mtab
+mkdir -p $PKG/run/uuidd $PKG/usr/lib/tmpfiles.d
+cp $CWD/uuidd.conf $PKG/usr/lib/tmpfiles.d || exit 1
+
+find $PKG | xargs file | grep -e "executable" -e "shared object" \
+  | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+# Compress and if needed symlink the man pages:
+if [ -d $PKG/usr/man ]; then
+  ( cd $PKG/usr/man
+    for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd $manpagedir
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink $eachpage ).gz $eachpage.gz
+          rm $eachpage
+        done
+        gzip -9 *.?
+      )
+    done
+  )
+fi
+
+# Compress info page and remove dir file
+rm $PKG/usr/info/dir
+gzip -9 $PKG/usr/info/*
+
+mkdir -p $PKG/usr/doc/util-linux-$VERSION
+cp -a AUTHORS COPYING DEPRECATED NEWS README* TODO \
+  docs/v${VERSION}-ReleaseNotes \
+  $PKG/usr/doc/util-linux-$VERSION
+
+mkdir $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
