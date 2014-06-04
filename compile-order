@@ -1,17 +1,18 @@
 ### [systemd-min] begin
-a/cracklib
-a/pam
-l/libpwquality
-a/shadow
-a/systemd
-a/dbus
-n/openssh
-l/polkit
-l/libndp
+#a/cracklib
+#a/pam
+#l/libpwquality
+#a/shadow
+#a/systemd
+#a/dbus
+#n/openssh
+#l/polkit
+#l/libndp
+l/readline
 n/NetworkManager
 ### [systemd-min] end
 ### [systemd-all] begin
-d/json-c
-a/util-linux
+#d/json-c
+#a/util-linux
 d/python3
 l/dbus-python3

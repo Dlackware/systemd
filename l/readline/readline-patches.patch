@@ -1,0 +1,1169 @@
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-001
+
+Bug-Reported-by:	ebb9@byu.net
+Bug-Reference-ID:	<45540862.9030900@byu.net>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2006-11/msg00017.html
+			http://lists.gnu.org/archive/html/bug-bash/2006-11/msg00016.html
+
+Bug-Description:
+
+In some cases, code that is intended to be used in the presence of multibyte
+characters is called when no such characters are present, leading to incorrect
+display position calculations and incorrect redisplay.
+
+Patch:
+
+*** ../readline-5.2/display.c	Thu Sep 14 14:20:12 2006
+--- display.c	Mon Nov 13 17:55:57 2006
+***************
+*** 2381,2384 ****
+--- 2409,2414 ----
+    if (end <= start)
+      return 0;
++   if (MB_CUR_MAX == 1 || rl_byte_oriented)
++     return (end - start);
+  
+    memset (&ps, 0, sizeof (mbstate_t));
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-002
+
+Bug-Reported-by: Magnus Svensson <msvensson@mysql.com>
+Bug-Reference-ID: <45BDC44D.80609@mysql.com>
+Bug-Reference-URL: http://lists.gnu.org/archive/html/bug-readline/2007-01/msg00002.html
+
+Bug-Description:
+
+Readline neglects to reallocate the array it uses to keep track of wrapped
+screen lines when increasing its size.  This will eventually result in
+segmentation faults when given sufficiently long input.
+
+Patch:
+
+*** ../readline-5.2-patched/display.c	Thu Sep 14 14:20:12 2006
+--- display.c	Fri Feb  2 20:23:17 2007
+***************
+*** 561,574 ****
+--- 561,586 ----
+        wrap_offset = prompt_invis_chars_first_line = 0;
+      }
+  
++ #if defined (HANDLE_MULTIBYTE)
+  #define CHECK_INV_LBREAKS() \
+        do { \
+  	if (newlines >= (inv_lbsize - 2)) \
+  	  { \
+  	    inv_lbsize *= 2; \
+  	    inv_lbreaks = (int *)xrealloc (inv_lbreaks, inv_lbsize * sizeof (int)); \
++ 	    _rl_wrapped_line = (int *)xrealloc (_rl_wrapped_line, inv_lbsize * sizeof (int)); \
+  	  } \
+        } while (0)
++ #else
++ #define CHECK_INV_LBREAKS() \
++       do { \
++ 	if (newlines >= (inv_lbsize - 2)) \
++ 	  { \
++ 	    inv_lbsize *= 2; \
++ 	    inv_lbreaks = (int *)xrealloc (inv_lbreaks, inv_lbsize * sizeof (int)); \
++ 	  } \
++       } while (0)
++ #endif /* HANDLE_MULTIBYTE */
+  
+  #if defined (HANDLE_MULTIBYTE)	  
+  #define CHECK_LPOS() \
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-003
+
+Bug-Reported-by: Peter Volkov <torre_cremata@mail.ru>
+Bug-Reference-ID: <1171795523.8021.18.camel@localhost>
+Bug-Reference-URL: http://lists.gnu.org/archive/html/bug-bash/2007-02/msg00054.html
+
+Bug-Description:
+
+When moving the cursor, bash sometimes misplaces the cursor when the prompt
+contains two or more multibyte characters.  The particular circumstance that
+uncovered the problem was having the (multibyte) current directory name in
+the prompt string.
+
+Patch:
+
+*** ../readline-5.2.2/display.c	Fri Jan 19 13:34:50 2007
+--- display.c	Sat Mar 10 17:25:44 2007
+***************
+*** 1745,1749 ****
+      {
+        dpos = _rl_col_width (data, 0, new);
+!       if (dpos > prompt_last_invisible)		/* XXX - don't use woff here */
+  	{
+  	  dpos -= woff;
+--- 1745,1752 ----
+      {
+        dpos = _rl_col_width (data, 0, new);
+!       /* Use NEW when comparing against the last invisible character in the
+! 	 prompt string, since they're both buffer indices and DPOS is a
+! 	 desired display position. */
+!       if (new > prompt_last_invisible)		/* XXX - don't use woff here */
+  	{
+  	  dpos -= woff;
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-004
+
+Bug-Reported-by: Peter Volkov <torre_cremata@mail.ru>
+Bug-Reference-ID: <1173636022.7039.36.camel@localhost>
+Bug-Reference-URL: http://lists.gnu.org/archive/html/bug-bash/2007-03/msg00039.html
+
+Bug-Description:
+
+When restoring the original prompt after finishing an incremental search,
+bash sometimes places the cursor incorrectly if the primary prompt contains
+invisible characters.
+
+Patch:
+
+*** ../readline-5.2.3/display.c	Fri Apr 20 13:30:16 2007
+--- display.c	Fri Apr 20 15:17:01 2007
+***************
+*** 1599,1604 ****
+  	  if (temp > 0)
+  	    {
+  	      _rl_output_some_chars (nfd, temp);
+! 	      _rl_last_c_pos += _rl_col_width (nfd, 0, temp);;
+  	    }
+  	}
+--- 1599,1618 ----
+  	  if (temp > 0)
+  	    {
++ 	      /* If nfd begins at the prompt, or before the invisible
++ 		 characters in the prompt, we need to adjust _rl_last_c_pos
++ 		 in a multibyte locale to account for the wrap offset and
++ 		 set cpos_adjusted accordingly. */
+  	      _rl_output_some_chars (nfd, temp);
+! 	      if (MB_CUR_MAX > 1 && rl_byte_oriented == 0)
+! 		{
+!                   _rl_last_c_pos += _rl_col_width (nfd, 0, temp);
+!                   if (current_line == 0 && wrap_offset &&  ((nfd - new) <= prompt_last_invisible))
+! 		    {
+! 		      _rl_last_c_pos -= wrap_offset;
+! 		      cpos_adjusted = 1;
+! 		    }
+! 		}
+!               else
+!                 _rl_last_c_pos += temp;
+  	    }
+  	}
+***************
+*** 1608,1613 ****
+--- 1622,1639 ----
+  	  if (temp > 0)
+  	    {
++ 	      /* If nfd begins at the prompt, or before the invisible
++ 		 characters in the prompt, we need to adjust _rl_last_c_pos
++ 		 in a multibyte locale to account for the wrap offset and
++ 		 set cpos_adjusted accordingly. */
+  	      _rl_output_some_chars (nfd, temp);
+  	      _rl_last_c_pos += col_temp;		/* XXX */
++ 	      if (MB_CUR_MAX > 1 && rl_byte_oriented == 0)
++ 		{
++ 		  if (current_line == 0 && wrap_offset &&  ((nfd - new) <= prompt_last_invisible))
++ 		    {
++ 		      _rl_last_c_pos -= wrap_offset;
++ 		      cpos_adjusted = 1;
++ 		    }
++ 		}
+  	    }
+  	  lendiff = (oe - old) - (ne - new);
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-005
+
+Bug-Reported-by:        Thomas Loeber <ifp@loeber1.de>
+Bug-Reference-ID:       <200703082223.08919.ifp@loeber1.de>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2007-03/msg00036.html
+
+Bug-Description:
+
+When rl_read_key returns -1, indicating that readline's controlling terminal
+has been invalidated for some reason (e.g., receiving a SIGHUP), the error
+status was not reported correctly to the caller.  This could cause input
+loops. 
+
+Patch:
+
+*** ../readline-5.2/complete.c	Fri Jul 28 11:35:49 2006
+--- complete.c	Tue Mar 13 08:50:16 2007
+***************
+*** 429,433 ****
+        if (c == 'n' || c == 'N' || c == RUBOUT)
+  	return (0);
+!       if (c == ABORT_CHAR)
+  	_rl_abort_internal ();
+        if (for_pager && (c == NEWLINE || c == RETURN))
+--- 440,444 ----
+        if (c == 'n' || c == 'N' || c == RUBOUT)
+  	return (0);
+!       if (c == ABORT_CHAR || c < 0)
+  	_rl_abort_internal ();
+        if (for_pager && (c == NEWLINE || c == RETURN))
+*** ../readline-5.2/input.c	Wed Aug 16 15:15:16 2006
+--- input.c	Wed May  2 16:07:59 2007
+***************
+*** 514,518 ****
+       int size;
+  {
+!   int mb_len = 0;
+    size_t mbchar_bytes_length;
+    wchar_t wc;
+--- 522,526 ----
+       int size;
+  {
+!   int mb_len, c;
+    size_t mbchar_bytes_length;
+    wchar_t wc;
+***************
+*** 521,531 ****
+    memset(&ps, 0, sizeof (mbstate_t));
+    memset(&ps_back, 0, sizeof (mbstate_t));
+!   
+    while (mb_len < size)
+      {
+        RL_SETSTATE(RL_STATE_MOREINPUT);
+!       mbchar[mb_len++] = rl_read_key ();
+        RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  
+        mbchar_bytes_length = mbrtowc (&wc, mbchar, mb_len, &ps);
+        if (mbchar_bytes_length == (size_t)(-1))
+--- 529,545 ----
+    memset(&ps, 0, sizeof (mbstate_t));
+    memset(&ps_back, 0, sizeof (mbstate_t));
+! 
+!   mb_len = 0;  
+    while (mb_len < size)
+      {
+        RL_SETSTATE(RL_STATE_MOREINPUT);
+!       c = rl_read_key ();
+        RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  
++       if (c < 0)
++ 	break;
++ 
++       mbchar[mb_len++] = c;
++ 
+        mbchar_bytes_length = mbrtowc (&wc, mbchar, mb_len, &ps);
+        if (mbchar_bytes_length == (size_t)(-1))
+***************
+*** 565,569 ****
+    c = first;
+    memset (mb, 0, mlen);
+!   for (i = 0; i < mlen; i++)
+      {
+        mb[i] = (char)c;
+--- 579,583 ----
+    c = first;
+    memset (mb, 0, mlen);
+!   for (i = 0; c >= 0 && i < mlen; i++)
+      {
+        mb[i] = (char)c;
+*** ../readline-5.2/isearch.c	Mon Dec 26 17:18:53 2005
+--- isearch.c	Fri Mar  9 14:30:59 2007
+***************
+*** 328,333 ****
+  
+    f = (rl_command_func_t *)NULL;
+!  
+!  /* Translate the keys we do something with to opcodes. */
+    if (c >= 0 && _rl_keymap[c].type == ISFUNC)
+      {
+--- 328,340 ----
+  
+    f = (rl_command_func_t *)NULL;
+! 
+!   if (c < 0)
+!     {
+!       cxt->sflags |= SF_FAILED;
+!       cxt->history_pos = cxt->last_found_line;
+!       return -1;
+!     }
+! 
+!   /* Translate the keys we do something with to opcodes. */
+    if (c >= 0 && _rl_keymap[c].type == ISFUNC)
+      {
+*** ../readline-5.2/misc.c	Mon Dec 26 17:20:46 2005
+--- misc.c	Fri Mar  9 14:44:11 2007
+***************
+*** 147,150 ****
+--- 147,152 ----
+  	  rl_clear_message ();
+  	  RL_UNSETSTATE(RL_STATE_NUMERICARG);
++ 	  if (key < 0)
++ 	    return -1;
+  	  return (_rl_dispatch (key, _rl_keymap));
+  	}
+*** ../readline-5.2/readline.c	Wed Aug 16 15:00:36 2006
+--- readline.c	Fri Mar  9 14:47:24 2007
+***************
+*** 646,649 ****
+--- 669,677 ----
+      {
+        nkey = _rl_subseq_getchar (cxt->okey);
++       if (nkey < 0)
++ 	{
++ 	  _rl_abort_internal ();
++ 	  return -1;
++ 	}
+        r = _rl_dispatch_subseq (nkey, cxt->dmap, cxt->subseq_arg);
+        cxt->flags |= KSEQ_DISPATCHED;
+*** ../readline-5.2/text.c	Fri Jul 28 11:55:27 2006
+--- text.c	Sun Mar 25 13:41:38 2007
+***************
+*** 858,861 ****
+--- 864,870 ----
+    RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  
++   if (c < 0)
++     return -1;
++ 
+  #if defined (HANDLE_SIGNALS)
+    if (RL_ISSTATE (RL_STATE_CALLBACK) == 0)
+***************
+*** 1521,1524 ****
+--- 1530,1536 ----
+    mb_len = _rl_read_mbchar (mbchar, MB_LEN_MAX);
+  
++   if (mb_len <= 0)
++     return -1;
++ 
+    if (count < 0)
+      return (_rl_char_search_internal (-count, bdir, mbchar, mb_len));
+***************
+*** 1537,1540 ****
+--- 1549,1555 ----
+    RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  
++   if (c < 0)
++     return -1;
++ 
+    if (count < 0)
+      return (_rl_char_search_internal (-count, bdir, c));
+*** ../readline-5.2/vi_mode.c	Sat Jul 29 16:42:28 2006
+--- vi_mode.c	Fri Mar  9 15:02:11 2007
+***************
+*** 887,890 ****
+--- 887,897 ----
+    c = rl_read_key ();
+    RL_UNSETSTATE(RL_STATE_MOREINPUT);
++ 
++   if (c < 0)
++     {
++       *nextkey = 0;
++       return -1;
++     }
++ 
+    *nextkey = c;
+  
+***************
+*** 903,906 ****
+--- 910,918 ----
+  	  c = rl_read_key ();	/* real command */
+  	  RL_UNSETSTATE(RL_STATE_MOREINPUT);
++ 	  if (c < 0)
++ 	    {
++ 	      *nextkey = 0;
++ 	      return -1;
++ 	    }
+  	  *nextkey = c;
+  	}
+***************
+*** 1225,1236 ****
+       _rl_callback_generic_arg *data;
+  {
+  #if defined (HANDLE_MULTIBYTE)
+!   _rl_vi_last_search_mblen = _rl_read_mbchar (_rl_vi_last_search_mbchar, MB_LEN_MAX);
+  #else
+    RL_SETSTATE(RL_STATE_MOREINPUT);
+!   _rl_vi_last_search_char = rl_read_key ();
+    RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  #endif
+  
+    _rl_callback_func = 0;
+    _rl_want_redisplay = 1;
+--- 1243,1262 ----
+       _rl_callback_generic_arg *data;
+  {
++   int c;
+  #if defined (HANDLE_MULTIBYTE)
+!   c = _rl_vi_last_search_mblen = _rl_read_mbchar (_rl_vi_last_search_mbchar, MB_LEN_MAX);
+  #else
+    RL_SETSTATE(RL_STATE_MOREINPUT);
+!   c = rl_read_key ();
+    RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  #endif
+  
++   if (c <= 0)
++     return -1;
++ 
++ #if !defined (HANDLE_MULTIBYTE)
++   _rl_vi_last_search_char = c;
++ #endif
++ 
+    _rl_callback_func = 0;
+    _rl_want_redisplay = 1;
+***************
+*** 1248,1251 ****
+--- 1274,1278 ----
+       int count, key;
+  {
++   int c;
+  #if defined (HANDLE_MULTIBYTE)
+    static char *target;
+***************
+*** 1294,1302 ****
+  	{
+  #if defined (HANDLE_MULTIBYTE)
+! 	  _rl_vi_last_search_mblen = _rl_read_mbchar (_rl_vi_last_search_mbchar, MB_LEN_MAX);
+  #else
+  	  RL_SETSTATE(RL_STATE_MOREINPUT);
+! 	  _rl_vi_last_search_char = rl_read_key ();
+  	  RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  #endif
+  	}
+--- 1321,1335 ----
+  	{
+  #if defined (HANDLE_MULTIBYTE)
+! 	  c = _rl_read_mbchar (_rl_vi_last_search_mbchar, MB_LEN_MAX);
+! 	  if (c <= 0)
+! 	    return -1;
+! 	  _rl_vi_last_search_mblen = c;
+  #else
+  	  RL_SETSTATE(RL_STATE_MOREINPUT);
+! 	  c = rl_read_key ();
+  	  RL_UNSETSTATE(RL_STATE_MOREINPUT);
++ 	  if (c < 0)
++ 	    return -1;
++ 	  _rl_vi_last_search_char = c;
+  #endif
+  	}
+***************
+*** 1468,1471 ****
+--- 1501,1507 ----
+    RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  
++   if (c < 0)
++     return -1;
++ 
+  #if defined (HANDLE_MULTIBYTE)
+    if (MB_CUR_MAX > 1 && rl_byte_oriented == 0)
+***************
+*** 1486,1489 ****
+--- 1522,1528 ----
+    _rl_vi_last_replacement = c = _rl_vi_callback_getchar (mb, MB_LEN_MAX);
+  
++   if (c < 0)
++     return -1;
++ 
+    _rl_callback_func = 0;
+    _rl_want_redisplay = 1;
+***************
+*** 1517,1520 ****
+--- 1556,1562 ----
+      _rl_vi_last_replacement = c = _rl_vi_callback_getchar (mb, MB_LEN_MAX);
+  
++   if (c < 0)
++     return -1;
++ 
+    return (_rl_vi_change_char (count, c, mb));
+  }
+***************
+*** 1651,1655 ****
+    RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  
+!   if (ch < 'a' || ch > 'z')
+      {
+        rl_ding ();
+--- 1693,1697 ----
+    RL_UNSETSTATE(RL_STATE_MOREINPUT);
+  
+!   if (ch < 0 || ch < 'a' || ch > 'z')	/* make test against 0 explicit */
+      {
+        rl_ding ();
+***************
+*** 1703,1707 ****
+        return 0;
+      }
+!   else if (ch < 'a' || ch > 'z')
+      {
+        rl_ding ();
+--- 1745,1749 ----
+        return 0;
+      }
+!   else if (ch < 0 || ch < 'a' || ch > 'z')	/* make test against 0 explicit */
+      {
+        rl_ding ();
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-006
+
+Bug-Reported-by:        Peter Volkov <torre_cremata@mail.ru>
+Bug-Reference-ID:       <1178376645.9063.25.camel@localhost>
+Bug-Reference-URL:      http://bugs.gentoo.org/177095
+
+Bug-Description:
+
+The readline display code miscalculated the screen position when performing
+a redisplay in which the new text occupies more screen space that the old,
+but takes fewer bytes to do so (e.g., when replacing a shorter string
+containing multibyte characters with a longer one containing only ASCII).
+
+Patch:
+
+*** ../readline-5.2/display.c	Thu Apr 26 11:38:22 2007
+--- display.c	Thu Jul 12 23:10:10 2007
+***************
+*** 1519,1527 ****
+        /* Non-zero if we're increasing the number of lines. */
+        int gl = current_line >= _rl_vis_botlin && inv_botlin > _rl_vis_botlin;
+        /* Sometimes it is cheaper to print the characters rather than
+  	 use the terminal's capabilities.  If we're growing the number
+  	 of lines, make sure we actually cause the new line to wrap
+  	 around on auto-wrapping terminals. */
+!       if (_rl_terminal_can_insert && ((2 * col_temp) >= col_lendiff || _rl_term_IC) && (!_rl_term_autowrap || !gl))
+  	{
+  	  /* If lendiff > prompt_visible_length and _rl_last_c_pos == 0 and
+--- 1568,1596 ----
+        /* Non-zero if we're increasing the number of lines. */
+        int gl = current_line >= _rl_vis_botlin && inv_botlin > _rl_vis_botlin;
++       /* If col_lendiff is > 0, implying that the new string takes up more
++ 	 screen real estate than the old, but lendiff is < 0, meaning that it
++ 	 takes fewer bytes, we need to just output the characters starting
++ 	 from the first difference.  These will overwrite what is on the
++ 	 display, so there's no reason to do a smart update.  This can really
++ 	 only happen in a multibyte environment. */
++       if (lendiff < 0)
++ 	{
++ 	  _rl_output_some_chars (nfd, temp);
++ 	  _rl_last_c_pos += _rl_col_width (nfd, 0, temp);
++ 	  /* If nfd begins before any invisible characters in the prompt,
++ 	     adjust _rl_last_c_pos to account for wrap_offset and set
++ 	     cpos_adjusted to let the caller know. */
++ 	  if (current_line == 0 && wrap_offset && ((nfd - new) <= prompt_last_invisible))
++ 	    {
++ 	      _rl_last_c_pos -= wrap_offset;
++ 	      cpos_adjusted = 1;
++ 	    }
++ 	  return;
++ 	}
+        /* Sometimes it is cheaper to print the characters rather than
+  	 use the terminal's capabilities.  If we're growing the number
+  	 of lines, make sure we actually cause the new line to wrap
+  	 around on auto-wrapping terminals. */
+!       else if (_rl_terminal_can_insert && ((2 * col_temp) >= col_lendiff || _rl_term_IC) && (!_rl_term_autowrap || !gl))
+  	{
+  	  /* If lendiff > prompt_visible_length and _rl_last_c_pos == 0 and
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-007
+
+Bug-Reported-by:        Tom Bjorkholm <tom.bjorkholm@ericsson.com>
+Bug-Reference-ID:       <AEA1A32F001C6B4F98614B5B80D7647D01C075E9@esealmw115.eemea.ericsson.se>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-readline/2007-04/msg00004.html
+
+
+Bug-Description:
+
+An off-by-one error in readline's input buffering caused readline to drop
+each 511th character of buffered input (e.g., when pasting a large amount
+of data into a terminal window).
+
+Patch:
+
+*** ../readline-5.2/input.c	Wed Aug 16 15:15:16 2006
+--- input.c	Tue Jul 17 09:24:21 2007
+***************
+*** 134,139 ****
+  
+    *key = ibuffer[pop_index++];
+! 
+    if (pop_index >= ibuffer_len)
+      pop_index = 0;
+  
+--- 134,142 ----
+  
+    *key = ibuffer[pop_index++];
+! #if 0
+    if (pop_index >= ibuffer_len)
++ #else
++   if (pop_index > ibuffer_len)
++ #endif
+      pop_index = 0;
+  
+***************
+*** 251,255 ****
+  	{
+  	  k = (*rl_getc_function) (rl_instream);
+! 	  rl_stuff_char (k);
+  	  if (k == NEWLINE || k == RETURN)
+  	    break;
+--- 254,259 ----
+  	{
+  	  k = (*rl_getc_function) (rl_instream);
+! 	  if (rl_stuff_char (k) == 0)
+! 	    break;			/* some problem; no more room */
+  	  if (k == NEWLINE || k == RETURN)
+  	    break;
+***************
+*** 374,378 ****
+--- 378,386 ----
+      }
+    ibuffer[push_index++] = key;
++ #if 0
+    if (push_index >= ibuffer_len)
++ #else
++   if (push_index > ibuffer_len)
++ #endif
+      push_index = 0;
+  
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-008
+
+Bug-Reported-by:	dAniel hAhler <ubuntu@thequod.de>
+Bug-Reference-ID:	<4702ED8A.5000503@thequod.de>
+Bug-Reference-URL:	https://bugs.launchpad.net/ubuntu/+source/bash/+bug/119938
+
+Bug-Description:
+
+When updating the display after displaying, for instance, a list of possible
+completions, readline will place the cursor at the wrong position if the
+prompt contains invisible characters and a newline.
+
+Patch:
+
+*** ../readline-5.2-patched/display.c	Mon Aug  6 14:26:29 2007
+--- display.c	Wed Oct 10 22:43:58 2007
+***************
+*** 1049,1053 ****
+  	      else
+  		tx = nleft;
+! 	      if (_rl_last_c_pos > tx)
+  		{
+  	          _rl_backspace (_rl_last_c_pos - tx);	/* XXX */
+--- 1049,1053 ----
+  	      else
+  		tx = nleft;
+! 	      if (tx >= 0 && _rl_last_c_pos > tx)
+  		{
+  	          _rl_backspace (_rl_last_c_pos - tx);	/* XXX */
+***************
+*** 1205,1209 ****
+  {
+    register char *ofd, *ols, *oe, *nfd, *nls, *ne;
+!   int temp, lendiff, wsatend, od, nd;
+    int current_invis_chars;
+    int col_lendiff, col_temp;
+--- 1205,1209 ----
+  {
+    register char *ofd, *ols, *oe, *nfd, *nls, *ne;
+!   int temp, lendiff, wsatend, od, nd, o_cpos;
+    int current_invis_chars;
+    int col_lendiff, col_temp;
+***************
+*** 1466,1469 ****
+--- 1466,1471 ----
+      }
+  
++   o_cpos = _rl_last_c_pos;
++ 
+    /* When this function returns, _rl_last_c_pos is correct, and an absolute
+       cursor postion in multibyte mode, but a buffer index when not in a
+***************
+*** 1475,1479 ****
+       invisible characters in the prompt string.  Let's see if setting this when
+       we make sure we're at the end of the drawn prompt string works. */
+!   if (current_line == 0 && MB_CUR_MAX > 1 && rl_byte_oriented == 0 && _rl_last_c_pos == prompt_physical_chars)
+      cpos_adjusted = 1;
+  #endif
+--- 1477,1483 ----
+       invisible characters in the prompt string.  Let's see if setting this when
+       we make sure we're at the end of the drawn prompt string works. */
+!   if (current_line == 0 && MB_CUR_MAX > 1 && rl_byte_oriented == 0 && 
+!       (_rl_last_c_pos > 0 || o_cpos > 0) &&
+!       _rl_last_c_pos == prompt_physical_chars)
+      cpos_adjusted = 1;
+  #endif
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-009
+
+Bug-Reported-by:	dAniel hAhler <ubuntu@thequod.de>
+Bug-Reference-ID:
+Bug-Reference-URL:
+
+Bug-Description:
+
+Under some circumstances, readline will incorrectly display a prompt string
+containing invisible characters after the final newline.
+
+Patch:
+
+*** ../readline-5.2-patched/display.c	2007-08-25 13:47:08.000000000 -0400
+--- display.c	2007-11-10 17:51:29.000000000 -0500
+***************
+*** 392,396 ****
+        local_prompt = expand_prompt (p, &prompt_visible_length,
+  				       &prompt_last_invisible,
+! 				       (int *)NULL,
+  				       &prompt_physical_chars);
+        c = *t; *t = '\0';
+--- 420,424 ----
+        local_prompt = expand_prompt (p, &prompt_visible_length,
+  				       &prompt_last_invisible,
+! 				       &prompt_invis_chars_first_line,
+  				       &prompt_physical_chars);
+        c = *t; *t = '\0';
+***************
+*** 399,403 ****
+        local_prompt_prefix = expand_prompt (prompt, &prompt_prefix_length,
+  						   (int *)NULL,
+! 						   &prompt_invis_chars_first_line,
+  						   (int *)NULL);
+        *t = c;
+--- 427,431 ----
+        local_prompt_prefix = expand_prompt (prompt, &prompt_prefix_length,
+  						   (int *)NULL,
+! 						   (int *)NULL,
+  						   (int *)NULL);
+        *t = c;
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-010
+
+Bug-Reported-by:	Miroslav Lichvar <mlichvar@redhat.com>
+Bug-Reference-ID:	Fri, 02 Nov 2007 14:07:45 +0100
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-readline/2007-11/msg00000.html
+
+Bug-Description:
+
+In certain cases when outputting characters at the end of the line,
+e.g., when displaying the prompt string, readline positions the cursor
+incorrectly if the prompt string contains invisible characters and the
+text being drawn begins before the last invisible character in the line.
+
+Patch:
+
+*** ../readline-5.2-patched/display.c	2007-08-25 13:47:08.000000000 -0400
+--- display.c	2007-11-10 17:51:29.000000000 -0500
+***************
+*** 1566,1574 ****
+  	  else
+  	    {
+- 	      /* We have horizontal scrolling and we are not inserting at
+- 		 the end.  We have invisible characters in this line.  This
+- 		 is a dumb update. */
+  	      _rl_output_some_chars (nfd, temp);
+  	      _rl_last_c_pos += col_temp;
+  	      return;
+  	    }
+--- 1619,1632 ----
+  	  else
+  	    {
+  	      _rl_output_some_chars (nfd, temp);
+  	      _rl_last_c_pos += col_temp;
++ 	      /* If nfd begins before any invisible characters in the prompt,
++ 		 adjust _rl_last_c_pos to account for wrap_offset and set
++ 		 cpos_adjusted to let the caller know. */
++ 	      if (current_line == 0 && wrap_offset && ((nfd - new) <= prompt_last_invisible))
++ 		{
++ 		  _rl_last_c_pos -= wrap_offset;
++ 		  cpos_adjusted = 1;
++ 		}
+  	      return;
+  	    }
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-011
+
+Bug-Reported-by:	Uwe Doering <gemini@geminix.org>
+Bug-Reference-ID:	<46F3DD72.2090801@geminix.org>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2007-09/msg00102.html
+
+Bug-Description:
+
+There is an off-by-one error in the code that buffers characters received
+very quickly in succession, causing characters to be dropped.
+
+Patch:
+
+*** ../readline-5.2-patched/input.c	2007-08-25 13:47:10.000000000 -0400
+--- input.c	2007-10-12 22:55:25.000000000 -0400
+***************
+*** 155,159 ****
+        pop_index--;
+        if (pop_index < 0)
+! 	pop_index = ibuffer_len - 1;
+        ibuffer[pop_index] = key;
+        return (1);
+--- 155,159 ----
+        pop_index--;
+        if (pop_index < 0)
+! 	pop_index = ibuffer_len;
+        ibuffer[pop_index] = key;
+        return (1);
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-012
+
+Bug-Reported-by:	Chet Ramey <chet.ramey@case.edu>
+Bug-Reference-ID:
+Bug-Reference-URL:
+
+Bug-Description:
+
+This updates the options required to create shared libraries on several
+systems, including Mac OS X 10.5 (darwin9.x), FreeBSD, NetBSD, OpenBSD,
+AIX, and HP/UX.
+
+Patch:
+
+*** ../readline-5.2-patched/support/shobj-conf	2006-04-11 09:15:43.000000000 -0400
+--- support/shobj-conf	2007-12-06 23:46:41.000000000 -0500
+***************
+*** 11,15 ****
+  # chet@po.cwru.edu
+  
+! # Copyright (C) 1996-2002 Free Software Foundation, Inc.
+  #
+  # This program is free software; you can redistribute it and/or modify
+--- 11,15 ----
+  # chet@po.cwru.edu
+  
+! # Copyright (C) 1996-2007 Free Software Foundation, Inc.
+  #
+  # This program is free software; you can redistribute it and/or modify
+***************
+*** 115,119 ****
+  	;;
+  
+! freebsd2* | netbsd*)
+  	SHOBJ_CFLAGS=-fpic
+  	SHOBJ_LD=ld
+--- 115,119 ----
+  	;;
+  
+! freebsd2*)
+  	SHOBJ_CFLAGS=-fpic
+  	SHOBJ_LD=ld
+***************
+*** 126,130 ****
+  # FreeBSD-3.x ELF
+  freebsd[3-9]*|freebsdelf[3-9]*|freebsdaout[3-9]*|dragonfly*)
+! 	SHOBJ_CFLAGS=-fpic
+  	SHOBJ_LD='${CC}'
+  
+--- 126,130 ----
+  # FreeBSD-3.x ELF
+  freebsd[3-9]*|freebsdelf[3-9]*|freebsdaout[3-9]*|dragonfly*)
+! 	SHOBJ_CFLAGS=-fPIC
+  	SHOBJ_LD='${CC}'
+  
+***************
+*** 143,147 ****
+  
+  # Darwin/MacOS X
+! darwin8*)
+  	SHOBJ_STATUS=supported
+  	SHLIB_STATUS=supported
+--- 143,147 ----
+  
+  # Darwin/MacOS X
+! darwin[89]*)
+  	SHOBJ_STATUS=supported
+  	SHLIB_STATUS=supported
+***************
+*** 154,158 ****
+  	SHLIB_LIBSUFF='dylib'
+  
+! 	SHOBJ_LDFLAGS='-undefined dynamic_lookup'
+  	SHLIB_XLDFLAGS='-dynamiclib -arch_only `/usr/bin/arch` -install_name $(libdir)/$@ -current_version $(SHLIB_MAJOR)$(SHLIB_MINOR) -compatibility_version $(SHLIB_MAJOR) -v'
+  
+--- 154,158 ----
+  	SHLIB_LIBSUFF='dylib'
+  
+! 	SHOBJ_LDFLAGS='-dynamiclib -dynamic -undefined dynamic_lookup -arch_only `/usr/bin/arch`'
+  	SHLIB_XLDFLAGS='-dynamiclib -arch_only `/usr/bin/arch` -install_name $(libdir)/$@ -current_version $(SHLIB_MAJOR)$(SHLIB_MINOR) -compatibility_version $(SHLIB_MAJOR) -v'
+  
+***************
+*** 172,176 ****
+  
+  	case "${host_os}" in
+! 	darwin[78]*)	SHOBJ_LDFLAGS=''
+  			SHLIB_XLDFLAGS='-dynamiclib -arch_only `/usr/bin/arch` -install_name $(libdir)/$@ -current_version $(SHLIB_MAJOR)$(SHLIB_MINOR) -compatibility_version $(SHLIB_MAJOR) -v'
+  			;;
+--- 172,176 ----
+  
+  	case "${host_os}" in
+! 	darwin[789]*)	SHOBJ_LDFLAGS=''
+  			SHLIB_XLDFLAGS='-dynamiclib -arch_only `/usr/bin/arch` -install_name $(libdir)/$@ -current_version $(SHLIB_MAJOR)$(SHLIB_MINOR) -compatibility_version $(SHLIB_MAJOR) -v'
+  			;;
+***************
+*** 183,187 ****
+  	;;
+  
+! openbsd*)
+  	SHOBJ_CFLAGS=-fPIC
+  	SHOBJ_LD='${CC}'
+--- 183,187 ----
+  	;;
+  
+! openbsd*|netbsd*)
+  	SHOBJ_CFLAGS=-fPIC
+  	SHOBJ_LD='${CC}'
+***************
+*** 248,252 ****
+  	;;
+  
+! aix4.[2-9]*-*gcc*)		# lightly tested by jik@cisco.com
+  	SHOBJ_CFLAGS=-fpic
+  	SHOBJ_LD='ld'
+--- 248,252 ----
+  	;;
+  
+! aix4.[2-9]*-*gcc*|aix[5-9].*-*gcc*)		# lightly tested by jik@cisco.com
+  	SHOBJ_CFLAGS=-fpic
+  	SHOBJ_LD='ld'
+***************
+*** 259,263 ****
+  	;;
+  
+! aix4.[2-9]*)
+  	SHOBJ_CFLAGS=-K
+  	SHOBJ_LD='ld'
+--- 259,263 ----
+  	;;
+  
+! aix4.[2-9]*|aix[5-9].*)
+  	SHOBJ_CFLAGS=-K
+  	SHOBJ_LD='ld'
+***************
+*** 330,334 ****
+  	# if you have problems linking here, moving the `-Wl,+h,$@' from
+  	# SHLIB_XLDFLAGS to SHOBJ_LDFLAGS has been reported to work
+! 	SHOBJ_LDFLAGS='-shared -Wl,-b -Wl,+s'
+  
+  	SHLIB_XLDFLAGS='-Wl,+h,$@ -Wl,+b,$(libdir)'
+--- 330,334 ----
+  	# if you have problems linking here, moving the `-Wl,+h,$@' from
+  	# SHLIB_XLDFLAGS to SHOBJ_LDFLAGS has been reported to work
+! 	SHOBJ_LDFLAGS='-shared -fpic -Wl,-b -Wl,+s'
+  
+  	SHLIB_XLDFLAGS='-Wl,+h,$@ -Wl,+b,$(libdir)'
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-013
+
+Bug-Reported-by:	slinkp <stuff@slinkp.com>
+Bug-Reference-ID:	<da52a26a-9f38-4861-a918-14d3482b539d@c65g2000hsa.googlegroups.com>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2008-05/msg00085.html
+
+Bug-Description:
+
+The presence of invisible characters in a prompt longer than the screenwidth
+with invisible characters on the first and last prompt lines caused readline
+to place the cursor in the wrong physical location.
+
+Patch:
+
+*** ../readline-5.2-patched/display.c	2007-12-14 21:12:40.000000000 -0500
+--- display.c	2008-10-23 09:39:46.000000000 -0400
+***************
+*** 911,914 ****
+--- 944,951 ----
+  	     OFFSET (which has already been calculated above).  */
+  
++ #define INVIS_FIRST()	(prompt_physical_chars > _rl_screenwidth ? prompt_invis_chars_first_line : wrap_offset)
++ #define WRAP_OFFSET(line, offset)  ((line == 0) \
++ 					? (offset ? INVIS_FIRST() : 0) \
++ 					: ((line == prompt_last_screen_line) ? wrap_offset-prompt_invis_chars_first_line : 0))
+  #define W_OFFSET(line, offset) ((line) == 0 ? offset : 0)
+  #define VIS_LLEN(l)	((l) > _rl_vis_botlin ? 0 : (vis_lbreaks[l+1] - vis_lbreaks[l]))
+***************
+*** 945,949 ****
+  		  _rl_last_c_pos > wrap_offset &&
+  		  o_cpos < prompt_last_invisible)
+! 		_rl_last_c_pos -= wrap_offset;
+  		  
+  	      /* If this is the line with the prompt, we might need to
+--- 982,992 ----
+  		  _rl_last_c_pos > wrap_offset &&
+  		  o_cpos < prompt_last_invisible)
+! 		_rl_last_c_pos -= prompt_invis_chars_first_line;	/* XXX - was wrap_offset */
+! 	      else if (linenum == prompt_last_screen_line && prompt_physical_chars > _rl_screenwidth &&
+! 			(MB_CUR_MAX > 1 && rl_byte_oriented == 0) &&
+! 			cpos_adjusted == 0 &&
+! 			_rl_last_c_pos != o_cpos &&
+! 			_rl_last_c_pos > (prompt_last_invisible - _rl_screenwidth - prompt_invis_chars_first_line))
+! 		_rl_last_c_pos -= (wrap_offset-prompt_invis_chars_first_line);
+  		  
+  	      /* If this is the line with the prompt, we might need to
+***************
+*** 1205,1209 ****
+  {
+    register char *ofd, *ols, *oe, *nfd, *nls, *ne;
+!   int temp, lendiff, wsatend, od, nd, o_cpos;
+    int current_invis_chars;
+    int col_lendiff, col_temp;
+--- 1264,1268 ----
+  {
+    register char *ofd, *ols, *oe, *nfd, *nls, *ne;
+!   int temp, lendiff, wsatend, od, nd, twidth, o_cpos;
+    int current_invis_chars;
+    int col_lendiff, col_temp;
+***************
+*** 1221,1225 ****
+      temp = _rl_last_c_pos;
+    else
+!     temp = _rl_last_c_pos - W_OFFSET(_rl_last_v_pos, visible_wrap_offset);
+    if (temp == _rl_screenwidth && _rl_term_autowrap && !_rl_horizontal_scroll_mode
+  	&& _rl_last_v_pos == current_line - 1)
+--- 1280,1284 ----
+      temp = _rl_last_c_pos;
+    else
+!     temp = _rl_last_c_pos - WRAP_OFFSET (_rl_last_v_pos, visible_wrap_offset);
+    if (temp == _rl_screenwidth && _rl_term_autowrap && !_rl_horizontal_scroll_mode
+  	&& _rl_last_v_pos == current_line - 1)
+***************
+*** 1587,1599 ****
+  	    {
+  	      _rl_output_some_chars (nfd + lendiff, temp - lendiff);
+- #if 1
+  	     /* XXX -- this bears closer inspection.  Fixes a redisplay bug
+  		reported against bash-3.0-alpha by Andreas Schwab involving
+  		multibyte characters and prompt strings with invisible
+  		characters, but was previously disabled. */
+! 	      _rl_last_c_pos += _rl_col_width (nfd+lendiff, 0, temp-col_lendiff);
+! #else
+! 	      _rl_last_c_pos += _rl_col_width (nfd+lendiff, 0, temp-lendiff);
+! #endif
+  	    }
+  	}
+--- 1648,1660 ----
+  	    {
+  	      _rl_output_some_chars (nfd + lendiff, temp - lendiff);
+  	     /* XXX -- this bears closer inspection.  Fixes a redisplay bug
+  		reported against bash-3.0-alpha by Andreas Schwab involving
+  		multibyte characters and prompt strings with invisible
+  		characters, but was previously disabled. */
+! 	      if (MB_CUR_MAX > 1 && rl_byte_oriented == 0)
+! 		twidth = _rl_col_width (nfd+lendiff, 0, temp-col_lendiff);
+! 	      else
+! 		twidth = temp - lendiff;
+! 	      _rl_last_c_pos += twidth;
+  	    }
+  	}
+***************
+*** 1789,1793 ****
+    int cpos, dpos;		/* current and desired cursor positions */
+  
+!   woff = W_OFFSET (_rl_last_v_pos, wrap_offset);
+    cpos = _rl_last_c_pos;
+  #if defined (HANDLE_MULTIBYTE)
+--- 1850,1854 ----
+    int cpos, dpos;		/* current and desired cursor positions */
+  
+!   woff = WRAP_OFFSET (_rl_last_v_pos, wrap_offset);
+    cpos = _rl_last_c_pos;
+  #if defined (HANDLE_MULTIBYTE)
+***************
+*** 1803,1807 ****
+  	 prompt string, since they're both buffer indices and DPOS is a
+  	 desired display position. */
+!       if (new > prompt_last_invisible)		/* XXX - don't use woff here */
+  	{
+  	  dpos -= woff;
+--- 1864,1872 ----
+  	 prompt string, since they're both buffer indices and DPOS is a
+  	 desired display position. */
+!       if ((new > prompt_last_invisible) ||		/* XXX - don't use woff here */
+! 	  (prompt_physical_chars > _rl_screenwidth &&
+! 	   _rl_last_v_pos == prompt_last_screen_line &&
+! 	   wrap_offset != woff &&
+! 	   new > (prompt_last_invisible-_rl_screenwidth-wrap_offset)))
+  	{
+  	  dpos -= woff;
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 5.2
+Patch-ID: readline52-014
+
+Bug-Reported-by:	Len Lattanzi <llattanzi@apple.com>
+Bug-Reference-ID:	<52B1297F-6675-45CC-B63E-24745337D006@apple.com>
+Bug-Reference-URL:
+
+Bug-Description:
+
+On systems where mbrtowc() returns -2 when passed a length argument with
+value 0, when using a multibyte locale, Readline's emacs-mode forward-char
+at the end of a line will leave the point beyond the end of the line.
+
+Patch:
+
+*** ../readline-5.2-patched/mbutil.c	2009-05-29 23:09:26.000000000 -0400
+--- mbutil.c	2009-05-29 23:10:12.000000000 -0400
+***************
+*** 78,82 ****
+       int seed, count, find_non_zero;
+  {
+!   size_t tmp;
+    mbstate_t ps;
+    int point;
+--- 78,82 ----
+       int seed, count, find_non_zero;
+  {
+!   size_t tmp, len;
+    mbstate_t ps;
+    int point;
+***************
+*** 99,103 ****
+    while (count > 0)  
+      {
+!       tmp = mbrtowc (&wc, string+point, strlen(string + point), &ps);
+        if (MB_INVALIDCH ((size_t)tmp))
+  	{
+--- 99,106 ----
+    while (count > 0)  
+      {
+!       len = strlen (string + point);
+!       if (len == 0)
+! 	break;
+!       tmp = mbrtowc (&wc, string+point, len, &ps);
+        if (MB_INVALIDCH ((size_t)tmp))
+  	{
