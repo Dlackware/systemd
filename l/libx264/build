@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# Copyright 2004 Dagmar d'Surreal <rivyqntzne@tznvy.pbz>
+# Available under the terms of the GNU GPL.
+#
+
+NAME="libx264"
+VERSION="20130916_2245"
+REVISION="1"
+
+PKG_SOURCEURL='ftp://ftp.videolan.org/pub/x264/snapshots/x264-snapshot-20130916-2245-stable.tar.bz2'
+
+. $DLG_ROOT/etc/config
+. $DLG_ROOT/lib/dl-base
+
+cflags
+cxxflags
+prepare
+analyzesource
+configure --enable-shared
+make
+makeinstall
+tidydocumentation
+analyzebinaries
+finalizepackage
+packagize
+cleanup

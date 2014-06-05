@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# Copyright 2012 Eugene Wissner <belka.ew@gmail.com>
+# Available under the terms of the GNU GPL.
+#
+
+NAME="gst-libav"
+VERSION="1.2.1"
+REVISION="1"
+
+PKG_SOURCEURL='http://gstreamer.freedesktop.org/src/${NAME}/${NAME}-${VERSION}.tar.xz'
+PKG_USEAUTOGENSH='yes'
+
+. $DLG_ROOT/etc/config
+. $DLG_ROOT/lib/dl-base
+
+cflags
+prepare
+analyzesource
+configure
+make
+makeinstall install-strip
+tidydocumentation
+analyzebinaries
+finalizepackage
+packagize
+cleanup

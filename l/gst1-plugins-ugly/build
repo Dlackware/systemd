@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Copyright 2004 Dagmar d'Surreal <rivyqntzne@tznvy.pbz>
+# Available under the terms of the GNU GPL.
+#
+
+NAME="gst-plugins-ugly1"
+VERSION="1.2.1"
+REVISION="1"
+
+PKG_SOURCEURL='http://gstreamer.freedesktop.org/src/gst-plugins-ugly/gst-plugins-ugly-${VERSION}.tar.xz'
+PKG_SANIFYNOTOUCH='ohno'
+
+. $DLG_ROOT/etc/config
+. $DLG_ROOT/lib/dl-base
+
+cflags
+cxxflags
+prepare
+analyzesource
+configure --enable-introspection \
+	--enable-profiling \
+	--with-package-name="\"Dropline Gnome GStreamer Base Plugins ${VERSION}"\" \
+	--with-package-origin="\"http://www.droplinegnome.org"\"
+
+make
+makeinstall install-strip
+tidydocumentation
+analyzebinaries
+finalizepackage
+packagize
+cleanup

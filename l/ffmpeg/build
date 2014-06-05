@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# Copyright 2012 Eugene Wissner <belka.ew@gmail.com>
+# Available under the terms of the GNU GPL.
+#
+
+NAME="ffmpeg"
+VERSION="2.1"
+REVISION="1"
+
+PKG_SOURCEURL='http://ffmpeg.org/releases/${NAME}-${VERSION}.tar.bz2'
+PKG_NEEDSTATIC=1
+
+. $DLG_ROOT/etc/config
+. $DLG_ROOT/lib/dl-base
+
+unset PKG_SYSCONFDIR
+unset PKG_LOCALSTATEDIR
+
+cflags
+cxxflags
+prepare
+analyzesource
+configure --enable-libv4l2 --enable-gpl --enable-libx264
+make
+makeinstall
+tidydocumentation
+analyzebinaries
+finalizepackage
+packagize
+cleanup

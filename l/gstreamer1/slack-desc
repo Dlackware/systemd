@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+          |-----handy-ruler------------------------------------------------------|
+gstreamer1: GStreamer version 1.x (streaming multimedia framework)
+gstreamer1:
+gstreamer1: GStreamer is a streaming-media framework, based on graphs
+gstreamer1: of filters which operate on media data. Applications using
+gstreamer1: this library can do anything from real-time sound 
+gstreamer1: processing to playing videos, and just about anything else
+gstreamer1: media-related.
+gstreamer1:
+gstreamer1:
+gstreamer1:
+gstreamer1:
