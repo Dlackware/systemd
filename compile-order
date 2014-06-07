@@ -38,4 +38,12 @@ l/gst-plugins-good1
 l/gst-plugins-ugly1
 l/gst-libav
 l/libcanberra
-#x/xorg-server
+x/xorg/dri3proto
+x/xorg/protopresent
+x/xorg/xcb-proto
+x/xorg/libxcb
+x/xorg/libdrm
+d/llvm
+x/mesa
+x/xorg-server
+x/xf86-input-evdev

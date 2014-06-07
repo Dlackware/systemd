@@ -1,0 +1,290 @@
+#!/bin/sh
+
+# Slackware build script for xorg-server
+
+# Copyright 2014 Eugene Wissner, Dachau, Germany
+# Copyright 2014 Bart van der Hall, Almere, NL
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+PKGNAM=xorg-server
+VERSION=${VERSION:-1.14.3}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_dlack}
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i486 ;;
+    arm*) export ARCH=arm ;;
+	*) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+wget -c ftp://ftp.freedesktop.org/pub/xorg/individual/xserver/${PKGNAM}-${VERSION}.tar.bz2
+
+
+NUMJOBS=${NUMJOBS:-"-j4"}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware/xorg-server}
+PKGF=${PKGF:-${TMP}/package-${PKGNAM}}
+PKG=${PKGF}/${PKGNAM}
+#PKG2=${PKGF}/${PKGNAM}-xdmx
+PKG3=${PKGF}/${PKGNAM}-xnest
+PKG4=${PKGF}/${PKGNAM}-xvfb
+PKG5=${PKGF}/${PKGNAM}-xephyr
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+PKGFORMAT=${PKGFORMAT:-txz}
+PKGNAME=${PKGNAM}-$(echo ${VERSION} | tr - . )-${ARCH}-${BUILD}${TAG}
+#PKGNAME2=${NAME}-xdmx-$(echo ${VERSION} | tr - . )-${ARCH}-${BUILD}${TAG}
+PKGNAME3=${PKGNAM}-xnest-$(echo ${VERSION} | tr - . )-${ARCH}-${BUILD}${TAG}
+PKGNAME4=${PKGNAM}-xvfb-$(echo ${VERSION} | tr - . )-${ARCH}-${BUILD}${TAG}
+PKGNAME5=${PKGNAM}-xephyr-$(echo ${VERSION} | tr - . )-${ARCH}-${BUILD}${TAG}
+SRCARCHIVE2=xvfb-run.sh
+
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+fi
+
+set -e # Exit on most errors
+
+rm -rf $PKG
+if [ -d ${PKGF} ]; then
+  # Clean up a previous build
+    rm -rf ${PKGF}
+fi
+mkdir -p ${TMP} ${PKGF} ${PKG} ${PKG2} ${PKG3} ${PKG4} ${PKG5} ${OUTPUT}
+cd $TMP
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
+cd $PKGNAM-$VERSION
+
+chown -R root:root .
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+  -o -perm 511 \) -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+ -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+
+unset DLACK_AUTOGEN
+if [ -r ${CWD}/apply-patches.sh ]; then
+  . ${CWD}/apply-patches.sh
+fi
+
+# Default font paths to be used by the X server
+DEF_FONTPATH="/usr/share/fonts/local,/usr/share/fonts/TTF,/usr/share/fonts/OTF,/usr/share/fonts/Type1,/usr/share/fonts/misc,/usr/share/fonts/CID,/usr/share/fonts/75dpi/:unscaled,/usr/share/fonts/100dpi/:unscaled,/usr/share/fonts/75dpi,/usr/share/fonts/100dpi,/usr/share/fonts/cyrillic"
+
+if [ "${DLACK_AUTOGEN}" = "YES" ] ;then
+  autoreconf -ivf || exit $?
+fi
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --infodir=/usr/info \
+  --mandir=/usr/man \
+  --disable-static \
+  --enable-xcsecurity \
+  --enable-composite \
+  --with-sha1=libnettle \
+  --with-pic \
+  --with-int10=x86emu \
+  --with-default-font-path="${DEF_FONTPATH}" \
+  --with-module-dir=/usr/lib${LIBDIRSUFFIX}/xorg/modules \
+  --with-os-name="Slackware" \
+  --with-os-vendor="Slackware Linux Project" \
+  --with-xkb-path=/etc/X11/xkb \
+  --with-xkb-output=/var/lib/xkb \
+  --disable-linux-acpi \
+  --disable-linux-apm \
+  --enable-present \
+  --enable-record \
+  --without-dtrace \
+  --enable-xorg \
+  --enable-dmx \
+  --enable-xvfb \
+  --enable-xnest \
+  --enable-kdrive \
+  --enable-xephyr \
+  --enable-xfbdev \
+  --enable-glx-tls \
+  --enable-config-udev \
+  --disable-config-hal \
+  --build=$ARCH-slackware-linux || exit 1
+
+make ${NUMJOBS} || make || exit 1
+make install DESTDIR=${PKG} || exit 1
+
+find ${PKG} -type f -name '*.la' -exec rm -f {} ';'
+
+find ${PKG} | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+if [ "${SB_PAM}" = "YES" ] ;then
+  mkdir -p ${PKG}/etc/pam.d
+  install -p -m 644 ${CWD}/xserver.pamd ${PKG}/etc/pam.d/xserver.new || exit 1
+fi
+
+mkdir -p ${PKG}/usr/share/X11/xorg.conf.d ${PKG}/etc/X11/xorg.conf.d
+install -m0644 ${CWD}/confd/* ${PKG}/usr/share/X11/xorg.conf.d/ || exit 1
+
+mkdir -p ${PKG}/usr/lib${LIBDIRSUFFIX}/xorg/modules/{drivers,input}
+
+mkdir -p ${PKG}/usr/share/xorg
+install -m 0444 hw/xfree86/common/{vesa,extra}modes ${PKG}/usr/share/xorg/
+
+# Don't mess with my /var/log/ permissions:
+rm -rf ${PKG}/var/log
+rm -rf ${PKG}/var
+
+# Fix xserver location:
+mkdir -p ${PKG}/etc/X11
+
+#if [ "$ARCH" == "x86_64" ]; then
+#  # To prevent the error "No rule to make target `-ldl'"
+#  sed -i -e 's#-ldl##' hw/xfree86/Makefile
+#  sed -i -e 's#-lm#-lm -ldl#' hw/xfree86/Makefile
+#fi
+
+install -m0644 $CWD/90-keyboard-layout.conf $PKG/usr/share/X11/xorg.conf.d/90-keyboard-layout.conf
+
+xserver_source_dir=/usr/share/${PKGNAM}-source
+inst_srcdir=${PKG}/${xserver_source_dir}
+mkdir -p ${inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
+mkdir -p ${inst_srcdir}/{hw/dmx/doc,man,doc,hw/dmx/doxygen}
+cp {,${inst_srcdir}/}hw/xquartz/bundle/cpprules.in || exit 1
+cp {,${inst_srcdir}/}man/Xserver.man || exit 1
+cp {,${inst_srcdir}/}doc/smartsched || exit 1
+cp {,${inst_srcdir}/}hw/dmx/doxygen/doxygen.conf.in || exit 1
+cp {,${inst_srcdir}/}xserver.ent.in || exit 1
+cp xkb/README.compiled ${inst_srcdir}/xkb/ || exit 1
+cp hw/xfree86/xorgconf.cpp ${inst_srcdir}/hw/xfree86/ || exit 1
+
+find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl|txt)$' | \
+  xargs tar cf - | (cd ${inst_srcdir} && tar xf -) || exit 1
+
+find ${inst_srcdir}/hw/xfree86 -name '*.c' -delete
+
+mkdir -p ${PKG3}/usr/bin
+mv ${PKG}/usr/bin/Xnest ${PKG3}/usr/bin/ || exit 1
+
+mkdir -p ${PKG4}/usr/bin
+mv ${PKG}/usr/bin/Xvfb ${PKG4}/usr/bin/ || exit 1
+install -pm 0755 ${CWD}/${SRCARCHIVE2} ${PKG4}/usr/bin/xvfb-run
+
+mkdir -p ${PKG5}/usr/bin
+mv ${PKG}/usr/bin/Xephyr ${PKG5}/usr/bin/ || exit 1
+
+# Compress man pages:
+find $PKG/usr/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+
+mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
+cp -a \
+	COPYING README ChangeLog INSTALL \
+	$PKG/usr/doc/$PKGNAM-$VERSION
+cat $CWD/$PKGNAM.SlackBuild > $PKG/usr/doc/$PKGNAM-$VERSION/$PKGNAM.SlackBuild
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+#mkdir -p ${PKG2}/usr/man/man1
+#mv ${PKG}/usr/man/man1/*dmx* ${PKG2}/usr/man/man1/ || exit 1
+
+mkdir -p ${PKG3}/usr/man/man1
+mv ${PKG}/usr/man/man1/Xnest.1* ${PKG3}/usr/man/man1/ || exit 1
+
+mkdir -p ${PKG4}/usr/man/man1
+mv ${PKG}/usr/man/man1/Xvfb.1* ${PKG4}/usr/man/man1/ || exit 1
+
+mkdir -p ${PKG5}/usr/man/man1
+mv ${PKG}/usr/man/man1/Xephyr.1* ${PKG5}/usr/man/man1/ || exit 1
+
+for dir in ${PKG} ${PKG3} ${PKG4} ${PKG5} ;do
+  mkdir -p ${dir}/install
+done
+
+cat ${CWD}/slack-desc > ${PKG}/install/slack-desc
+#cat ${CWD}/slack-desc.xdmx > ${PKG2}/install/slack-desc
+cat ${CWD}/slack-desc.xnest > ${PKG3}/install/slack-desc
+cat ${CWD}/slack-desc.xvfb > ${PKG4}/install/slack-desc
+cat ${CWD}/slack-desc.xephyr > ${PKG5}/install/slack-desc
+
+cat > ${PKG}/install/doinst.sh <<EOF
+#!/bin/sh
+# Figure out our root directory
+ROOTDIR=\$(pwd)
+unset CHROOT
+if test "\${ROOTDIR}" != "/"; then
+  CHROOT="chroot \${ROOTDIR} "
+  ROOTDIR="\${ROOTDIR}/"
+fi
+config() {
+  NEW="\$1"
+  OLD="\$(dirname \$NEW)/\$(basename \$NEW .new)"
+  # If there's no config file by that name, mv it over:
+  if [ ! -r \$OLD ]; then
+    mv \$NEW \$OLD
+  elif [ "\$(cat \$OLD | md5sum)" = "\$(cat \$NEW | md5sum)" ]; then
+    # toss the redundant copy
+    rm \$NEW
+  fi
+  # Otherwise, we leave the .new copy for the admin to consider...
+}
+## List of conf files to check. The conf files in your package should end in .new
+EOF
+
+( cd ${PKG}
+  find etc/ -name '*.new' -exec echo config {} ';' | sort >> ${PKG}/install/doinst.sh
+  echo >> ${PKG}/install/doinst.sh
+  echo '# Fix permissions' >> ${PKG}/install/doinst.sh
+  echo '${CHROOT} /bin/chmod 4755 /usr/bin/Xorg' >> ${PKG}/install/doinst.sh
+)
+
+# ROOTCOMMANDS="cd ${PKG} ; /bin/chown --recursive root:root . ; /bin/chmod 4755 ./usr/bin/Xorg; "
+
+cd ${PKG}
+ /sbin/makepkg --linkadd y --chown n ${OUTPUT}/${PKGNAME}.${PKGFORMAT}
+
+# cd ${PKG2}
+# /sbin/makepkg --linkadd y --chown n ${OUTPUT}/${PKGNAME2}.${PKGFORMAT}
+
+cd ${PKG3}
+ /sbin/makepkg --linkadd y --chown n ${OUTPUT}/${PKGNAME3}.${PKGFORMAT}
+
+cd ${PKG4}
+ /sbin/makepkg --linkadd y --chown n ${OUTPUT}/${PKGNAME4}.${PKGFORMAT}
+
+cd ${PKG5}
+ /sbin/makepkg --linkadd y --chown n ${OUTPUT}/${PKGNAME5}.${PKGFORMAT}
