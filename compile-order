@@ -3,7 +3,7 @@ a/cracklib
 a/pam
 l/libpwquality
 a/shadow
-a/systemd
+udev%a/systemd
 ### !reboot
 a/dbus
 n/openssh
