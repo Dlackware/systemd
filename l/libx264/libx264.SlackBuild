@@ -94,4 +94,4 @@ mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n -p $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
+/sbin/makepkg -l y -c n -p $OUTPUT/$PKGNAM-$VERSION-2245-stable-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}

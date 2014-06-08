@@ -38,7 +38,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://www.cups.org/software/${VERSION}/$PKGNAM-${VERSION}-source.tar.bz2
+wget -c http://www.cups.org/software/$VERSION/$PKGNAM-${VERSION}-source.tar.bz2
 
 if [ "$ARCH" = "x86_64" ]; then
   LIBDIRSUFFIX="64"
@@ -58,7 +58,7 @@ mkdir -p $TMP $PKG
 
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION-source.tar.?z* || exit 1
+tar xvf $CWD/$PKGNAM-${VERSION}-source.tar.?z* || exit 1
 cd $PKGNAM-$VERSION || exit 1
 
 # Fix for CUPS 1.5.4.  Don't reload the obsolete usblp module, as this

@@ -39,7 +39,7 @@ if [ -z "$ARCH" ]; then
 fi
 
 wget -c http://llvm.org/releases/$VERSION/$PKGNAM-$VERSION.src.tar.gz
-wget -c http://llvm.org/releases/3.4.1/cfe-$VERSION.src.tar.gz
+wget -c http://llvm.org/releases/$VERSION/cfe-$VERSION.src.tar.gz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -63,12 +63,12 @@ fi
 rm -rf $PKG
 mkdir -p $TMP $PKG
 cd $TMP
-rm -rf $PKGNAM-${VERSION}.src $PKGNAM-${VERSION}
+rm -rf $PKGNAM-$VERSION.src $PKGNAM-$VERSION
 tar xvf $CWD/$PKGNAM-$VERSION.src.tar.gz || exit 1
 
-cd $PKGNAM-${VERSION}/tools || cd $PKGNAM-${VERSION}.src/tools || exit 1
+cd $PKGNAM-$VERSION/tools || cd $PKGNAM-$VERSION.src/tools || exit 1
   tar xvf $CWD/cfe-$VERSION.src.tar.gz || exit 1
-  mv cfe-${VERSION} clang || mv cfe-${VERSION}.src clang || exit 1
+  mv cfe-$VERSION clang || mv cfe-$VERSION.src clang || exit 1
 cd ../
 
 chown -R root:root .
