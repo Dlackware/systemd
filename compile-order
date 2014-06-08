@@ -49,3 +49,4 @@ x/mesa
 x/xorg/xorg-server
 x/xorg/xf86-input-evdev
 a/cups
+n/httpd

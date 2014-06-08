@@ -1,0 +1,394 @@
+#!/bin/sh
+
+# Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013  Patrick J. Volkerding, Sebeka, MN, USA
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# This script was written using the one from slackbuilds.org as a reference,
+# so thanks to Adis Nezirovic ( adis _at_ linux.org.ba ) for the original work.
+
+
+PKGNAM=httpd
+VERSION=${VERSION:-2.4.9}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_dlack}
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i486 ;;
+    arm*) export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+NUMJOBS=${NUMJOBS:-" -j7 "}
+
+wget -c http://www.apache.org/dist/${PKGNAM}/${PKGNAM}-${VERSION}.tar.bz2
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware}
+PKG=$TMP/package-$PKGNAM
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+fi
+
+rm -rf $PKG
+mkdir -p $TMP $PKG
+cd $TMP
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z* || exit 1
+cd $PKGNAM-$VERSION || exit 1
+chown -R root:root .
+find . \
+ \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+ -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+ -exec chmod 644 {} \;
+
+if [ -r ${CWD}/apply-patches.sh ]; then
+  . ${CWD}/apply-patches.sh
+fi
+
+
+# A brief note about mpms:
+#
+# "prefork" is the legacy forked mpm, used with mod_php. Starting with httpd 
+# 2.4.0, new threaded mpms are available, and previously experimental mpms are
+# now stable
+#
+# Non-threaded mpms are no longer required, since php applications can now be
+# deployed with the help of mod_fcgid, essentially a set of fixed dedicated cgi
+# processes spawned for the whole purpose of executing dynamic applications
+#
+# Threaded mpms, by their very nature, are far more scalable than the
+# traditional preforking solution. They consume less memory for the same
+# workload, when serving the same amount of clients. httpd 2.4 ships with two
+# options, "event" and "worker", where the former is the default mpm used if
+# none is specified at the ./configure line
+#
+# Lastly, the "prefork" mpm can be used with mod_php as of version 5.4.0,
+# which yields a much improved stability, even with most mod_php extensions
+# loaded.
+#
+# The running mpm can be changed by simply loading the module. Here is a sample:
+# LoadModule mpm_event_module lib(64)/httpd/modules/mod_mpm_event.so
+#
+# When upgrading from 2.2, please make sure to stop the deamon first, or your
+# new instance may segfault.
+
+# Fix config.layout to use lib${LIBDIRSUFFIX}:
+#sed -i -e "s#lib/httpd#lib${LIBDIRSUFFIX}/httpd#" config.layout
+
+# If /var/run becomes a tmpfs or a link to /run, subdirectories could be a problem.
+# Just use /var/run rather than /var/run/httpd.
+sed -i -e "s#/run/httpd#/run#" config.layout
+
+sed -i "/^#define PLATFORM/s|Unix|${SLKDIST}|" os/unix/os.h || exit 1
+
+sed -i '/suexec/s,setcap ,echo Skipping setcap for ,' Makefile.in
+
+sed -i -e "s|/lib/|/lib${LIBDIRSUFFIX}/|g" -e '/runtimedir/s|${localstatedir}||g'  config.layout || exit 1
+
+sed -i -e '/^SSLPassPhraseDialog/a#SSLPassPhraseDialog exec:/usr/libexec/httpd-ssl-pass-dialog' docs/conf/extra/httpd-ssl.conf.in || exit 1
+
+# forcibly prevent use of bundled apr, apr-util, pcre
+rm -rf srclib/{apr,apr-util,pcre}
+
+sed -i -e '/SERVER_CONFIG_FILE/s|rel_sysconfdir|sysconfdir|g' -e '/AP_TYPES_CONFIG_FILE/s|rel_sysconfdir|sysconfdir|g' configure.in || exit 1
+sed -i -e '/LoadModule/s|$(rel_libexecdir)|modules|g' Makefile.in || exit 1
+sed -i -e 's|@rel_sysconfdir@/||g' docs/conf/httpd.conf.in || exit 1
+
+sed -e '/^Type=/s|=.*$|=forking|g' -e 's| -DFOREGROUND||g' ${CWD}/systemd/httpd.service > httpd.service.forking || exit 1
+
+# regenerate configure scripts
+autoheader || exit 1
+autoconf || exit 1
+
+PATH="/usr/sbin:/sbin${PATH:+:${PATH}}" ; export PATH
+export LYNX_PATH=/usr/bin/links
+
+# Configure:
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+  --enable-layout=Slackware-FHS \
+  --with-apr=/usr \
+  --with-apr-util=/usr \
+  --enable-mods-shared=all \
+  --enable-so \
+  --enable-mpms-shared=all \
+  --enable-pie \
+  --enable-cgi \
+  --with-pcre \
+  --enable-ssl \
+  --enable-rewrite \
+  --enable-vhost-alias \
+  --enable-proxy \
+  --enable-proxy-http \
+  --enable-proxy-ftp \
+  --enable-cache \
+  --enable-mem-cache \
+  --enable-file-cache \
+  --enable-disk-cache \
+  --enable-suexec \
+  --with-suexec \
+  --enable-suexec-capabilities \
+  --with-suexec-caller=apache \
+  --without-suexec-logfile \
+  --with-suexec-syslog \
+  --with-suexec-bin=/usr/sbin/suexec \
+  --with-suexec-uidmin=500 \
+  --with-suexec-gidmin=100 \
+  --enable-dav \
+  --enable-ldap \
+  --enable-authnz-ldap \
+  --enable-authn-anon \
+  --enable-authn-alias \
+  --build=$ARCH-slackware-linux || exit 1
+
+# Build and install:
+make $NUMJOBS || make || exit 1
+make install DESTDIR=$PKG || exit 1
+
+chmod 510 ${PKG}/usr/sbin/suexec
+
+rmdir $PKG/usr/bin
+
+# Tweak default apache configuration
+( cd $PKG
+  cat $CWD/httpd.runasapache.diff | patch -p1 --verbose || exit 1
+  # mod_proxy_balancer should be commented out, as otherwise httpd
+  # will not start without additional configuration:
+  sed -i "s/^LoadModule proxy_balancer_module/#LoadModule proxy_balancer_module/g" $PKG/etc/httpd/httpd.conf
+  # This module issues a warning unless some non-default modules are loaded:
+  sed -i "s/^LoadModule lbmethod_heartbeat_module/#LoadModule lbmethod_heartbeat_module/g" $PKG/etc/httpd/httpd.conf
+  rm -f $PKG/etc/httpd/httpd.conf~ $PKG/etc/httpd/httpd.conf.orig
+) || exit 1
+# Change config files to .new:
+( cd $PKG/etc/httpd
+  mv httpd.conf httpd.conf.new
+  for file in extra/*; do
+    mv $file "${file}.new"
+  done
+)
+
+cat << EOF >> $PKG/etc/httpd/httpd.conf.new
+
+# Uncomment the following line to enable PHP:
+#
+#Include /etc/httpd/mod_php.conf
+
+# Uncomment the following lines (and mod_dav above) to enable svn support:
+#
+#LoadModule dav_svn_module lib${LIBDIRSUFFIX}/httpd/modules/mod_dav_svn.so
+#LoadModule authz_svn_module lib${LIBDIRSUFFIX}/httpd/modules/mod_authz_svn.so
+
+EOF
+
+rmdir $PKG/var/log/httpd
+
+mkdir -p $PKG/etc/rc.d
+cat $CWD/rc.httpd > $PKG/etc/rc.d/rc.httpd.new
+
+mkdir -p ${PKG}/lib/systemd/system
+
+mkdir -p ${PKG}/etc/httpd/conf.d/
+cat > ${PKG}/etc/httpd/conf.d/00-systemd.conf <<'EOF'
+# This file configures systemd module:
+LoadModule systemd_module modules/mod_systemd.so
+EOF
+
+install -pm0644 ${CWD}/systemd/httpd.service ${PKG}/lib/systemd/system/ || exit 1
+
+install -pm0644 ${CWD}/systemd/htcacheclean.service ${PKG}/lib/systemd/system/ || exit 1
+
+mkdir -p ${PKG}/usr/lib/tmpfiles.d
+cat > ${PKG}/usr/lib/tmpfiles.d/httpd.conf <<'EOF'
+d /run/httpd 710 root apache
+EOF
+
+mkdir -p ${PKG}/usr/libexec
+cat > ${PKG}/usr/libexec/httpd-ssl-pass-dialog <<'EOF'
+#!/bin/sh
+
+exec /bin/systemd-ask-password "Enter SSL pass phrase for $1 ($2) : "
+EOF
+
+chmod 0755 ${PKG}/usr/libexec/httpd-ssl-pass-dialog || exit 1
+
+mkdir -p ${PKG}/etc/default
+cat > ${PKG}/etc/default/httpd.new <<'EOF'
+# Configuration file for the httpd service.
+
+#
+# The default processing model (MPM) is the process-based
+# 'prefork' model. A thread-based model, 'worker', is also
+# available, but does not work with some modules (such as PHP).
+# The service must be stopped before changing this variable.
+#
+#HTTPD=/usr/sbin/httpd.worker
+
+#
+# To pass additional options (for instance, -D definitions) to the
+# httpd binary at startup, set OPTIONS here.
+#
+#OPTIONS=
+
+#
+# By default, the httpd process is started in the C locale; to
+# change the locale in which the server runs, the HTTPD_LANG
+# variable can be set.
+#
+#HTTPD_LANG=C
+
+#
+# When stopping the server a 10 second timeout is allowed before
+# forcibly terminating the parent process (with a SIGKILL signal).
+# To allow a longer delay, set the STOP_TIMEOUT variable.
+#
+#STOP_TIMEOUT=10
+
+#
+# By default, the httpd process will create the file
+# /run/httpd/httpd.pid in which it records its process
+# identification number when it starts. If an alternate location is
+# specified in httpd.conf (via the PidFile directive), the new
+# location needs to be reported in the PIDFILE.
+#
+#PIDFILE=/run/httpd/httpd.pid
+EOF
+
+cat > ${PKG}/etc/default/htcacheclean.new <<'EOF'
+#
+# Configuration options for systemd service, htcacheclean.service.
+# See htcacheclean(8) for more information on available options.
+#
+
+# Interval between cache clean runs, in minutes
+INTERVAL=15
+
+# Default cache root.
+CACHE_ROOT=/var/cache/httpd/proxy
+
+# Cache size limit in bytes (K=Kbytes, M=Mbytes)
+LIMIT=100M
+
+# Any other options...
+OPTIONS=
+EOF
+
+
+mkdir -p ${PKG}/etc/logrotate.d
+cat > ${PKG}/etc/logrotate.d/httpd.new <<'EOF'
+/var/log/httpd/*_log {
+  rotate 10
+  notifempty
+  size=5M
+  compress
+  delaycompress
+  sharedscripts
+  postrotate
+    /bin/systemctl reload httpd.service > /dev/null 2>/dev/null || test -x /etc/rc.d/rc.httpd && /etc/rc.d/rc.httpd restart || true
+  endscript
+}
+EOF
+
+chmod 0710 ${PKG}/run/httpd
+
+# symlinks for /etc/httpd
+ln -s ../../var/log/httpd ${PKG}/etc/httpd/logs
+ln -s ../../run/httpd ${PKG}/etc/httpd/run
+ln -s ../../usr/lib${LIBDIRSUFFIX}/httpd/modules ${PKG}/etc/httpd/modules
+
+
+
+mkdir -p $PKG/etc/logrotate.d
+cat $CWD/logrotate.httpd > $PKG/etc/logrotate.d/httpd.new
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION/
+cp -a \
+  ABOUT_APACHE Apache.dsw BuildBin.dsp CHANGES INSTALL InstallBin.dsp LAYOUT LICENSE NOTICE NWGNUmakefile README* ROADMAP VERSIONING \
+  $PKG/usr/doc/$PKGNAM-$VERSION
+
+# Other distributions also strip the manual down to just English.
+# If this isn't your language of choice, mea culpa.
+( cd $PKG/srv/httpd/htdocs/manual
+  for file in $(find . -type f -name "*.html") ; do
+    if [ -f ${file}.en ]; then
+      cp ${file}.en ${file}
+      rm -f ${file}.*
+    fi
+  done
+)
+
+# On Slackware, the traditional location for the Apache document root has always
+# been "/var/www/htdocs/".  We can avoid an unpleasant surprise for people by
+# leaving things where they've always been, and comply with the FHS by providing
+# symlinks allowing access through the FHS-approved pathnames.  KDE, for example,
+# will look for htdig's htsearch here:  /var/www/cgi-bin/htsearch
+mv $PKG/srv/httpd $PKG/var/www
+( cd $PKG/srv
+  ln -sf /var/www .
+  ln -sf /var/www httpd
+)
+
+# OK, it's just not generally good form to put your web site in /var/www/htdocs,
+# but people do it every day.  Like all new .new files, this won't save them this
+# time, but if they don't learn their lesson now then it will the next time:
+mv $PKG/var/www/htdocs/index.html $PKG/var/www/htdocs/index.html.new
+
+# Strip binaries:
+find $PKG | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+# Compress and link manpages, if any:
+if [ -d $PKG/usr/man ]; then
+  ( cd $PKG/usr/man
+    for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd $manpagedir
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink $eachpage ).gz $eachpage.gz
+          rm $eachpage
+        done
+        gzip -9 *.*
+      )
+    done
+  )
+fi
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/${PKGNAM}-$VERSION-$ARCH-$BUILD$TAG.txz
