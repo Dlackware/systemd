@@ -54,5 +54,12 @@ a/procps
 n/php
 n/yptools
 xfce/xfce4-session
-#kde/kdelibs
-#kde/kde-workspace
+### [systemd-all] end
+#
+#
+#  The following 2 packages needs to be rebuild aswell for systemd-all
+#
+#   kde/kdelibs
+#   kde/kde-workspace
+#
+#
