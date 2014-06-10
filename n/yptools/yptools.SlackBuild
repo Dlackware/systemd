@@ -1,0 +1,318 @@
+#!/bin/sh
+
+# Copyright 2008, 2009, 2010, 2011, 2012, 2013  Patrick J. Volkerding, Sebeka, MN, USA
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Modified 2014  Bart van der Hall, Almere, NL
+
+# Package version number:
+
+# Set YES for native build with gcc >= 4.2
+DLACK_NATIVE=${DLACK_NATIVE:-NO}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware}
+if [ ! -d ${TMP} ]; then
+  mkdir -p ${TMP}
+fi
+
+PNAME=yp-tools
+PKGNAM=yptools
+YPBNAME=ypbind-mt
+YPSNAME=ypserv
+PKG=${PKG:-${TMP}/package-${PKGNAM}}
+TAG=${TAG:-_dlack}
+
+VERSION=${VERSION:-2.14}
+YPBVER=${YPBVER:-1.37.1}
+YPSVER=${YPSVER:-2.31}
+
+if [ "${DLACK_NATIVE}" = "YES" ] ;then
+  ARCH=${ARCH:-$(uname -m)}
+else
+  ARCH=${ARCH:-x86_64}
+fi
+if [ "${ARCH}" = "x86_64" ] ;then
+  SLKTARGET=${SLKTARGET:-x86_64}
+else
+  SLKTARGET=${SLKTARGET:-i486}
+fi
+
+SLKDTARGET=${SLKDTARGET:-slackware}
+BUILD=${BUILD:-1}
+NJOBS=${NJOBS:-$(( $(getconf _NPROCESSORS_ONLN) + 1 ))}
+DOCDIR=${PKG}/usr/doc/${PKGNAM}-${VERSION}
+YPBDOCDIR=${PKG}/usr/doc/${YPBNAME}-${YPBVER}
+YPSDOCDIR=${PKG}/usr/doc/${YPSNAME}-${YPSVER}
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+DATE=$(LC_ALL=C date +%d-%b-%Y)
+
+SRCDIR=${PNAME}-${VERSION}
+YPBSRCDIR=${YPBNAME}-${YPBVER}
+YPSSRCDIR=${YPSNAME}-${YPSVER}
+SRCARCHIVE=${SRCDIR}.tar.bz2
+YPBSRCARCHIVE=${YPBSRCDIR}.tar.bz2
+YPSSRCARCHIVE=${YPSSRCDIR}.tar.bz2
+
+wget -c http://www.linux-nis.org/download/$PNAME/$PNAME-$VERSION.tar.bz2
+wget -c http://www.linux-nis.org/download/$YPBNAME/$YPBNAME-$YPBVER.tar.bz2
+wget -c http://www.linux-nis.org/download/$YPSNAME/$YPSNAME-$YPSVER.tar.bz2
+
+if [ "${DLACK_NATIVE}" = "YES" ] ;then
+  SLKCFLAGS="-O2 -march=native -mtune=native -pipe"
+  [ "${DLACK_ECFLAGS}" ] && SLKCFLAGS="${SLKCFLAGS} ${DLACK_ECFLAGS}"
+else
+  case "${ARCH}" in
+    i[3-6]86) SLKCFLAGS="-O2 -march=${ARCH} -mtune=i686"
+                 ;;
+    x86_64) SLKCFLAGS="-O2 -fPIC"
+                 ;;
+    s390|*) SLKCFLAGS="-O2"
+                 ;;
+  esac
+fi
+
+if [ "${ARCH}" = "x86_64" ] ;then
+  LIBDIRSUFFIX="64"
+  SLKCFLAGS="${SLKCFLAGS} -fPIC"
+else
+  LIBDIRSUFFIX=""
+fi
+
+if [ -d ${PKG} ]; then
+  # Clean up a previous build
+  rm -rf ${PKG}
+fi
+mkdir -p ${PKG} ${TMP}
+
+cd ${TMP}
+rm -rf ${SRCDIR}
+tar -xvf ${CWD}/${SRCARCHIVE} || exit 1
+cd ${SRCDIR} || exit 1
+for file in ${YPBSRCARCHIVE} ${YPSSRCARCHIVE} ;do
+  tar -xvf ${CWD}/${file} || exit 1
+done
+
+chmod -R u+w,go+r-w,a-s .
+
+unset DLACK_AUTOGEN
+if [ -r ${CWD}/apply-patches.sh ]; then
+  . ${CWD}/apply-patches.sh
+fi
+
+if [ "${DLACK_AUTOGEN}" = "YES" ] ;then
+  sed -i -e 's|^AM_GNU_GETTEXT_VERSION.*$|AM_GNU_GETTEXT_VERSION(0.18)|g' ${YPBSRCDIR}/configure.in || exit 1
+  for dir in ${YPBSRCDIR} ${YPSSRCDIR} ;do
+    ( cd ${dir} || exit 1
+      autoreconf -ivf
+    ) || exit $?
+  done
+fi
+
+export CFLAGS="${SLKCFLAGS}"
+export CXXFLAGS="${SLKCFLAGS}"
+
+DLACK_CONFIGURE() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --infodir=/usr/info \
+  --mandir=/usr/man \
+  --docdir=/usr/doc/${PKGNAM}-${VERSION} \
+  --disable-rpath \
+  --build=${SLKTARGET}-${SLKDTARGET}-linux $@
+}
+
+DLACK_CONFIGURE --disable-domainname || exit 1
+
+make -j${NJOBS} || make || exit 1
+make install DESTDIR=${PKG} INSTALL_PROGRAM=install || exit 1
+
+( cd ${PKG}/usr/bin
+  rm -rf ypchfn ypchsh || exit 1
+  ln -sf yppasswd ypchfn || exit 1
+  ln -sf yppasswd ypchsh || exit 1
+) || exit 1
+
+mkdir -p ${PKG}/etc
+# Add etc/nsswitch.conf-nis as a full NIS+ example config file:
+zcat ${CWD}/nsswitch.conf-nis.gz > ${PKG}/etc/nsswitch.conf-nis.new || exit 1
+
+( cd ${YPBSRCDIR} || exit 1
+  DLACK_CONFIGURE || exit 1
+  make || exit 1
+  make install DESTDIR=${PKG} INSTALL_PROGRAM=install || exit 1
+  
+  install -m 644 etc/yp.conf ${PKG}/etc/yp.conf.new || exit 1
+  mv ${PKG}/var/yp/nicknames ${PKG}/var/yp/nicknames.new || exit 1
+
+  mkdir -p ${PKG}/usr/libexec/ypbind
+  install -pm0755 ${CWD}/systemd/ypbind-pre-setdomain \
+    ${PKG}/usr/libexec/ypbind/ypbind-pre-setdomain || exit 1
+  install -pm0755 ${CWD}/systemd/ypbind-post-waitbind \
+    ${PKG}/usr/libexec/ypbind/ypbind-post-waitbind || exit 1
+
+  mkdir -p ${YPBDOCDIR}
+  cp -a \
+    ABOUT-NLS AUTHORS COPYING NEWS README THANKS TODO \
+    ${YPBDOCDIR}/
+) || exit 1
+
+( cd ${YPSSRCDIR} || exit 1
+  export CFLAGS="${SLKCFLAGS} -fpic"
+  DLACK_CONFIGURE \
+    --libexecdir=/usr/lib${LIBDIRSUFFIX}/yp \
+    --enable-fqdn \
+    --enable-checkroot || exit 1
+
+  make || exit 1
+  make install DESTDIR=${PKG} INSTALL_PROGRAM=install || exit 1
+  
+  mv ${PKG}/var/yp/Makefile ${PKG}/var/yp/Makefile.new || exit 1
+  install -m0644 etc/securenets ${PKG}/var/yp/securenets.new || exit 1
+  
+  echo "# This file is part of the YP server package -- see 'man netgroup'" >\
+    ${PKG}/etc/netgroup.new || exit 1
+  cat etc/netgroup >> ${PKG}/etc/netgroup.new || exit 1
+
+  mkdir -p ${PKG}/usr/libexec/ypserv
+  install -pm0755 ${CWD}/systemd/yppasswdd-pre-setdomain \
+    ${PKG}/usr/libexec/ypserv/yppasswdd-pre-setdomain || exit 1
+  install -pm0755 ${CWD}/systemd/rpc.yppasswdd.env \
+    ${PKG}/usr/libexec/ypserv/rpc.yppasswdd.env || exit 1
+
+  mkdir -p ${YPSDOCDIR}
+  cp -a \
+    AUTHORS COPYING NEWS README THANKS TODO \
+    ${YPSDOCDIR}/
+) || exit 1
+
+mkdir -p ${PKG}/etc/rc.d
+zcat ${CWD}/rc.yp.gz \
+  > ${PKG}/etc/rc.d/rc.yp.new || exit 1
+chmod 0644 ${PKG}/etc/rc.d/rc.yp.new
+
+mkdir -p ${PKG}/lib/systemd/system
+install -pm0644 ${CWD}/systemd/*.service ${PKG}/lib/systemd/system/ || exit 1
+
+sed -e '/^Type=notify/d' -e '/^NotifyAccess=all/d' -i ${PKG}/lib/systemd/system/*.service || exit 1
+
+rmdir ${PKG}/bin
+
+find ${PKG} | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+mkdir -p ${PKG}/etc/default
+cat >${PKG}/etc/default/yppasswdd.new <<'EOF'
+# The passwd and shadow files are located under the specified
+# directory path. rpc.yppasswdd will use these files, not /etc/passwd
+# and /etc/shadow.
+#ETCDIR=/etc
+
+# This option tells rpc.yppasswdd to use a different source file
+# instead of /etc/passwd
+# You can't mix usage of this with ETCDIR
+#PASSWDFILE=/etc/passwd
+
+# This option tells rpc.yppasswdd to use a different source file
+# instead of /etc/passwd.
+# You can't mix usage of this with ETCDIR
+#SHADOWFILE=/etc/shadow
+
+# Additional arguments passed to yppasswd
+YPPASSWDD_ARGS=
+EOF
+
+# Add a documentation directory:
+mkdir -p ${DOCDIR}
+cp -a \
+   AUTHORS COPYING README NEWS HANKS TODO ${DOCDIR}/
+[ -r ChangeLog ] && head -n 1000 ChangeLog > ${DOCDIR}/ChangeLog
+find ${PKG}/usr/doc/ -type f -print0 | xargs -0 chmod 0644
+
+# Compress and link manpages, if any:
+if [ -d ${PKG}/usr/share/man ]; then
+  mv ${PKG}/usr/share/man ${PKG}/usr/man
+  rmdir ${PKG}/usr/share
+fi
+if [ -d ${PKG}/usr/man ]; then
+  ( cd ${PKG}/usr/man
+    for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd ${manpagedir}
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink ${eachpage} ).gz ${eachpage}.gz
+          rm -f ${eachpage}
+        done
+        gzip -9 *.?
+        # Prevent errors
+        rm -f *.gz.gz
+      )
+    done
+  )
+fi
+
+mkdir -p ${PKG}/install
+cat ${CWD}/slack-desc > ${PKG}/install/slack-desc
+
+cat > ${PKG}/install/doinst.sh <<EOF
+# Figure out our root directory
+ROOTDIR=\$(pwd)
+unset CHROOT
+if test "\${ROOTDIR}" != "/"; then
+  CHROOT="chroot \${ROOTDIR} "
+  ROOTDIR="\${ROOTDIR}/"
+fi
+config() {
+  NEW="\$1"
+  OLD="\$(dirname \$NEW)/\$(basename \$NEW .new)"
+  # If there's no config file by that name, mv it over:
+  if [ ! -r \$OLD ]; then
+    mv \$NEW \$OLD
+  elif [ "\$(cat \$OLD | md5sum)" = "\$(cat \$NEW | md5sum)" ]; then
+    # toss the redundant copy
+    rm \$NEW
+  fi
+  # Otherwise, we leave the .new copy for the admin to consider...
+}
+# Keep same perms on rc.yp.new:
+if [ -r etc/rc.d/rc.yp -a -r etc/rc.d/rc.yp.new ]; then
+  chmod --reference=etc/rc.d/rc.yp etc/rc.d/rc.yp.new
+fi
+
+## List of conf files to check. The conf files in your package should end in .new
+EOF
+
+( cd ${PKG}
+  find etc/ var/ -name '*.new' -exec echo config {} ';' | sort >> ${PKG}/install/doinst.sh
+  find etc/ var/ -name '*.new' -a -size 0 -exec echo rm -f {} ';' | sort >> ${PKG}/install/doinst.sh
+  echo >> ${PKG}/install/doinst.sh
+)
+
+cat >> ${PKG}/install/doinst.sh <<'EOF'
+if [ -x bin/systemctl ] ; then
+  ${CHROOT} /bin/systemctl --system daemon-reload >/dev/null 2>&1
+fi
+EOF
+
+# Build the package:
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
