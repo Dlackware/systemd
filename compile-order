@@ -51,3 +51,4 @@ x/xorg/xf86-input-evdev
 a/cups
 n/httpd
 a/procps
+n/php
