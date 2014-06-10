@@ -1,0 +1,194 @@
+#!/bin/sh
+
+# Copyright 2006, 2007, 2008, 2009, 2010, 2012, 2013  Patrick J. Volkerding, Sebeka, MN, USA
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+PKGNAM=alpine
+VERSION=${VERSION:-2.11}
+ALPINEBUILD=${ALPINEBUILD:-1}
+IMAPDBUILD=${IMAPDBUILD:-1}
+PINEPGP=${PINEPGP:-0.18.0}
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i486 ;;
+    arm*) export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+# We don't use this below as it breaks the build.
+NUMJOBS=${NUMJOBS:-" -j6 "}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp}
+PKG=$TMP/package-${PKGNAM}
+rm -rf $PKG
+mkdir -p $PKG/etc
+
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+elif [ "$ARCH" = "s390" ]; then
+  SLKCFLAGS="-O2"
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+fi
+
+cd $TMP
+rm -rf alpine-${VERSION}
+tar xvf $CWD/alpine-$VERSION.tar.?z* || exit 1
+cd alpine-$VERSION
+
+# Make sure ownerships and permissions are sane:
+chown -R root:root .
+find . \
+ \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+ -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+ -exec chmod 644 {} \;
+
+zcat $CWD/alpine.manpage.diff.gz | patch -p1 --verbose || exit 1
+
+# Configure:
+CFLAGS="$SLKCFLAGS" \
+./configure \
+  --prefix=/usr \
+  --mandir=/usr/man \
+  --with-ssl-dir=/usr \
+  --with-ssl-certs-dir=/etc/ssl/certs \
+  --with-c-client-target=slx \
+  --with-system-pinerc=/etc/pine.conf \
+  --with-system-fixed-pinerc=/etc/pine.conf.fixed \
+  --disable-debug \
+  --with-debug-level=0 \
+  --without-tcl \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux
+
+# Correct paths and programs in tech-notes.txt:
+zcat $CWD/alpine.tech-notes.txt.diff.gz | patch -p1 --verbose || exit 1
+
+# Build and install:
+# Since we build non-compliant to RFC3501 we have to answer 'y' half-way:
+echo y | make EXTRACFLAGS="-fPIC" SSLTYPE=unix || exit 1
+
+make install SSLTYPE=unix DESTDIR=$PKG || exit 1
+
+# Add default config file:
+./alpine/alpine -conf > $PKG/etc/pine.conf.new
+
+# Add a documentation directory:
+mkdir -p $PKG/usr/doc/${PKGNAM}-$VERSION
+cp -a \
+  LICENSE NOTICE README* VERSION \
+  doc/tech-notes.txt doc/brochure.txt doc/mailcap.unx doc/mime.types \
+  $PKG/usr/doc/${PKGNAM}-$VERSION
+gzip -9 $PKG/usr/doc/${PKGNAM}-$VERSION/tech-notes.txt
+
+# Add pinepgp support:
+cd $TMP
+rm -rf pinepgp-$PINEPGP
+tar xvf $CWD/pinepgp-$PINEPGP.tar.gz || exit 1
+cd pinepgp-$PINEPGP
+zcat $CWD/pinepgp-${PINEPGP}-makefile-sed-fix.diff.gz | patch -p1 --verbose || exit 1
+zcat $CWD/pinepgp.pinegpgp.in.diff.gz | patch -p1 --verbose || exit 1
+chown -R root:root .
+find . \
+  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+  -exec chmod 755 {} \; -o \
+  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+  -exec chmod 644 {} \;
+./configure --prefix=/usr
+make || exit 1
+make install DESTDIR=$PKG || exit 1
+mkdir -p $PKG/usr/doc/pinepgp-$PINEPGP
+cp -a COPYING* README $PKG/usr/doc/pinepgp-$PINEPGP
+chmod 644 $PKG/usr/doc/pinepgp-$PINEPGP/*
+
+# Strip binaries:
+find $PKG | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+# Compress and link manpages, if any:
+if [ -d $PKG/usr/man ]; then
+  ( cd $PKG/usr/man
+    for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd $manpagedir
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink $eachpage ).gz $eachpage.gz
+          rm $eachpage
+        done
+        gzip -9 *.*
+      )
+    done
+  )
+fi
+
+# Compress info files, if any:
+if [ -d $PKG/usr/info ]; then
+  ( cd $PKG/usr/info
+    rm -f dir
+    gzip -9 *
+  )
+fi
+
+mkdir -p $PKG/install
+cat $CWD/doinst.sh.alpine > $PKG/install/doinst.sh
+cat $CWD/slack-desc.alpine > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n $TMP/${PKGNAM}-$VERSION-$ARCH-$ALPINEBUILD.txz
+
+# As is customary, now build a package for the included IMAP and
+# POP3 daemons:
+PKG2=/tmp/package-imapd
+cd $TMP
+rm -rf $PKG2
+mkdir -p $PKG2
+cd alpine-$VERSION/imap
+mkdir -p $PKG2/usr/doc/imapd-$VERSION
+cp -a \
+  CONTENTS LICENSE.txt NOTICE SUPPORT \
+  $PKG2/usr/doc/imapd-$VERSION
+cat << EOF > $PKG2/usr/doc/imapd-$VERSION/additional-imap-documentation
+Additional documentation for imapd may be found in the alpine
+sources in the /imap/docs directory.
+EOF
+mkdir -p $PKG2/usr/man/man8
+for file in src/imapd/imapd.8 src/ipopd/ipopd.8 ; do
+  cat $file | gzip -9c > $PKG2/usr/man/man8/`basename $file`.gz
+done
+mkdir -p $PKG2/usr/sbin
+cat imapd/imapd > $PKG2/usr/sbin/imapd
+cat ipopd/ipop3d > $PKG2/usr/sbin/ipop3d
+chmod 755 $PKG2/usr/sbin/imapd $PKG2/usr/sbin/ipop3d
+# Strip binaries:
+find $PKG2 | xargs file | grep -e "executable" -e "shared object" \
+  | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+# Add slack-desc file:
+mkdir -p $PKG2/install
+cat $CWD/slack-desc.imapd > $PKG2/install/slack-desc
+cd $PKG2
+/sbin/makepkg -l y -c n $TMP/imapd-$VERSION-$ARCH-$IMAPDBUILD.txz
+
