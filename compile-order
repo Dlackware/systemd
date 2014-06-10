@@ -52,3 +52,7 @@ a/cups
 n/httpd
 a/procps
 n/php
+n/yptools
+xfce/xfce4-session
+#kde/kdelibs
+#kde/kde-workspace

@@ -23,7 +23,7 @@
 
 PKGNAM=mesa
 VERSION=${VERSION:-10.1.4}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:--j7}
@@ -115,7 +115,7 @@ make clean
 make ${NUMJOBS} || make || exit 1
 make install DESTDIR=${PKG} DRI_DIRS= || exit $?
 
-find ${PKG} -name '*.la' -delete
+# find ${PKG} -name '*.la' -delete
 
 mkdir -p ${PKG}/usr/include/KHR
 install -m 0644 include/KHR/*.h ${PKG}/usr/include/KHR/ || exit 1
