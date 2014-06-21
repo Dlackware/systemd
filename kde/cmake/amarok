@@ -1,0 +1,22 @@
+# NOTE: if cmake complains that it can not find qscript-qt when in fact you
+# have it installed, this is likely because you are building inside a chroot.
+# To remedy the error, run the command "dbus-uuidgen --ensure"
+# and then re-start this SlackBuild :
+
+export QTSCRIPTS=/usr/lib${LIBDIRSUFFIX}/qt4/plugins/script
+
+mkdir -p build
+cd build
+  cmake \
+    $KDE_OPT_ARGS \
+    -DCMAKE_C_FLAGS:STRING="$SLKCFLAGS" \
+    -DCMAKE_C_FLAGS_RELEASE:STRING="$SLKCFLAGS" \
+    -DCMAKE_CXX_FLAGS:STRING="$SLKCFLAGS" \
+    -DCMAKE_CXX_FLAGS_RELEASE:STRING="$SLKCFLAGS" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DMAN_INSTALL_DIR=/usr/man \
+    -DSYSCONF_INSTALL_DIR=/etc/kde \
+    -DLIB_SUFFIX=${LIBDIRSUFFIX} \
+    ..
+

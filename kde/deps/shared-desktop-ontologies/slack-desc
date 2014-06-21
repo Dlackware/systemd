@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+                         |-----handy-ruler-------------------------------------------------------|
+shared-desktop-ontologies: shared-desktop-ontologies (Shared OSCAF desktop ontologies)
+shared-desktop-ontologies:
+shared-desktop-ontologies: The shared-desktop-ontologies package brings the semantic web to
+shared-desktop-ontologies: the desktop in terms of vocabulary. It contains the well known core
+shared-desktop-ontologies: ontologies such as RDF and RDFS as well as the Nepomuk ontologies
+shared-desktop-ontologies: which are used by projects like KDE or Strigi.
+shared-desktop-ontologies:
+shared-desktop-ontologies: Homepage: http://oscaf.sourceforge.net
+shared-desktop-ontologies:
+shared-desktop-ontologies:
+shared-desktop-ontologies:

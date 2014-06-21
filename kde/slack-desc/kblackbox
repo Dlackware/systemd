@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+         |-----handy-ruler------------------------------------------------------|
+kblackbox: kblackbox (a game of hide and seek)
+kblackbox:
+kblackbox: KBlackbox is a game of hide and seek played on a grid of boxes
+kblackbox: where the computer has hidden several balls. 
+kblackbox:
+kblackbox:
+kblackbox:
+kblackbox:
+kblackbox:
+kblackbox: For more information, visit:  http://www.kde.org
+kblackbox:

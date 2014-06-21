@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+kubrick: kubrick (3-D game based on Rubik's Cube)
+kubrick:
+kubrick: Kubrick is a game based on the Rubik's Cube puzzle.  The cube sizes
+kubrick: range from 2x2x2 up to 6x6x6, or you can play with irregular "bricks"
+kubrick: such as 5x3x2 or "mats" such as 6x4x1 or 2x2x1.
+kubrick: The game has a selection of puzzles at several levels of difficulty,
+kubrick: as well as demos of pretty patterns and solution moves, or you can
+kubrick: make up your own puzzles. 
+kubrick:
+kubrick: For more information, visit:  http://www.kde.org
+kubrick:

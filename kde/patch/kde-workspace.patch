@@ -1,0 +1,17 @@
+# Increase the timeout to accomodate slow-to-initialize video chipset drivers:
+zcat $CWD/patch/kde-workspace/kde-workspace.kdm.server.timeout.diff.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+# Always show 'remaining time' in the popup of the battery plasmoid:
+zcat $CWD/patch/kde-workspace/kde-workspace.batteryapplet.diff.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+# Fix crash when DesktopNames isn't set (fixed in 4.11.10):
+zcat $CWD/patch/kde-workspace/kde-workspace.desktopnames.diff.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+# kde-workspace-4.11.1-kdm-logind-multiseat.patch:
+cat $CWD/patch/kde-workspace/kde-workspace-4.11.1-kdm-logind-multiseat.patch | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+# kde-workspace-4.8.0-bug796969.patch:
+cat $CWD/patch/kde-workspace/kde-workspace-4.8.0-bug796969.patch | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+# kde-workspace-4.11.2-add-gtkrc-path.patch:
+cat $CWD/patch/kde-workspace/kde-workspace-4.11.2-add-gtkrc-path.patch | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }

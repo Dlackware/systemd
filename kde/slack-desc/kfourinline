@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+           |-----handy-ruler------------------------------------------------------|
+kfourinline: kfourinline (four-in-a-row board game)
+kfourinline:
+kfourinline: KFourInLine is a board game for two players based on the
+kfourinline: Connect-Four game.  The players try to build up a row of
+kfourinline: four pieces using different strategies.
+kfourinline:
+kfourinline:
+kfourinline:
+kfourinline:
+kfourinline: For more information, visit:  http://www.kde.org
+kfourinline:

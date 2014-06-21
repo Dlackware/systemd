@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+klettres: klettres (language learning program)
+klettres:
+klettres: KLettres aims to help to learn the alphabet and then to read some
+klettres: syllables in different languages.
+klettres: It is meant to help learning the very first sounds of a new language,
+klettres: for children or for adults.
+klettres:
+klettres: For more information, visit:  http://edu.kde.org/klettres
+klettres:
+klettres:
+klettres:

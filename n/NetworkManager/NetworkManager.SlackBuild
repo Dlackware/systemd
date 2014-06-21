@@ -25,8 +25,8 @@
 # Modified 2011, 2012  by Eric Hameleers, Eindhoven, NL
 
 PKGNAM=NetworkManager
-VERSION=${VERSION:-0.9.9.10}
-BUILD=${BUILD:-1}
+VERSION=${VERSION:-0.9.9.95}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 TAR=$PKGNAM-$VERSION.tar.xz
 
@@ -44,7 +44,7 @@ if [ -z "$ARCH" ]; then
 fi
 
 
-#wget -c https://download.gnome.org/sources/${PKGNAM}/0.9/${PKGNAM}-${VERSION}.tar.xz
+wget -c https://download.gnome.org/sources/${PKGNAM}/0.9/${PKGNAM}-${VERSION}.tar.xz
 
 NUMJOBS=${NUMJOBS:--j6}
 
@@ -53,18 +53,18 @@ TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-$PKGNAM
 OUTPUT=${OUTPUT:-/var/cache/dlackware}
 
-if [ ! -e "$CWD/$TAR" ];then
-    git clone git://anongit.freedesktop.org/$PKGNAM/$PKGNAM $PKGNAM-$VERSION
-    (
-	cd $PKGNAM-$VERSION
-	git checkout v$VERSION
-	#update submodules
-	git submodule update --init
-    )
-    rm -r $PKGNAM-$VERSION/.git/
-    tar cvf $TAR $PKGNAM-$VERSION
-    rm -r $PKGNAM-$VERSION    
-fi
+#if [ ! -e "$CWD/$TAR" ];then
+#    git clone git://anongit.freedesktop.org/$PKGNAM/$PKGNAM $PKGNAM-$VERSION
+#    (#
+#	cd $PKGNAM-$VERSION
+#	git checkout v$VERSION
+#	#update submodules
+#	git submodule update --init
+#   )
+#    rm -r $PKGNAM-$VERSION/.git/
+#    tar cvf $TAR $PKGNAM-$VERSION
+#    rm -r $PKGNAM-$VERSION    
+#fi
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
@@ -130,7 +130,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --enable-polkit=yes \
   --enable-modify-system \
   --enable-concheck \
-  --disable-qt \
+  --enable-qt \
   --disable-wimax \
   --disable-libndp \
   --with-session-tracking=${SBO_SYSTEMDOPTS:-consolekit} \
@@ -160,12 +160,12 @@ find $PKG/usr/man -type f -exec gzip -9 {} \;
 for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
 # create a VPN directory
-mkdir -p ${PKG}/etc/${PKGNAME}/VPN
+mkdir -p ${PKG}/etc/${PKGNAM}/VPN
 
 # create a keyfile plugin system settings directory
-mkdir -p ${PKG}/etc/${PKGNAME}/system-connections
+mkdir -p ${PKG}/etc/${PKGNAM}/system-connections
 mkdir -p ${PKG}/usr/share/gnome-vpn-properties
-mkdir -p ${PKG}/var/lib/${PKGNAME}
+mkdir -p ${PKG}/var/lib/${PKGNAM}
 
 # In case NetworkManager tries to install something here:
 rm -f $PKG/etc/rc.d/rc.networkmanager
@@ -204,8 +204,6 @@ fi
 rm -f $PKG/lib/systemd/system/NetworkManager.service
 cat $CWD/NetworkManager.service > \
     $PKG/lib/systemd/system/NetworkManager.service
-
-
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc

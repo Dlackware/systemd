@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+kio-mtp: kio-mtp (Provides KIO Access to MTP devices)
+kio-mtp:
+kio-mtp: Provides KIO Access to MTP devices using the mtp:/// protocol.
+kio-mtp: MTP stands for Media Transfer Protocol”  It is required in order to
+kio-mtp: access and manage files on devices running Android 4.0 and later.
+kio-mtp:
+kio-mtp:
+kio-mtp: Kio-mtp has been developed by Philipp Schmidt.
+kio-mtp:
+kio-mtp: For more information, visit:  http://www.kde.org
+kio-mtp:

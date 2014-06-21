@@ -1,0 +1,5 @@
+# Fix for bug https://bugs.kde.org/show_bug.cgi?id=327224
+# "Regression: Dolphin doesn't accept URLs containing a kio-slave as parameter"
+# Fixed in KDE 4.11.4.
+#zcat $CWD/patch/kde-baseapps/dolphin_kdebug_327224.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+

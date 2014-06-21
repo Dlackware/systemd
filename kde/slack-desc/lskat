@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+     |-----handy-ruler------------------------------------------------------|
+lskat: lskat (Lieutnant Skat card game for KDE)
+lskat:
+lskat: Lieutnant Skat (from German "Offiziersskat") is a fun and engaging
+lskat: card game for two players, where the second player is either live
+lskat: opponent, or a built in artificial intelligence.
+lskat:
+lskat:
+lskat:
+lskat:
+lskat: For more information, visit:  http://www.kde.org
+lskat:

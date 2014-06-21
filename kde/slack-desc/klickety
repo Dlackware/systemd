@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+klickety: klickety (strategy game)
+klickety:
+klickety: Klickety is a strategy game for KDE, an adaption of the Clickomania
+klickety: game.
+klickety: The rules are similar to those of the Same game: your goal is to clear
+klickety: the board by clicking on groups to destroy them.
+klickety:
+klickety:
+klickety:
+klickety: For more information, visit:  http://www.kde.org
+klickety:

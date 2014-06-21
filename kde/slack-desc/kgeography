@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+          |-----handy-ruler------------------------------------------------------|
+kgeography: kgeography (a geography learning tool)
+kgeography:
+kgeography: KGeography is a geography learning tool.
+kgeography: Right now it has three usage modes:
+kgeography: * Browse the maps clicking in a map division to see it's name
+kgeography: * The game tells you a map division name and you have to click on it
+kgeography: * The game shows you a map division flag and you have to guess
+kgeography:   its name 
+kgeography:
+kgeography: For more information, visit:  http://kgeography.berlios.de/
+kgeography:

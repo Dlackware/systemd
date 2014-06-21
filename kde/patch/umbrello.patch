@@ -1,0 +1,5 @@
+# Fix compilation error (undefined listitem in classifierlistpage.cpp)
+# Fixed post KDE 4.11.4 in
+# http://quickgit.kde.org/?p=umbrello.git&a=commit&h=5f9f6a68716a8aced2c5f962247d9b05b326fcf5
+#zcat $CWD/patch/umbrello/umbrello-4.11.4_listitem.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+

@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+    |-----handy-ruler------------------------------------------------------|
+bovo: bovo (five-in-a-row board game)
+bovo:
+bovo: Bovo is a Gomoku ("five points" in Japanese) like game for two
+bovo: players, where the opponents alternate in placing their respective
+bovo: pictogram on the game board.  Also known as: Connect Five,
+bovo: Five in a row, X and O, Naughts and Crosses.
+bovo:
+bovo:
+bovo:
+bovo: For more information, visit:  http://www.kde.org
+bovo:

@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+   |-----handy-ruler------------------------------------------------------|
+juk: juk (audio jukebox application)
+juk:
+juk: JuK is an audio jukebox application, supporting collections of MP3,
+juk: Ogg Vorbis, and FLAC audio files.  It allows you to edit the "tags"
+juk: of your audio files, and manage your collection and playlists.
+juk: It's main focus, in fact, is on music management.
+juk:
+juk:
+juk:
+juk: For more information, visit:  http://www.kde.org
+juk:

@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+kopete: kopete (multi-protocol instant messaging system)
+kopete:
+kopete: The goals of Kopete are to provide users with a standard and easy to
+kopete: use interface between all of their instant messaging systems, but at
+kopete: the same time also providing developers with the ease of writing
+kopete: plugins to support a new protocol.
+kopete:
+kopete:
+kopete:
+kopete: For more information, visit:  http://userbase.kde.org/Kopete
+kopete:

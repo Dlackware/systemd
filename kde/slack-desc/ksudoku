@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+ksudoku: ksudoku (sudoku game)
+ksudoku:
+ksudoku: KSudoku is a logic-based symbol placement puzzle.
+ksudoku: The player has to fill a grid so that each column, row as well as
+ksudoku: each square block on the game field contains only one instance of
+ksudoku: each symbol.
+ksudoku:
+ksudoku:
+ksudoku:
+ksudoku: For more information, visit:  http://www.kde.org
+ksudoku:

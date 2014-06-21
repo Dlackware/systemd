@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+knetwalk: knetwalk (turn the board pieces to get computers connected)
+knetwalk:
+knetwalk: KNetwalk is a single player logic game.  Construct the network,
+knetwalk: connecting all the terminals to the server in the fewest turns
+knetwalk: possible.
+knetwalk:
+knetwalk:
+knetwalk:
+knetwalk:
+knetwalk: For more information, visit:  http://www.kde.org
+knetwalk:

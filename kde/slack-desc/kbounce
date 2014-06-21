@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+kbounce: kbounce (KDE Bounce Ball Game)
+kbounce:
+kbounce: KBounce is a single player arcade game with the elements of puzzle.
+kbounce: It is played on a field, surrounded by wall, with two or more balls
+kbounce: that move about in the field bouncing off of walls.
+kbounce: The player can build new walls, decreasing the size of active field. 
+kbounce:
+kbounce:
+kbounce:
+kbounce: For more information, visit:  http://www.kde.org
+kbounce:

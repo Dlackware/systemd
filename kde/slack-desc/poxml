@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+     |-----handy-ruler------------------------------------------------------|
+poxml: poxml (translate DocBook XML files using gettext po files)
+poxml:
+poxml: This is a collection of tools that facilitate translating DocBook XML
+poxml: files using Gettext message files (PO files).
+poxml: Also included are several command-line utilities for manipulating
+poxml: DocBook XML files, PO files and PO template files.
+poxml:
+poxml:
+poxml:
+poxml: For more information, visit:  http://www.kde.org
+poxml:

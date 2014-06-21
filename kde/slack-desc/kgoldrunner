@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+           |-----handy-ruler------------------------------------------------------|
+kgoldrunner: kgoldrunner (Hunt gold, dodge enemies and solve puzzles)
+kgoldrunner:
+kgoldrunner: KGoldrunner is a maze-threading game with a puzzle flavor.
+kgoldrunner: It has hundreds of levels where pieces of gold must be collected,
+kgoldrunner: with enemies in hot pursuit.
+kgoldrunner:
+kgoldrunner:
+kgoldrunner:
+kgoldrunner:
+kgoldrunner: For more information, visit:  http://www.kde.org
+kgoldrunner:

@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+kiriki: kiriki (yahtzee-like dice game for KDE)
+kiriki:
+kiriki: Kiriki is an addictive and fun dice game for KDE, designed to be
+kiriki: played by as many as six players.  Participants have to collect points
+kiriki: by rolling five dice for up to three times per single turn. 
+kiriki:
+kiriki:
+kiriki:
+kiriki:
+kiriki: For more information, visit:  http://www.kde.org
+kiriki:

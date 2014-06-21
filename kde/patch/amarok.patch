@@ -1,0 +1,4 @@
+# Fix a crash in KDE 4.11:
+# See also https://bugs.kde.org/show_bug.cgi?id=320855
+zcat $CWD/patch/amarok/amarok_kdebug_320855.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+

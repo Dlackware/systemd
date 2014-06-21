@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+bomber: bomber (arcade bombing game for KDE)
+bomber:
+bomber: Bomber is a single player arcade game. The player is invading various
+bomber: cities in a plane that is decreasing in height.  The goal of the game
+bomber: is to destroy all the buildings and advance to the next level.
+bomber: Each level gets a bit harder by increasing the speed of the plane
+bomber: and the height of the buildings.
+bomber:
+bomber:
+bomber: For more information, visit:  http://www.kde.org
+bomber:

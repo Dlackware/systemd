@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+          |-----handy-ruler------------------------------------------------------|
+ksystemlog: ksystemlog (system log viewer)
+ksystemlog:
+ksystemlog: KSystemLog is a system log viewer tool. This program is developed
+ksystemlog: for beginner users, who don't know how to find information about
+ksystemlog: their Linux system, and don't know where log files are.
+ksystemlog: It is also of course designed for advanced users, who quickly want
+ksystemlog: to understand problems of their machine with a more powerful and
+ksystemlog: graphical tool than 'tail -f' and 'less' commands ;-)
+ksystemlog:
+ksystemlog: Visit:  http://www.kde.org/applications/system/ksystemlog/
+ksystemlog:

@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+kmplot: kmplot (a mathematical function plotter)
+kmplot:
+kmplot: KmPlot is a mathematical function plotter for the KDE-Desktop.  
+kmplot: It has a built-in powerful parser. You can plot different functions
+kmplot: simultaneously and combine them into new functions. KmPlot supports
+kmplot: functions with parameters and functions in polar coordinates.
+kmplot: Several grid modes are possible.
+kmplot: Plots may be printed with high precision in correct scale.
+kmplot:
+kmplot: For more information, visit:  http://edu.kde.org/
+kmplot:

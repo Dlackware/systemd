@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side mkwalletmanagers the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+              |-----handy-ruler------------------------------------------------------|
+kwalletmanager: kwalletmanager (KDE wallet manager)
+kwalletmanager:
+kwalletmanager: KDE Wallet Manager is a tool to manage your passwords under KDE.
+kwalletmanager:
+kwalletmanager: kwalletmanager's home page is:
+kwalletmanager:   https://projects.kde.org/projects/kde/kdeutils
+kwalletmanager:
+kwalletmanager:
+kwalletmanager:
+kwalletmanager:
+kwalletmanager:

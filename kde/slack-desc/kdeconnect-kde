@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+              |-----handy-ruler------------------------------------------------------|
+kdeconnect-kde: kdeconnect-kde (Integrate Android with the KDE Desktop)
+kdeconnect-kde:
+kdeconnect-kde: KDE Connect is a module to connect KDE with your smartphone.
+kdeconnect-kde: Prominent features are: clipboard share, notifications sync, 
+kdeconnect-kde: multimedia remote control over secured network connections.
+kdeconnect-kde: Please note you will need to install KDE Connect on Android
+kdeconnect-kde: for this app to work:
+kdeconnect-kde: https://play.google.com/store/apps/details?id=org.kde.kdeconnect-kde_tp
+kdeconnect-kde:
+kdeconnect-kde: See also:
+kdeconnect-kde:  http://albertvaka.wordpress.com/2013/08/05/introducing-kde-connect/

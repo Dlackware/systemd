@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+kreversi: kreversi (reversi board game for KDE)
+kreversi:
+kreversi: KReversi is a simple one player strategy game played against the
+kreversi: computer.  If a player's piece is captured by an opposing player,
+kreversi: that piece is turned over to reveal the color of that player.
+kreversi: A winner is declared when one player has more pieces of his own color
+kreversi: on the board and there are no more possible moves. 
+kreversi:
+kreversi:
+kreversi: For more information, visit:  http://www.kde.org
+kreversi:

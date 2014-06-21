@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+kbruch: kbruch (calculate fractions)
+kbruch:
+kbruch: KBruch is a small program to practice calculating with fractions.
+kbruch:
+kbruch: For more information, visit:  http://edu.kde.org/
+kbruch:
+kbruch:
+kbruch:
+kbruch:
+kbruch:
+kbruch:

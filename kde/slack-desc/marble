@@ -1,0 +1,20 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+marble: marble (virtual globe)
+marble:
+marble: Marble is a virtual globe with advanced routing capabilities.  You can
+marble: download maps from a variety of themes and explore the surroundings.
+marble: Record your trip and share it with your friends.
+marble: Features:  online and offline routing, GPS tracking and recording,
+marble: themable maps (OpenStreetMap, Satellite Map and more), support for
+marble: different projections (globe, flat map, ...) and other planets,
+marble: download of maps and route data for offline usage.
+marble:
+marble: For more information, visit:  http://edu.kde.org/
+

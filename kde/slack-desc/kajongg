@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+kajongg: kajongg (Mah Jongg for KDE)
+kajongg:
+kajongg: Kajongg is the ancient Chinese board game for 4 players.
+kajongg: Kajongg can be used in two different ways: Scoring a manual game where
+kajongg: you play as always and use Kajongg for the computation of scores and
+kajongg: for bookkeeping.  Or you can use Kajongg to play against any
+kajongg: combination of other human players or computer players.
+kajongg:
+kajongg:
+kajongg: For more information, visit:  http://www.kde.org
+kajongg:

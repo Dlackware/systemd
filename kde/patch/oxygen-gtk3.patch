@@ -1,0 +1,3 @@
+# Compile against Slackware's older version of gtk+3:
+zcat $CWD/patch/oxygen-gtk3/oxygen-gtk3-1.3.1_gtk3.8.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+

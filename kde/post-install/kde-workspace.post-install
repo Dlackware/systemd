@@ -1,0 +1,65 @@
+
+# Use ck-launch-session in runlevel 3,
+# to start and attach a ConsoleKit session to the X session:
+mkdir -p $PKG/etc/X11/xinit
+cat $CWD/post-install/kde-workspace/xinit/xinitrc.kde > $PKG/etc/X11/xinit/xinitrc.kde
+chmod 0755 $PKG/etc/X11/xinit/xinitrc.kde
+
+# Setup config files for KDM:
+$PKG/usr/bin/genkdmconf --no-old --no-old-scripts --no-backup --in $PKG/usr/share/config/kdm
+
+# Add Slackware's standard xsessions path to kdmrc and remove the redundant
+# xsession files for XFCE (those are installed by the xcfe package):
+if ! grep -q "SessionsDirs=/usr/share/xsessions" $PKG/usr/share/config/kdm/kdmrc ; then
+  sed -i -e "/SessionsDirs=/s#SessionsDirs=\(.*\)\$#SessionsDirs=/usr/share/xsessions,\1#" $PKG/usr/share/config/kdm/kdmrc
+fi
+rm $PKG/usr/share/apps/kdm/sessions/xfce*.desktop
+
+# Similarly, allow other login managers to show KDE Plasma desktop sessions:
+mkdir -p $PKG/usr/share/xsessions
+mv $PKG/usr/share/apps/kdm/sessions/kde-plasma*.desktop \
+   $PKG/usr/share/xsessions/
+
+# Not allowing root to login at the console is just plain silly.  If they 
+# have physical access to the machine, what's the point of trying to stop 
+# this?  Even the kdmrc file says this is supposed to be the default.
+sed -i 's/AllowRootLogin=false/AllowRootLogin=true/' \
+  $PKG/usr/share/config/kdm/kdmrc 
+# We are also not ready to create a separate 'kdm' non-root user:
+sed -i 's/GreeterUID=kdm/#&/' \
+  $PKG/usr/share/config/kdm/kdmrc 
+
+# Add a .new suffix so we don't mangle an existing file:
+mv $PKG/usr/share/config/kdm/kdmrc $PKG/usr/share/config/kdm/kdmrc.new
+
+cp -a $PKG/usr/share/config/kdm/Xsession $PKG/usr/share/config/kdm/Xsession.orig
+cat $CWD/post-install/kde-workspace/config/Xsession | sed -e "s#/lib#/lib${LIBDIRSUFFIX}#" \
+  > $PKG/usr/share/config/kdm/Xsession
+
+# Add a .new suffix so we don't mangle an existing file:
+mv $PKG/usr/share/config/kdm/backgroundrc $PKG/usr/share/config/kdm/backgroundrc.new
+
+# Move the KDM files someplace FHS compliant:
+mkdir -p $PKG/etc/kde
+mv $PKG/usr/share/config/kdm $PKG/etc/kde
+( cd $PKG/usr/share/config ; ln -sf ../../../etc/kde/kdm . )
+
+# Move the polkit dbus configuration files to the proper place:
+mv $PKG/etc/kde/dbus-1 $PKG/etc/
+
+# This is fubar:
+rm -f $PKG/usr/share/icons/hicolor/index.theme
+
+# Systemd - pam support
+
+mkdir -p ${PKG}/etc/pam.d
+rm -f ${PKG}/etc/pam.d/*
+ for pamd in kcheckpass kdm-np kdm kscreensaver; do
+    cp -f ${CWD}/pamd/${pamd} \
+    ${PKG}/etc/pam.d/${pamd}.new || exit 1
+  done
+fi
+
+mkdir -p ${PKG}/lib/systemd/system
+install -pm644 ${CWD}/config/*.service \
+  ${PKG}/lib/systemd/system/ || exit 1

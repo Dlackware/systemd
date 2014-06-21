@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+         |-----handy-ruler------------------------------------------------------|
+plasma-nm: plasma-nm (KDE networkmanagement applet)
+plasma-nm:
+plasma-nm: This package contains the KDE networkmanagement applet.
+plasma-nm: This applet is written in QML and replacing the old widget based
+plasma-nm: networkmanagement applet.
+plasma-nm:
+plasma-nm:
+plasma-nm:
+plasma-nm:
+plasma-nm: For more information, visit:  http://www.kde.org
+plasma-nm:

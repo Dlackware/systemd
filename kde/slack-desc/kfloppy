@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side mkfloppys the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+kfloppy: kfloppy (floppy disk formatter)
+kfloppy:
+kfloppy: KFloppy is a utility that provides a straightforward graphical means
+kfloppy: to format 3.5" and 5.25" floppy disks.
+kfloppy:
+kfloppy: kfloppy's home page is:  http://utils.kde.org/projects/kfloppy
+kfloppy:
+kfloppy:
+kfloppy:
+kfloppy:
+kfloppy:

@@ -1,0 +1,13 @@
+# "konsole -ls" is no longer valid syntax for konsole, even though it's
+# still documented in the help manual.  Here's a way to get the same
+# thing, and it works here, but I honestly don't know how it will act
+# everywhere with every shell.  I just know it works with bash and ksh
+# Removed in KDE 4.9.4 package because it does not work:
+#sed -i -e 's/^Exec=konsole/Exec=konsole -e $SHELL -l/' \
+#  $PKG/usr/share/applications/kde4/konsole.desktop
+
+## I find this a little bit too bright...  <change by pjv>
+## Change the konsole defaults to look like the real Linux console:
+#sed -i 's/ColorScheme=Linux/ColorScheme=WhiteOnBlack/' \
+#  $PKG/usr/share/apps/konsole/Shell.profile
+

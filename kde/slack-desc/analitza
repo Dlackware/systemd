@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+analitza: analitza (library to add mathematical features to programs)
+analitza:
+analitza: The analitza library will let you add mathematical features
+analitza: to your program. 
+analitza:
+analitza: For more information, visit:
+analitza:   https://projects.kde.org/projects/kde/kdeedu/analitza
+analitza:
+analitza:
+analitza:
+analitza:

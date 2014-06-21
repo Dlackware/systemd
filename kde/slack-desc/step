@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+    |-----handy-ruler------------------------------------------------------|
+step: step (interactive physics simulator)
+step:
+step: Step is an interactive physical simulator.
+step: It works like this: you place some bodies on the scene, add some
+step: forces such as gravity or springs, then click "Simulate" and Step
+step: shows you how your scene will evolve according to the laws of physics.
+step: With Step you can not only learn but feel how physics works !
+step:
+step: For more information, visit:  http://edu.kde.org/
+step:
+step:

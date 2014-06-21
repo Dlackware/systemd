@@ -1,0 +1,4 @@
+# Fix KDE bug 324470 - solved in KDE 4.11.2.
+# - Minimize/maximize by clicking taskbar entries requires double click.
+#zcat $CWD/patch/kde-runtime/kde-runtime.kdebug324470.diff.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+

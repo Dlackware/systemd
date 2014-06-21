@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+palapeli: palapeli (jigsaw puzzle game)
+palapeli:
+palapeli: Palapeli is a single-player jigsaw puzzle game.
+palapeli: Unlike other games in that genre, you are not limited to aligning
+palapeli: pieces on imaginary grids.  The pieces are freely moveable.
+palapeli: Also, Palapeli features real persistency, i.e. everything you do
+palapeli: is saved on your disk immediately.
+palapeli:
+palapeli:
+palapeli: For more information, visit:  http://www.kde.org
+palapeli:

@@ -1,0 +1,6 @@
+# First, build and install Tidy:
+cd $CWD/pre-install/kdewebdev/tidy 
+  echo "Building htmltidy..."
+  ARCH=$ARCH sh ./tidy.build $PKG
+cd -
+

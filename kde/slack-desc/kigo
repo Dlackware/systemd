@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+    |-----handy-ruler------------------------------------------------------|
+kigo: kigo (Go board game for KDE)
+kigo:
+kigo: Kigo is an open-source implementation of the popular Go game.
+kigo: Go is a strategic board game for two players. It is also known as igo
+kigo: (Japanese), weiqi or wei ch'i (Chinese) or baduk (Korean). Go is noted
+kigo: for being rich in strategic complexity despite its simple rules.
+kigo: The game is played by two players who alternately place black and
+kigo: white pieces on the vacant intersections of a grid of 19x19 lines
+kigo: (9x9 or 13x13 for easier games).
+kigo:
+kigo: For more information, visit:  http://www.kde.org

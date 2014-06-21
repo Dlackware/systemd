@@ -1,0 +1,4 @@
+# Patches that address reported bugs in plasma-nm 0.9.3.1:
+#zcat $CWD/patch/plasma-nm/plasma-nm-fixes.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+

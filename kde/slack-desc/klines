@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+klines: klines (tactical game for KDE)
+klines:
+klines: KLines is a simple but highly addictive, one player game for KDE.
+klines: KLines has been inspired by well known game of Color Lines, written
+klines: by Olga Demina, Igor Ivkin and Gennady Denisov back in 1992.
+klines: You can also play an online demo version of this game. 
+klines:
+klines:
+klines:
+klines: For more information, visit:  http://www.kde.org
+klines:

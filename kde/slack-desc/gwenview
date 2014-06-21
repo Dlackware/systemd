@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+gwenview: gwenview (image viewer for KDE)
+gwenview:
+gwenview: Gwenview is a simple image viewer for KDE.  It features a folder tree
+gwenview: window and a file list window, providing easy navigation of your file
+gwenview: hierarchy.
+gwenview:
+gwenview: For more information, visit:  http://www.kde.org
+gwenview:
+gwenview:
+gwenview:
+gwenview:

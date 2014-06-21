@@ -1,0 +1,5 @@
+# Build against Ruby 1.9.3.
+# See also https://bugs.kde.org/show_bug.cgi?id=287057
+# No longer needed in KDE 4.11.
+#zcat $CWD/patch/korundum/korundum_ruby19.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+

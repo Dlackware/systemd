@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+konquest: konquest (KDE version of Gnu-Lactic Konquest)
+konquest:
+konquest: This the KDE version of Gnu-Lactic Konquest, a multi-player
+konquest: strategy game.  The goal of the game is to expand your
+konquest: interstellar empire across the galaxy.
+konquest:
+konquest:
+konquest:
+konquest:
+konquest: For more information, visit:  http://www.kde.org
+konquest:

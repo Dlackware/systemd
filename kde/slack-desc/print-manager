@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+             |-----handy-ruler------------------------------------------------------|
+print-manager: print-manager (tool for managing print jobs and printers)
+print-manager:
+print-manager: Print Manager (formerly printer-applet) is a system tray utility
+print-manager: that shows current print jobs, printer warnings, and errors.
+print-manager:
+print-manager:
+print-manager:
+print-manager:
+print-manager: Homepage:
+print-manager:   https://projects.kde.org/projects/kde/kdeutils/print-manager
+print-manager:

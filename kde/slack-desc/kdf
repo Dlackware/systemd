@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side mkdiskfrees the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+   |-----handy-ruler------------------------------------------------------|
+kdf: kdf (show available disk space)
+kdf:
+kdf: kdf (KDiskFree) displays the available file devices (hard drive
+kdf: partitions, floppy and CD/DVD drives, etc.) along with information on
+kdf: their capacity, free space, type and mount point.
+kdf:
+kdf: kdf's home page is:  http://utils.kde.org/projects/kdf
+kdf:
+kdf:
+kdf:
+kdf:

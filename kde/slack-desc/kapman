@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+kapman: kapman (KDE version of Pac-Man)
+kapman:
+kapman: Kapman is a clone of the well known game Pac-Man.
+kapman: You must run through the maze to eat all pills without being captured
+kapman: by a ghost.  By eating an energizer, Kapman gets the ability to eat
+kapman: ghosts for a few seconds.  When a stage is cleared of pills and
+kapman: energizer the player is taken to the next stage with slightly
+kapman: increased game speed.
+kapman:
+kapman: For more information, visit:  http://www.kde.org
+kapman:

@@ -1,0 +1,14 @@
+# Slackware ships a different version of XML DTDs:
+zcat $CWD/patch/kdelibs/kdelibs.docbook.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+# Make uPnP support depend on the environment variable SOLID_UPNP,
+# e.g. by creating an /etc/profile.d/upnp.sh file with the following contents:
+# export SOLID_UPNP=1
+zcat $CWD/patch/kdelibs/kdelibs.upnp_conditional.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+# Revert 3 patches which (although they probably follow the FDo spec better),
+# cause incorrect icon overrides:
+zcat $CWD/patch/kdelibs/return-not-break.-copy-paste-error.patch.gz | patch -R -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+zcat $CWD/patch/kdelibs/coding-style-fixes.patch.gz | patch -R -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+zcat $CWD/patch/kdelibs/return-application-icons-properly.patch.gz | patch -R -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
