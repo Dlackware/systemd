@@ -22,7 +22,7 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=sbc
-VERSION=${VERSION:-1.0}
+VERSION=${VERSION:-1.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 

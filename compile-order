@@ -38,6 +38,7 @@ l/gst1-plugins-good
 l/gst1-plugins-ugly
 l/gst-libav
 l/libcanberra
+n/bluez
 x/xorg/dri3proto
 x/xorg/presentproto
 x/xorg/xcb-proto
