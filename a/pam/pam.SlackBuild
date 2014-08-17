@@ -82,7 +82,7 @@ done
 zcat $CWD/patches/pam-1.1.x-edit-modules.patch.gz | patch -p1 --verbose || exit 1
 
 # Churn some patches from .am -> .in:
-autoreconf -f
+autoreconf -ivf
 
 ## Make these 2 man pages or the build falls over later on:
 #( cd modules/pam_faillock

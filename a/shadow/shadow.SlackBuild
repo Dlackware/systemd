@@ -22,7 +22,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=shadow
-VERSION=${VERSION:-4.1.5.1}
+VERSION=${VERSION:-4.2.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -39,7 +39,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/${PKGNAM}/${PKGNAM}-${VERSION}.tar.xz
+wget -c ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/${PKGNAM}/${PKGNAM}-${VERSION}.tar.xz
 
 NUMJOBS=${NUMJOBS:--j6}
 
@@ -66,7 +66,7 @@ tar xvf $CWD/shadow-$VERSION.tar.?z* || exit 1
 cd shadow-$VERSION
 
 # Lets fix the crypt() problem
-patch -p1 --verbose <$CWD/shadow.glibc217-crypt.diff || exit 1
+#patch -p1 --verbose <$CWD/shadow.glibc217-crypt.diff || exit 1
 
 chown -R root:root .
 find . \

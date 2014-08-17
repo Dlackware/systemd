@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-213}
+VERSION=${VERSION:-215}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -296,8 +296,18 @@ mkdir -p ${PKG}/lib/systemd/user-generators
 # Mask legacy stuff
 ln -s rescue.service ${PKG}/lib/systemd/system/single.service
 
-rm -f ${PKG}/etc/systemd/system/multi-user.target.wants/systemd-networkd.service
-ln -sf ../systemd-networkd.service ${PKG}/lib/systemd/system/multi-user.target.wants/
+for srv in networkd resolved timesyncd ;do
+  rm -f ${PKG}/etc/systemd/system/multi-user.target.wants/systemd-${srv}.service
+  ln -sf ../systemd-${srv}.service ${PKG}/lib/systemd/system/multi-user.target.wants/
+done
+
+for file in bootchart journald logind resolved system timesyncd user ;do
+  mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
+done
+
+
+#rm -f ${PKG}/etc/systemd/system/multi-user.target.wants/systemd-networkd.service
+#ln -sf ../systemd-networkd.service ${PKG}/lib/systemd/system/multi-user.target.wants/
 
 echo 'd /run/console 755 root root' > ${PKG}/usr/lib/tmpfiles.d/console.conf || exit 1
 
@@ -321,9 +331,9 @@ ln -sf ../display-manager.service \
 ln -sf ../ldconfig.service \
   ${PKG}/lib/systemd/system/multi-user.target.wants/ldconfig.service || exit 1
 
-for file in bootchart journald logind system user ;do
-  mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
-done
+#for file in bootchart journald logind system user ;do
+#  mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
+#done
 
 rm -f ${PKG}/usr/lib/sysctl.d/50-coredump.conf
 

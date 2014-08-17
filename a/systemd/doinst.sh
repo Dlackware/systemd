@@ -73,6 +73,31 @@ if ! grep --quiet '^systemd-timesync:' /etc/group ;then
     systemd-timesync 2> /dev/null
 fi
 
+if ! grep --quiet '^systemd-network:' /etc/group ;then
+  /usr/sbin/groupadd \
+     -g $(free_group_id) \
+     systemd-network 2> /dev/null
+fi
+
+if ! grep --quiet '^systemd-resolve:' /etc/group ;then
+  /usr/sbin/groupadd \
+     -g $(free_group_id) \
+     systemd-resolve 2> /dev/null
+fi
+
+if ! grep --quiet '^systemd-bus-proxy:' /etc/group ;then
+  /usr/sbin/groupadd \
+     -g $(free_group_id) \
+     systemd-bus-proxy 2> /dev/null
+fi
+
+if ! grep --quiet '^input:' etc/group ;then
+  /usr/sbin/groupadd \
+     -g $(free_group_id) \
+     input 2> /dev/null
+fi
+
+
 # Set up user: add it if it doesn't exist, update it if it already does.
 if OLD_ENTRY=$(grep --max-count=1 '^systemd-journal-gateway:' /etc/passwd) \
   || OLD_ENTRY=$(grep --max-count=1 \
@@ -136,6 +161,96 @@ else
     systemd-timesync 2> /dev/null
 fi
 
+if OLD_ENTRY=$(grep --max-count=1 '^systemd-network:' etc/passwd)
+then
+  # Modify existing user
+  OLD_USER=$(echo ${OLD_ENTRY} | cut --fields=1 --delimiter=':')
+  USER_ID=$(echo ${OLD_ENTRY} | cut --fields=3 --delimiter=':')
+  test ${USER_ID} -ge 1000 && USER_ID=$(free_user_id)
+  if test "${OLD_USER}" = "systemd-network"; then
+    echo -n "Updating unprivileged user" 1>&2
+  else
+    echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to" 1>&2
+  fi
+  /usr/sbin/usermod \
+      -d '/var/lib/systemd' \
+      -u ${USER_ID} \
+      -s /bin/false \
+      -g systemd-network \
+      ${OLD_USER}
+else
+  # Add new user
+  echo -n "Creating unprivileged user" 1>&2
+  /usr/sbin/useradd \
+    -c 'systemd Network Management' \
+    -u $(free_user_id) \
+    -g systemd-network \
+    -s /bin/false \
+    -d '/var/lib/systemd' \
+    systemd-network 2> /dev/null
+fi
+
+if OLD_ENTRY=$(grep --max-count=1 '^systemd-resolve:' etc/passwd)
+then
+  # Modify existing user
+  OLD_USER=$(echo ${OLD_ENTRY} | cut --fields=1 --delimiter=':')
+  USER_ID=$(echo ${OLD_ENTRY} | cut --fields=3 --delimiter=':')
+  test ${USER_ID} -ge 1000 && USER_ID=$(free_user_id)
+  if test "${OLD_USER}" = "systemd-resolve"; then
+    echo -n "Updating unprivileged user" 1>&2
+  else
+    echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to" 1>&2
+  fi
+  /usr/sbin/usermod \
+      -d '/var/lib/systemd' \
+      -u ${USER_ID} \
+      -s /bin/false \
+      -g systemd-resolve \
+      ${OLD_USER}
+else
+  # Add new user
+  echo -n "Creating unprivileged user" 1>&2
+  /usr/sbin/useradd \
+    -c 'systemd Resolver' \
+    -u $(free_user_id) \
+    -g systemd-resolve \
+    -s /bin/false \
+    -d '/var/lib/systemd' \
+    systemd-resolve 2> /dev/null
+fi
+
+if OLD_ENTRY=$(grep --max-count=1 '^systemd-bus-proxy:' etc/passwd)
+then
+  # Modify existing user
+  OLD_USER=$(echo ${OLD_ENTRY} | cut --fields=1 --delimiter=':')
+  USER_ID=$(echo ${OLD_ENTRY} | cut --fields=3 --delimiter=':')
+  test ${USER_ID} -ge 1000 && USER_ID=$(free_user_id)
+  if test "${OLD_USER}" = "systemd-bus-proxy"; then
+    echo -n "Updating unprivileged user" 1>&2
+  else
+    echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to" 1>&2
+  fi
+  /usr/sbin/usermod \
+      -d '/var/lib/systemd' \
+      -u ${USER_ID} \
+      -s /bin/false \
+      -g systemd-bus-proxy \
+      ${OLD_USER}
+else
+  # Add new user
+  echo -n "Creating unprivileged user" 1>&2
+  /usr/sbin/useradd \
+    -c 'systemd Bus Proxy' \
+    -u $(free_user_id) \
+    -g systemd-bus-proxy \
+    -s /bin/false \
+    -d '/var/lib/systemd' \
+    systemd-bus-proxy 2> /dev/null
+fi
+
+
+
+
 setcaps () {
   if /sbin/setcap "${1}" "${3}" 2>/dev/null; then
     /bin/chmod "${2}" "${3}"
@@ -152,7 +267,7 @@ enableservice () {
 ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 
 # Lets make sure DNS resolve works
-ln -sf /run/systemd/network/resolv.conf /etc/resolv.conf
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 if [ -r /lib/systemd/systemd ]; then
   mv -f /lib/systemd/systemd /lib/systemd/systemd.old
