@@ -1,4 +1,0 @@
-# CVE 2013-2120: paste widget "password" generator uses insecure randomness:
-# Fixed in KDE 4.11.
-#zcat $CWD/patch/kdeplasma-addons/random_generator_cve-2013-2120.patch.gz | patch -p1 --verbose || { touch ${SLACK_KDE_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
-

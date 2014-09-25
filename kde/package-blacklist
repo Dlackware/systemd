@@ -1,9 +1,0 @@
-# Enter packages to skip (perhaps because they aren't used on
-# this platform) below.  Just the package name -- no version
-# number is needed.
-
-## kdebindings:
-# needs c-sharp:
-kimono
-qyoto
-

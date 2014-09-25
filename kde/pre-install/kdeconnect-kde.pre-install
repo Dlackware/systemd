@@ -1,2 +1,0 @@
-sed -i -e "s,#add_subdirectory(kio),add_subdirectory(kio)," CMakeLists.txt 
-
