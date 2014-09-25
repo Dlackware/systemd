@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-215}
+VERSION=${VERSION:-216}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -86,6 +86,11 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
+unset SBO_AUTOGEN
+if [ -r ${CWD}/apply-patches.sh ]; then
+  . ${CWD}/apply-patches.sh
+fi
+
 # Force file regeneration
 ( cd units
   for i in *.in ;do
@@ -122,22 +127,16 @@ mkdir -p ${PKG}/run
 
 find . -name "*.[1-8]" -exec touch '{}' ';'
 
-# Patch to handle newer crypt() that may return NULL:
-patch -p0 --verbose <${CWD}/patches/60-cdrom_id.rules.diff || exit 1
+if [ "${SBO_AUTOGEN}" = "YES" ] ;then
+  autoreconf -ivf || exit $?
+fi
 
 unset SBO_PAMOPTS
 if [ "${SBO_PAM}" = "YES" ] ;then
-  SBO_PAMOPTS='--enable-pam --with-pamlibdir=/lib${LIBDIRSUFFIX}/security'
+  SBO_PAMOPTS='--enable-pam'
 else
   SBO_PAMOPTS='--disable-pam'
 fi
-
-# Silly upstream, using the bleeding edge.  Reconf:
-#autoreconf --force --install 
-
-# Autoconf changes linux to linux-gnu.
-# Our host is $ARCH-slackware-linux not $ARCH-slackware-linux-gnu:
-#sed -i -e 's#linux|linux-gnu|#linux|linux|#' config.sub || exit 1
 
 CFLAGS="${SLKCFLAGS} -fno-lto"
 CXXFLAGS="${SLKCFLAGS}" \

@@ -1,4 +1,5 @@
 ### [systemd-min] begin
+ap/bash-completion
 a/cracklib
 a/pam
 l/libpwquality
@@ -39,28 +40,13 @@ l/gst1-plugins-ugly
 l/gst-libav
 l/libcanberra
 n/bluez
-x/xorg/dri3proto
-x/xorg/presentproto
-x/xorg/xcb-proto
-x/xorg/libxcb
-x/xorg/libdrm
-x/xorg/libxshmfence
 d/llvm
 x/mesa
-x/xorg/xorg-server
-x/xorg/xf86-input-evdev
+x/x11/xorg-server
+x/x11/xf86-input-evdev
 a/cups
 n/httpd
 a/procps
 n/php
 n/yptools
-xfce/xfce4-session
 ### [systemd-all] end
-#
-#
-#  The following 2 packages needs to be rebuild aswell for systemd-all
-#
-#   kde/kdelibs
-#   kde/kde-workspace
-#
-#

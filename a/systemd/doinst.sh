@@ -29,6 +29,7 @@ config /etc/systemd/journald.conf.new
 config /etc/systemd/logind.conf.new
 config /etc/systemd/system.conf.new
 config /etc/systemd/user.conf.new
+config /etc/pam.d/systemd-user.new
 
 function free_user_id {
   # Find a free user-ID >= 100 (should be < 1000 so it's not a normal user)
@@ -65,6 +66,18 @@ if ! grep --quiet '^systemd-journal-gateway:' /etc/group ;then
   /usr/sbin/groupadd \
     -g $(free_group_id) \
     systemd-journal-gateway 2> /dev/null
+fi
+
+if ! grep --quiet '^systemd-journal-remote:' etc/group ;then
+  /usr/sbin/groupadd \
+    -g $(free_group_id) \
+    systemd-journal-remote 2> /dev/null
+fi
+
+if ! grep --quiet '^systemd-journal-upload:' etc/group ;then
+  /usr/sbin/groupadd \
+    -g $(free_group_id) \
+    systemd-journal-upload 2> /dev/null
 fi
 
 if ! grep --quiet '^systemd-timesync:' /etc/group ;then
@@ -128,6 +141,70 @@ else
     -s /bin/false \
     -d '/var/log/journal' \
     systemd-journal-gateway 2> /dev/null
+fi
+
+# Set up user: add it if it doesn't exist, update it if it already does.
+if OLD_ENTRY=$(grep --max-count=1 '^systemd-journal-remote:' etc/passwd) \
+  || OLD_ENTRY=$(grep --max-count=1 \
+  ':/var/log/journal/remote:[a-z/]*$' etc/passwd)
+then
+  # Modify existing user
+  OLD_USER=$(echo ${OLD_ENTRY} | cut --fields=1 --delimiter=':')
+  USER_ID=$(echo ${OLD_ENTRY} | cut --fields=3 --delimiter=':')
+  test ${USER_ID} -ge 1000 && USER_ID=$(free_user_id)
+  if test "${OLD_USER}" = "systemd-journal-remote"; then
+    echo -n "Updating unprivileged user " 1>&2
+  else
+    echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to " 1>&2
+  fi
+  /usr/sbin/usermod \
+      -d '/var/log/journal/remote' \
+      -u ${USER_ID} \
+      -s /bin/false \
+      -g systemd-journal-remote \
+      ${OLD_USER}
+else
+  # Add new user
+  echo -n "Creating unprivileged user " 1>&2
+  /usr/sbin/useradd \
+    -c 'Journal Remote' \
+    -u $(free_user_id) \
+    -g systemd-journal-remote \
+    -s /bin/false \
+    -d '/var/log/journal/remote' \
+    systemd-journal-remote 2> /dev/null
+fi
+
+# Set up user: add it if it doesn't exist, update it if it already does.
+if OLD_ENTRY=$(grep --max-count=1 '^systemd-journal-upload:' etc/passwd) \
+  || OLD_ENTRY=$(grep --max-count=1 \
+  ':/var/log/journal/upload:[a-z/]*$' etc/passwd)
+then
+  # Modify existing user
+  OLD_USER=$(echo ${OLD_ENTRY} | cut --fields=1 --delimiter=':')
+  USER_ID=$(echo ${OLD_ENTRY} | cut --fields=3 --delimiter=':')
+  test ${USER_ID} -ge 1000 && USER_ID=$(free_user_id)
+  if test "${OLD_USER}" = "systemd-journal-upload"; then
+    echo -n "Updating unprivileged user " 1>&2
+  else
+    echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to " 1>&2
+  fi
+  /usr/sbin/usermod \
+      -d '/var/log/journal/upload' \
+      -u ${USER_ID} \
+      -s /bin/false \
+      -g systemd-journal-upload \
+      ${OLD_USER}
+else
+  # Add new user
+  echo -n "Creating unprivileged user " 1>&2
+  /usr/sbin/useradd \
+    -c 'Journal Upload' \
+    -u $(free_user_id) \
+    -g systemd-journal-upload \
+    -s /bin/false \
+    -d '/var/log/journal/upload' \
+    systemd-journal-upload 2> /dev/null
 fi
 
 if OLD_ENTRY=$(grep --max-count=1 '^systemd-timesync:' /etc/passwd) \
@@ -248,15 +325,6 @@ else
     systemd-bus-proxy 2> /dev/null
 fi
 
-
-
-
-setcaps () {
-  if /sbin/setcap "${1}" "${3}" 2>/dev/null; then
-    /bin/chmod "${2}" "${3}"
-  fi
-}
-
 enableservice () {
   if ! /bin/systemctl is-enable "${1}" > /dev/null 2>&1 ;then
     /bin/systemctl enable "${1}" 2>&1
@@ -289,16 +357,14 @@ enableservice systemd-readahead-replay.service || :
 enableservice systemd-readahead-collect.service || :
 enableservice systemd-networkd.service || :
 
-setcaps 'cap_dac_override,cap_sys_ptrace+ep' 'u-s' /usr/bin/systemd-detect-virt
-
 /bin/systemd-machine-id-setup > /dev/null 2>&1 || :
 /lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec > /dev/null 2>&1 || :
 sleep 1
 
-/bin/systemctl stop systemd-udev.service systemd-udev-control.socket systemd-udev-kernel.socket >/dev/null 2>&1 || :
-/bin/systemctl --system daemon-reload >/dev/null 2>&1 || :
-/bin/systemctl start systemd-udev.service >/dev/null 2>&1 || :
+/bin/systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
+/bin/systemctl --system daemon-reload  >/dev/null 2>&1 || :
+/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 /sbin/udevadm hwdb --update >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 /bin/systemd-tmpfiles --create >/dev/null 2>&1 || :
@@ -312,6 +378,8 @@ if [ -f /etc/nsswitch.conf ] ; then
 fi
 
 # Make sure new journal files will be owned by the "systemd-journal" group
+/bin/chgrp systemd-journal /run/log/journal/ >/dev/null 2>&1 || :
+/bin/chgrp systemd-journal /run/log/journal/$(cat /etc/machine-id) >/dev/null 2>&1 || :
 /bin/chgrp systemd-journal /var/log/journal/ >/dev/null 2>&1 || :
 /bin/chgrp systemd-journal /var/log/journal/$(cat /etc/machine-id) >/dev/null 2>&1 || :
 /bin/chmod g+s /var/log/journal/ >/dev/null 2>&1 || :
@@ -319,4 +387,4 @@ fi
 
 /usr/bin/setfacl -Rnm g:adm:rx,d:g:adm:rx /var/log/journal/ >/dev/null 2>&1 || :
 
-ln -sf /proc/self/mounts /etc/mtab >/dev/null 2>&1 || :
+#ln -sf /proc/self/mounts /etc/mtab >/dev/null 2>&1 || :

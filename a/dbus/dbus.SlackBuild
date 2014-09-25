@@ -23,7 +23,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=dbus
-VERSION=${VERSION:-1.8.6}
+VERSION=${VERSION:-1.8.8}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -74,10 +74,6 @@ find . \
  -exec chmod 644 {} \;
 
 patch -p1 --verbose <$CWD/dbus-1.6.x-allow_root_globally.diff || exit 1
-patch -p0 -E --backup --verbose <$CWD/dbus-1.8.0-systemd209.patch || exit 1
-
-
-autoreconf -ivf
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
@@ -107,6 +103,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --with-system-socket=/var/run/dbus/system_bus_socket \
   --with-session-socket-dir=/tmp \
   --with-init-scripts=slackware \
+  --enable-systemd \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --build=$ARCH-slackware-linux
 

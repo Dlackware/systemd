@@ -28,6 +28,11 @@ TAG=${TAG:-_dlack}
 
 # Set to NO to disable pam support
 SBO_PAM=${SBO_PAM:-YES}
+# Set to YES to add /etc/limits file with max processes from SB_LIMITSMAX (shellbomb protection)
+SBO_LIMITS=${SB_LIMITS:-YES}
+SBO_LIMITSMAX=${SB_LIMITSMAX:-400}
+# Set to YES to enable SHA512 encrypt method (more CPU intensive)
+SBO_SHA512=${SB_SHA512:-YES}
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -65,6 +70,8 @@ rm -rf shadow-$VERSION
 tar xvf $CWD/shadow-$VERSION.tar.?z* || exit 1
 cd shadow-$VERSION
 
+SBO_PAMD_DIR=${CWD}/pamd
+
 # Lets fix the crypt() problem
 #patch -p1 --verbose <$CWD/shadow.glibc217-crypt.diff || exit 1
 
@@ -79,8 +86,21 @@ find . \
 # and not requiring users to be in the 'wheel' group, in order to use `su`
 cat $CWD/pamd_settings.patch | patch -p2
 
-if [ "${SBO_PAM}" = "YES" ] ;then
-  export LDFLAGS="-Wl,--as-needed -fPIC -lpam -lpam_misc"
+sed -i -e '/^GROUP=/s|=.*$|=100|g' etc/useradd || exit 1
+
+sed -i -e '/<stdio.h>/a#include <stdarg.h>' libmisc/copydir.c || exit 1
+
+if [ "${SBO_LIMITS}" = "YES" ] && [ "${SBO_PAM}" != "YES" ] ; then
+  echo >> etc/limits || exit 1
+  echo '# Limit user process number to prevent shellbomb' >> etc/limits || exit 1
+  echo "* U ${SBO_LIMITSMAX}" >> etc/limits || exit 1
+fi
+
+rm -f etc/login.defs
+cp -f ${CWD}/login.defs etc/login.defs || exit 1
+
+if [ "${SBO_SHA512}" = "YES" ] || [ "${SBO_PAM}" = "YES" ] ;then
+  sed -i -e '/^ENCRYPT_METHOD /s|^.*$|ENCRYPT_METHOD SHA512|g' etc/login.defs || exit 1
 fi
 
 unset SBO_PAMOPTS
@@ -90,8 +110,12 @@ else
   SBO_PAMOPTS='--without-libpam --without-libcrack'
 fi
 
+rm -f po/*.gmo
+rm -f po/stamp-po
 
-CFLAGS="$SLKCFLAGS -fstack-protector-all" \
+CFLAGS="${SLKCFLAGS} -fpie" \
+CXXFLAGS="${SLKCFLAGS}" \
+LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now ${LDFLAGS}" \
 ./configure \
   --prefix=/usr \
   --sysconfdir=/etc \
@@ -114,16 +138,27 @@ cat $CWD/useradd > $PKG/etc/default/useradd
 rm -f $PKG/bin/groups
 find $PKG -name groups.1 -exec rm {} \;
 
-# Install a login.defs with unsurprising defaults:
-rm -f $PKG/etc/login.defs
-cat $CWD/login.defs > $PKG/etc/login.defs.new
+chmod 0750 ${PKG}/usr/sbin/{user,group}*
+
+( cd ${PKG}/etc || exit 1
+  for file in login.defs default/useradd ; do
+    mv ${file} ${file}.new || exit 1
+  done
+  if [ "${SBO_PAM}" != "YES" ] ;then
+    for file in limits login.access ; do
+      mv ${file} ${file}.new || exit 1
+    done
+  fi
+) || exit 1
+
+chmod 0600 ${PKG}/etc/default/useradd*
 
 if [ "${SBO_PAM}" = "YES" ]
 then
 	mkdir -p $PKG/etc/pam.d/
-	cp $CWD/pam/system-auth $PKG/etc/pam.d/
-	cp $CWD/pam/other $PKG/etc/pam.d/
-	cp $CWD/pam/login $PKG/etc/pam.d/
+	cp $CWD/pamd/system-auth $PKG/etc/pam.d/
+	cp $CWD/pamd/other $PKG/etc/pam.d/
+	cp $CWD/pamd/login $PKG/etc/pam.d/
 
 	(
 	  cd $PKG/etc/pam.d
@@ -158,6 +193,38 @@ touch $PKG/var/log/faillog.new
 
 # Use 4711 rather than 4755 permissions where setuid root is required:
 find $PKG -type f -perm 4755 -exec chmod 4711 "{}" \;
+
+if [ "${SBO_PAM}" = "YES" ] ; then
+  for pamd in login passwd remote su su-l; do
+     cp -f ${SBO_PAMD_DIR}/${pamd}.pamd \
+      ${PKG}/etc/pam.d/${pamd} || exit 1
+  done
+  for pamd in chfn chsh ; do
+    cp -f ${SBO_PAMD_DIR}/chsh-chfn.pamd \
+      ${PKG}/etc/pam.d/${pamd} || exit 1
+  done
+  for opt in \
+    CHFN_AUTH \
+    CRACKLIB_DICTPATH \
+    ENV_HZ \
+    ENVIRON_FILE \
+    FAILLOG_ENAB \
+    FTMP_FILE \
+    LASTLOG_ENAB \
+    MAIL_CHECK_ENAB \
+    MOTD_FILE \
+    NOLOGINS_FILE \
+    OBSCURE_CHECKS_ENAB \
+    PASS_ALWAYS_WARN \
+    PASS_CHANGE_TRIES \
+    PASS_MIN_LEN \
+    PORTTIME_CHECKS_ENAB \
+    QUOTAS_ENAB \
+    SU_WHEEL_ONLY
+  do
+    sed -i -r -e "/^#?${opt}/s|^|#|g" ${PKG}/etc/login.defs.new || exit 1
+  done
+fi
 
 # Compress and if needed symlink the man pages:
 if [ -d $PKG/usr/man ]; then

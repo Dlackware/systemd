@@ -1,18 +1,20 @@
 #
 # /etc/login.defs - Configuration control definitions for the shadow package.
 #
-#	$Id: login.defs 3038 2009-07-23 20:41:35Z nekral-guest $
+#	$Id: login.defs
 #
 
 #
 # Delay in seconds before being allowed another attempt after a login failure
+# Note: When PAM is used, some modules may enfore a minimal delay (e.g.
+#       pam_unix enforces a 2s delay)
 #
-# FAIL_DELAY		3
+FAIL_DELAY		3
 
 #
 # Enable logging and display of /var/log/faillog login failure info.
 #
-# FAILLOG_ENAB		yes
+FAILLOG_ENAB		yes
 
 #
 # Enable display of unknown usernames when login failures are recorded.
@@ -27,7 +29,7 @@ LOG_OK_LOGINS		no
 #
 # Enable logging and display of /var/log/lastlog login time info.
 #
-# LASTLOG_ENAB		yes
+LASTLOG_ENAB		yes
 
 #
 # Enable checking and display of mailbox status upon login.
@@ -35,22 +37,22 @@ LOG_OK_LOGINS		no
 # Disable if the shell startup files already check for mail
 # ("mailx -e" or equivalent).
 #
-# MAIL_CHECK_ENAB		yes
+MAIL_CHECK_ENAB		yes
 
 #
 # Enable additional checks upon password changes.
 #
-# OBSCURE_CHECKS_ENAB	yes
+OBSCURE_CHECKS_ENAB	yes
 
 #
 # Enable checking of time restrictions specified in /etc/porttime.
 #
-# PORTTIME_CHECKS_ENAB	yes
+PORTTIME_CHECKS_ENAB	yes
 
 #
 # Enable setting of ulimit, umask, and niceness from passwd gecos field.
 #
-# QUOTAS_ENAB		yes
+QUOTAS_ENAB		yes
 
 #
 # Enable "syslog" logging of su activity - in addition to sulog file logging.
@@ -64,7 +66,7 @@ SYSLOG_SG_ENAB		yes
 # a ":" delimited list of device names.  Root logins will be allowed only
 # upon these devices.
 #
-# CONSOLE		/etc/securetty
+CONSOLE		/etc/securetty
 #CONSOLE	console:tty01:tty02:tty03:tty04
 
 #
@@ -76,7 +78,7 @@ SYSLOG_SG_ENAB		yes
 # If defined, ":" delimited list of "message of the day" files to
 # be displayed upon login.
 #
-# MOTD_FILE	/etc/motd
+MOTD_FILE	/etc/motd
 #MOTD_FILE	/etc/motd:/usr/lib/news/news-motd
 
 #
@@ -94,14 +96,14 @@ SYSLOG_SG_ENAB		yes
 # If defined, login failures will be logged here in a utmp format.
 # last, when invoked as lastb, will read /var/log/btmp, so...
 #
-# FTMP_FILE	/var/log/btmp
+FTMP_FILE	/var/log/btmp
 
 #
 # If defined, name of file whose presence which will inhibit non-root
 # logins.  The contents of this file should be a message indicating
 # why logins are inhibited.
 #
-# NOLOGINS_FILE	/etc/nologin
+NOLOGINS_FILE	/etc/nologin
 
 #
 # If defined, the command name to display when running "su -".  For
@@ -139,7 +141,7 @@ HUSHLOGIN_FILE	.hushlogin
 # If defined, an HZ environment parameter spec.
 #
 # for Linux/x86
-# ENV_HZ		HZ=100
+ENV_HZ		HZ=100
 # For Linux/Alpha...
 #ENV_HZ		HZ=1024
 
@@ -147,8 +149,8 @@ HUSHLOGIN_FILE	.hushlogin
 # *REQUIRED*  The default PATH settings, for superuser and normal users.
 #
 # (they are minimal, add the rest in the shell startup files)
-ENV_SUPATH     PATH=/usr/local/sbin:/usr/local/bin:/sbin:/usr/sbin:/bin:/usr/bin
-ENV_PATH       PATH=/usr/local/bin:/bin:/usr/bin
+ENV_SUPATH	PATH=/usr/local/sbin:/usr/local/bin:/sbin:/usr/sbin:/bin:/usr/bin
+ENV_PATH	PATH=/usr/local/bin:/bin:/usr/bin
 
 #
 # Terminal permissions
@@ -181,7 +183,8 @@ ERASECHAR	0177
 KILLCHAR	025
 #ULIMIT		2097152
 
-# Default initial "umask" value.
+# Default initial "umask" value used by login on non-PAM enabled systems.
+# Default "umask" value for pam_umask on PAM enabled systems.
 # UMASK is also used by useradd and newusers to set the mode of new home
 # directories.
 # 022 is the default value, but 027, or even 077, could be considered
@@ -199,7 +202,7 @@ UMASK		022
 #
 PASS_MAX_DAYS	99999
 PASS_MIN_DAYS	0
-# PASS_MIN_LEN	5
+PASS_MIN_LEN	5
 PASS_WARN_AGE	7
 
 #
@@ -208,12 +211,12 @@ PASS_WARN_AGE	7
 # to uid 0 accounts.  If the group doesn't exist or is empty, no one
 # will be able to "su" to uid 0.
 #
-# SU_WHEEL_ONLY	no
+SU_WHEEL_ONLY	no
 
 #
 # If compiled with cracklib support, where are the dictionaries
 #
-#CRACKLIB_DICTPATH	/var/cache/cracklib/cracklib_dict
+#CRACKLIB_DICTPATH	/usr/share/cracklib/pw_dict
 
 #
 # Min/max values for automatic uid selection in useradd
@@ -246,12 +249,12 @@ LOGIN_TIMEOUT		60
 #
 # Maximum number of attempts to change password if rejected (too easy)
 #
-# PASS_CHANGE_TRIES	5
+PASS_CHANGE_TRIES	5
 
 #
 # Warn about weak passwords (but still allow them) if you are root.
 #
-# PASS_ALWAYS_WARN	yes
+PASS_ALWAYS_WARN	yes
 
 #
 # Number of significant characters in the password for crypt().
@@ -263,7 +266,7 @@ LOGIN_TIMEOUT		60
 #
 # Require password before chfn/chsh can make any changes.
 #
-# CHFN_AUTH		yes
+CHFN_AUTH		yes
 
 #
 # Which fields may be changed by regular users using chfn - use
@@ -300,7 +303,10 @@ CHFN_RESTRICT		frwh
 # If set to DES, DES-based algorithm will be used for encrypting password (default)
 # Overrides the MD5_CRYPT_ENAB option
 #
-# ENCRYPT_METHOD SHA256
+# Note: If you use PAM, it is recommended to use a value consistent with
+# the PAM modules configuration.
+#
+ENCRYPT_METHOD SHA256
 
 #
 # Only works if ENCRYPT_METHOD is set to SHA256 or SHA512.
@@ -338,7 +344,7 @@ CHFN_RESTRICT		frwh
 # when the user is added with adduser or useradd, or by editing
 # /etc/group directly, preferably using "vigr"
 #
-# CONSOLE_GROUPS         floppy:audio:cdrom:video:lp:scanner
+CONSOLE_GROUPS		floppy:audio:cdrom:video:scanner:lp
 
 #
 # Should login be allowed if we can't cd to the home directory?
@@ -350,7 +356,7 @@ DEFAULT_HOME	yes
 # If this file exists and is readable, login environment will be
 # read from it.  Every line should be in the form name=value.
 #
-# ENVIRON_FILE	/etc/environment
+ENVIRON_FILE	/etc/environment
 
 #
 # If defined, this command is run when removing a user.
