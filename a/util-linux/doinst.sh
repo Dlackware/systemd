@@ -32,9 +32,9 @@ then
   USER_ID=$(echo ${OLD_ENTRY} | cut --fields=3 --delimiter=':')
   test ${USER_ID} -ge 1000 && USER_ID=$(free_user_id)
   if test "${OLD_USER}" = "uuidd"; then
-    echo -n "Updating unprivileged user" 1>&2
+    echo -n "Updating unprivileged user " 1>&2
   else
-    echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to" 1>&2
+    echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to " 1>&2
   fi
   chroot . /usr/sbin/usermod \
       -d '/run/uuidd' \
@@ -44,7 +44,7 @@ then
       ${OLD_USER}
 else
   # Add new user
-  echo -n "Creating unprivileged user" 1>&2
+  echo -n "Creating unprivileged user " 1>&2
   chroot . /usr/sbin/useradd \
     -c 'UUID generator helper daemon' \
     -u $(free_user_id) \
@@ -68,3 +68,9 @@ chroot . /bin/chmod 2775 /run/uuidd
 if [ -x /bin/systemctl ] ; then
   chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
+
+if [ -e etc/mtab ] ;then
+  rm -f /etc/mtab
+  ln -s /proc/self/mounts /etc/mtab
+fi
+
