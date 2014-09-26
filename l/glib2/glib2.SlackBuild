@@ -23,7 +23,7 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-VERSION=${VERSION:-2.40.0}
+VERSION=${VERSION:-2.42.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -39,7 +39,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c https://download.gnome.org/sources/glib/2.40/glib-$VERSION.tar.xz
+wget -c https://download.gnome.org/sources/glib/2.42/glib-$VERSION.tar.xz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -75,7 +75,7 @@ find . \
  -exec chmod 644 {} \;
 
 # Silly upstream, using the bleeding edge.  Reconf:
-autoreconf --force --install 
+#autoreconf --force --install 
 
 CFLAGS="$SLKCFLAGS" \
 ./configure \
@@ -83,21 +83,50 @@ CFLAGS="$SLKCFLAGS" \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
   --mandir=/usr/man \
+  --localstatedir=/var/lib \
   --build=$ARCH-slackware-linux
+
+export LD_LIBRARY_PATH="$(pwd)/gio/.libs:$(pwd)/glib/.libs:$(pwd)/gmodule/.libs:$(pwd)/gobject/.libs:$(pwd)/gthread/.libs${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 make $NUMJOBS || make || exit 1
 make install DESTDIR=$PKG
 
-# Install profile scripts:
-mkdir -p $PKG/etc/profile.d/
-cp -a $CWD/libglib2.{csh,sh} $PKG/etc/profile.d/
-chown root:root $PKG/etc/profile.d/*
-chmod 755 $PKG/etc/profile.d/*
-mv $PKG/etc/profile.d/libglib2.csh $PKG/etc/profile.d/libglib2.csh.new
-mv $PKG/etc/profile.d/libglib2.sh $PKG/etc/profile.d/libglib2.sh.new
+mkdir -p ${PKG}/etc/profile.d
+for file in libglib2.csh libglib2.sh ;do
+  install -m0755 ${CWD}/profile.d/${file} \
+                 ${PKG}/etc/profile.d/${file}.new || exit 1
+done
+
+case "${ARCH}" in
+  s390x|x86_64)
+   mv ${PKG}/usr/bin/gio-querymodules{,-64}
+    ( cd ${PKG}/usr/bin
+      ln -sf gio-querymodules-64 gio-querymodules
+    )
+    ;;
+  *)
+    mv ${PKG}/usr/bin/gio-querymodules{,-32}
+    ( cd ${PKG}/usr/bin
+      ln -sf gio-querymodules-32 gio-querymodules
+    )
+    ;;
+esac
+
+mkdir -p ${PKG}/lib/systemd/system
+install -pm644 ${CWD}/systemd/*.service \
+  ${PKG}/lib/systemd/system/ || exit 1
+
+touch ${PKG}/usr/lib${LIBDIRSUFFIX}/gio/modules/giomodule.cache
+install -pm0755 ${CWD}/update-gio-modules ${PKG}/usr/bin/ || exit 1
+
+touch ${PKG}/usr/share/glib-2.0/schemas/gschemas.compiled
 
 find $PKG | xargs file | grep -e "executable" -e "shared object" \
   | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+( cd ${PKG}/usr/share/glib-2.0/gdb
+  python -mcompileall *.py
+)
 
 # Compress and link manpages, if any:
 if [ -d $PKG/usr/man ]; then

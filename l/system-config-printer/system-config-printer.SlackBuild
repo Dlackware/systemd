@@ -25,7 +25,7 @@
 
 
 PKGNAM=system-config-printer
-VERSION=${VERSION:-1.4.4}
+VERSION=${VERSION:-1.5.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -43,7 +43,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://cyberelk.net/tim/data/${PKGNAM}/1.4/$PKGNAM-$VERSION.tar.xz
+wget -c http://cyberelk.net/tim/data/${PKGNAM}/1.5/$PKGNAM-$VERSION.tar.xz
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"

@@ -87,13 +87,13 @@ CXXFLAGS="${SLKCFLAGS}" \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
   --disable-silent-rules \
   --disable-static \
+  --disable-qt3 \
   --with-distro=slackware \
   --with-avahi-user=avahi \
   --with-avahi-group=avahi \
-  --with-avahi-priv-access-group=netdev \
+  --with-avahi-priv-access-group=avahi \
   --with-autoipd-user=avahi_autoipd \
   --with-autoipd-group=avahi_autoipd \
-  --disable-qt3 \
   --enable-compat-howl \
   --enable-compat-libdns_sd \
   --disable-mono \
@@ -113,10 +113,22 @@ mkdir -p ${PKG}/var/lib/avahi-autoipd
 mkdir -p ${PKG}/etc/avahi/etc || exit 1
 touch ${PKG}/etc/avahi/etc/localtime || exit 1
 
+ln -s avahi-compat-howl.pc ${PKG}/usr/lib${LIBDIRSUFFIX}/pkgconfig/howl.pc || exit 1
+ln -s avahi-compat-libdns_sd.pc ${PKG}/usr/lib${LIBDIRSUFFIX}/pkgconfig/libdns_sd.pc || exit 1
+ln -s avahi-compat-libdns_sd/dns_sd.h ${PKG}/usr/include/ || exit 1
 
-# howl and mdnsresponder compatability
-(cd $PKG/usr/include; ln -s avahi-compat-libdns_sd/dns_sd.h dns_sd.h; ln -s avahi-compat-howl howl)
-(cd $PKG/usr/lib$LIBDIRSUFFIX/pkgconfig; ln -s avahi-compat-howl.pc howl.pc)
+( cd ${PKG}/etc/avahi || exit 1
+  for f in *.{conf,action} ;do
+    mv ${f} ${f}.new || exit 1
+  done
+) || exit 1
+mv ${PKG}/etc/dbus-1/system.d/avahi-dbus.conf \
+   ${PKG}/etc/dbus-1/system.d/avahi-dbus.conf.new || exit 1
+
+mkdir -p ${PKG}/var/log/setup
+zcat ${CWD}/setup.onlyonce.rc${PKGNAM}daemon.gz \
+  > ${PKG}/var/log/setup/setup.onlyonce.rc${PKGNAM}daemon || exit 1
+chmod 0755 ${PKG}/var/log/setup/setup.onlyonce.rc${PKGNAM}daemon || exit 1
 
 desktop-file-install --delete-original --vendor="" \
   --dir ${PKG}/usr/share/applications \

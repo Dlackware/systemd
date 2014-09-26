@@ -24,7 +24,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=gvfs
-VERSION=${VERSION:-1.21.2}
+VERSION=${VERSION:-1.22.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -38,7 +38,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c https://download.gnome.org/sources/$PKGNAM/1.21/$PKGNAM-$VERSION.tar.xz
+wget -c https://download.gnome.org/sources/$PKGNAM/1.22/$PKGNAM-$VERSION.tar.xz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
