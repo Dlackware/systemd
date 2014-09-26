@@ -17,7 +17,6 @@ n/NetworkManager
 d/json-c
 a/util-linux
 d/python3
-l/dbus-python3
 l/libatasmart
 l/system-config-printer
 a/lvm2
