@@ -1,5 +1,6 @@
 ### [systemd-min] begin
-ap/bash-completion
+#ap/bash-completion
+d/python3
 a/cracklib
 a/pam
 l/libpwquality
@@ -16,16 +17,13 @@ n/NetworkManager
 ### [systemd-all] begin
 d/json-c
 a/util-linux
-d/python3
 l/libatasmart
 l/system-config-printer
 a/lvm2
 a/udisks
 a/udisks2
-l/glib2
 l/libdaemon
 n/avahi
-l/gvfs
 l/libx264
 l/sbc
 l/pulseaudio
@@ -39,13 +37,14 @@ l/gst1-plugins-ugly
 l/gst-libav
 l/libcanberra
 n/bluez
-d/llvm
-x/mesa
-x/x11/xorg-server
-x/x11/xf86-input-evdev
-a/cups
-n/httpd
-a/procps
-n/php
-n/yptools
+x/wayland
+#d/llvm
+#x/mesa
+#x/x11/xorg-server
+#x/x11/xf86-input-evdev
+#a/cups
+#n/httpd
+#a/procps
+#n/php
+#n/yptools
 ### [systemd-all] end

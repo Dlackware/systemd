@@ -26,7 +26,7 @@
 # Originally written by core (eroc@linuxmail.org)
 
 PKGNAM=libx264
-VERSION=20140604
+VERSION=20140604-2245-stable
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -38,7 +38,7 @@ if [ -z "$ARCH" ]; then
  esac
 fi
 
-wget -c ftp://ftp.videolan.org/pub/videolan/x264/snapshots/x264-snapshot-$VERSION-2245-stable.tar.bz2
+wget -c ftp://ftp.videolan.org/pub/videolan/x264/snapshots/x264-snapshot-$VERSION.tar.bz2
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -64,9 +64,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf x264-snapshot-$VERSION-2245-stable
-tar xvf $CWD/x264-snapshot-$VERSION-2245-stable.tar.bz2
-cd x264-snapshot-$VERSION-2245-stable
+rm -rf x264-snapshot-$VERSION
+tar xvf $CWD/x264-snapshot-$VERSION.tar.bz2
+cd x264-snapshot-$VERSION
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -94,4 +94,4 @@ mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n -p $OUTPUT/$PKGNAM-$VERSION-2245-stable-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
+/sbin/makepkg -l y -c n -p $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}

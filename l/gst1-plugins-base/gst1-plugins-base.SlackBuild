@@ -23,7 +23,7 @@
 
 PKGNAM=gst1-plugins-base
 NAME=gst-plugins-base
-VERSION=${VERSION:-1.2.4}
+VERSION=${VERSION:-1.4.3}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
