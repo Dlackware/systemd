@@ -24,11 +24,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=llvm
-VERSION=3.4.1
+VERSION=3.4.2
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
-NUMJOBS=${NUMJOBS:-" -j7 "}
+NUMJOBS=${NUMJOBS:-" -j3 "}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -49,18 +49,24 @@ OUTPUT=${OUTPUT:-/var/cache/dlackware}
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
   LIBDIRSUFFIX=""
+  SLKTARGET=${SLKTARGET:-i486}
 elif [ "$ARCH" = "i686" ]; then
   SLKCFLAGS="-O2 -march=i686 -mtune=i686"
   LIBDIRSUFFIX=""
+  SLKTARGET=${SLKTARGET:-i686}
 elif [ "$ARCH" = "x86_64" ]; then
   SLKCFLAGS="-O2 -fPIC"
   LIBDIRSUFFIX="64"
+  SLKTARGET=${SLKTARGET:-x86_64}
 else
   SLKCFLAGS="-O2"
   LIBDIRSUFFIX=""
+  SLKTARGET=${SLKTARGET:-i486}
 fi
 
-rm -rf $PKG
+SLKDTARGET=${SLKDTARGET:-slackware}
+
+rm -rf $TMP
 mkdir -p $TMP $PKG
 cd $TMP
 rm -rf $PKGNAM-$VERSION.src $PKGNAM-$VERSION
@@ -74,70 +80,204 @@ cd ../
 chown -R root:root .
 chmod -R u+w,go+r-w,a-s .
 
+sed -i \
+  -e "/ActiveLibDir/s|/lib\"|/lib${LIBDIRSUFFIX}/${NAME}\"|g" \
+  -e "/ActiveLibDir/s|/lib/\"|/lib${LIBDIRSUFFIX}/${NAME}/\"|g" \
+  tools/llvm-config/llvm-config.cpp || exit 1
+
+# FIXME file this
+# configure does not properly specify libdir
+sed -i \
+  -e "s|(PROJ_prefix)/lib|(PROJ_prefix)/lib${LIBDIRSUFFIX}/${NAME}|g" \
+  -e 's|\$(PROJ_prefix)/etc/llvm|/etc/llvm|g' \
+  Makefile.config.in || exit 1
+
+sed -i 's:$(RPATH) -Wl,$(\(ToolDir\|LibDir\|ExmplDir\))::g' Makefile.rules
+
+sed -i "s|/lib /usr/lib \$lt_ld_extra|/lib${LIBDIRSUFFIX} /usr/lib${LIBDIRSUFFIX} \$lt_ld_extra|" \
+  ./configure
+sed -i "s|${VERSION}svn|${VERSION}|g" configure
+
 # --mandir doesn't work currently
 # need to disable assertions to make llvm thread-safe
 # clang resource dir is a relative path based on the location of the clang binary
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-./configure \
+
+mkdir obj
+( cd obj || exit 1
+../configure \
   --prefix=/usr \
-  --libdir=/usr/lib$LIBDIRSUFFIX \
+  --libdir=/usr/lib${LIBDIRSUFFIX}/${PKGNAM} \
+  --datadir=/usr/lib${LIBDIRSUFFIX}/${PKGNAM} \
   --sysconfdir=/etc \
   --localstatedir=/var \
+  --infodir=/usr/info \
   --mandir=/usr/man \
+  --disable-polly \
+  --disable-libcpp \
+  --enable-cxx11 \
+  --enable-clang-arcmt \
+  --enable-clang-static-analyzer \
+  --enable-clang-rewriter \
   --enable-optimized \
   --disable-assertions \
-  --enable-shared \
+  --disable-profiling \
+  --disable-werror \
+  --disable-expensive-checks \
+  --enable-debug-runtime \
+  --enable-keep-symbols \
+  --enable-jit \
+  --enable-libffi \
+  --enable-ltdl-install \
+  --enable-threads \
+  --enable-pthreads \
+  --enable-zlib \
   --enable-pic \
+  --enable-shared \
+  --disable-embed-stdcxx \
+  --enable-timestamps \
+  --enable-backtraces \
   --enable-experimental-targets=R600 \
-  --with-clang-resource-dir="../lib${LIBDIRSUFFIX}/clang/${VERSION}" \
-  --build=$ARCH-slackware-linux \
-  --host=$ARCH-slackware-linux || exit 1
+  --with-binutils-include=/usr/include \
+  --with-c-include-dirs=/usr/include:$(echo /usr/lib${LIBDIRSUFFIX}/gcc/${SLKTARGET}-${SLKDTARGET}-linux*/*/include) \
+  --enable-bindings=none \
+  --disable-doxygen \
+  --build=${SLKTARGET}-${SLKDTARGET}-linux || exit 1
 
-# Fix hardcoded libdir
-sed -i "s|\$(PROJ_prefix)/lib|\$(PROJ_prefix)/lib$LIBDIRSUFFIX|" \
-  Makefile.config
-sed -i "s|\$(PROJ_prefix)/lib|\$(PROJ_prefix)/lib$LIBDIRSUFFIX|" \
-  tools/clang/lib/Headers/Makefile
-sed -i "s|\"lib\"|\"lib${LIBDIRSUFFIX}\"|" \
-  tools/clang/lib/Frontend/CompilerInvocation.cpp
-sed -i "s|\"lib\"|\"lib${LIBDIRSUFFIX}\"|" \
-  tools/clang/lib/Driver/Tools.cpp
-sed -i "s|ActiveLibDir = ActivePrefix + \"/lib\"|ActiveLibDir = ActivePrefix + \"/lib${LIBDIRSUFFIX}\"|g" \
-  tools/llvm-config/llvm-config.cpp
+  export VERBOSE=1
+  make -j${NJOBS} REQUIRES_RTTI=1 OPTIMIZE_OPTION="${SLKCFLAGS}" || make REQUIRES_RTTI=1 OPTIMIZE_OPTION="${SLKCFLAGS}" || exit 1
 
-make $NUMJOBS || make || exit 1
-make install DESTDIR=$PKG || exit 1
+  make install DESTDIR=${PKG} PROJ_docsdir=/usr/doc/${NAME}-${VERSION} || exit 1
+
+) || exit 1
+
+# compat32 files
+if [ "${ARCH}" = "x86_64" ] ;then
+  rm -f ${PKG}/usr/lib/clang/*/lib/*/*-i386.a
+fi
 
 # Add symlinks for $ARCH-slackware-linux-{clang,clang++}:
-( cd $PKG/usr/bin
-  ln -sf clang $ARCH-slackware-linux-clang
-  ln -sf clang++ $ARCH-slackware-linux-clang++
-)
+( cd ${PKG}/usr/bin || exit 1
+  ln -sf clang ${SLKTARGET}-${SLKDTARGET}-linux-clang
+  ln -sf clang++ ${SLKTARGET}-${SLKDTARGET}-linux-clang++
+) || exit 1
 
-# install clang-static-analyzer
-mkdir -p $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer
-cp -pr tools/clang/tools/scan-{build,view} \
-  $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/ || exit 1
-for i in scan-{build,view}; do
-  ln -s /usr/lib$LIBDIRSUFFIX/clang-analyzer/$i/$i \
-    $PKG/usr/bin/$i || exit 1
+unset MARCH
+case "${ARCH}" in
+  i[3-6]86|s390)  MARCH=32
+             ;;
+    x86_64)  MARCH=64
+             ;;
+esac
+
+if [ -n "${MARCH}" ] ;then
+
+  mv ${PKG}/usr/bin/llvm-config ${PKG}/usr/bin/llvm-config-${MARCH} || exit 1
+
+cat > ${PKG}/usr/bin/llvm-config <<'EOF'
+#!/bin/bash
+
+ARCH=$(uname -m)
+
+case ${ARCH} in
+  x86_64 | s390x | ppc64 | sparc64)
+    BITS=64
+    ;;
+  * )
+    BITS=32
+    ;;
+esac
+
+exec $0-${BITS} "$@"
+EOF
+  chmod 755 ${PKG}/usr/bin/llvm-config || exit 1
+
+  mv ${PKG}/usr/include/llvm/Config/config.h \
+    ${PKG}/usr/include/llvm/Config/config-${MARCH}.h || exit 1
+
+cat > ${PKG}/usr/include/llvm/Config/config.h <<'EOF'
+#include <bits/wordsize.h>
+
+#if __WORDSIZE == 32
+#include "config-32.h"
+#elif __WORDSIZE == 64
+#include "config-64.h"
+#else
+#error "Unknown word size"
+#endif
+EOF
+
+  mv ${PKG}/usr/include/llvm/Config/llvm-config.h \
+    ${PKG}/usr/include/llvm/Config/llvm-config-${MARCH}.h || exit 1
+
+cat > ${PKG}/usr/include/llvm/Config/llvm-config.h <<'EOF'
+#include <bits/wordsize.h>
+
+#if __WORDSIZE == 32
+#include "llvm-config-32.h"
+#elif __WORDSIZE == 64
+#include "llvm-config-64.h"
+#else
+#error "Unknown word size"
+#endif
+EOF
+
+fi
+
+# Create ld.so.conf.d entry
+mkdir -p ${PKG}/etc/ld.so.conf.d
+cat > ${PKG}/etc/ld.so.conf.d/llvm-${ARCH}.conf << EOF
+/usr/lib${LIBDIRSUFFIX}/llvm
+EOF
+
+rm -rf ${PKG}/var
+
+# Static analyzer not installed by default:
+# http://clang-analyzer.llvm.org/installation#OtherPlatforms
+mkdir -p ${PKG}/usr/libexec/clang-analyzer/scan-build
+
+cp -pr tools/clang/tools/scan-view ${PKG}/usr/libexec/clang-analyzer/ || exit 1
+
+# scan-build
+for file in c++-analyzer ccc-analyzer scan-build scanview.css sorttable.js; do
+  cp -p tools/clang/tools/scan-build/${file} \
+    ${PKG}/usr/libexec/clang-analyzer/scan-build/ || exit 1
 done
-for i in ccc c++; do
-  ln -s /usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-build/$i-analyzer \
-    $PKG/usr/bin/$i-analyzer || exit 1
+
+# scan-build manual page
+mkdir -p ${PKG}/usr/man/man1
+cp -p tools/clang/tools/scan-build/scan-build.1 ${PKG}/usr/man/man1/ || exit 1
+
+# scan-build requires clang in search path
+ln -s ../../../bin/clang ${PKG}/usr/libexec/clang-analyzer/scan-build/clang || exit 1
+
+# create launchers
+for f in scan-{build,view}; do
+  ln -s ../libexec/clang-analyzer/${f}/${f} ${PKG}/usr/bin/${f} || exit 1
 done
 
-# Fix paths in scan-build
-sed -i "s|\$RealBin/bin|/usr/bin|" \
-  $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-build/scan-build
-sed -i "s|\$RealBin/sorttable.js|/usr/lib${LIBDIRSUFFIX}/clang-analyzer/scan-build/sorttable.js|" \
-  $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-build/scan-build
-sed -i "s|\$RealBin/scanview.css|/usr/lib${LIBDIRSUFFIX}/clang-analyzer/scan-build/scanview.css|" \
-  $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-build/scan-build
+# install CMake modules
+mkdir -p ${PKG}/usr/share/llvm/cmake/
+cp -p cmake/modules/*.cmake ${PKG}/usr/share/llvm/cmake/ || exit 1
 
-# Remove example libraries
-rm -f $PKG/usr/lib$LIBDIRSUFFIX/LLVMHello*
+find ${PKG} -name .dir -print0 | xargs -0r rm -f
+if [ -x /usr/bin/chrpath ] ;then
+  file ${PKG}/usr/bin/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
+  file ${PKG}/lib${LIBDIRSUFFIX}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
+  chrpath -d ${PKG}/usr/libexec/clang-cc
+fi
+
+# Get rid of erroneously installed example files.
+rm -f ${PKG}/usr/lib${LIBDIRSUFFIX}/${PKGNAM}/*LLVMHello.*
+
+# Remove deprecated tools.
+rm -f ${PKG}/usr/bin/gcc{as,ld}
+
+find ${PKG}/usr/lib${LIBDIRSUFFIX} -name '*.a' -type f -print0 | xargs -0 chmod -x
+
+find ${PKG} | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 
 # Move man page directory:
 mv $PKG/usr/share/man $PKG/usr/

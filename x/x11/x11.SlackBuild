@@ -56,7 +56,9 @@ pkgbase() {
 
 # Set initial variables:
 CWD=$(pwd)
-TMP=${TMP:-/tmp}
+TMP=${TMP:-/tmp/dlackware}
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+TAG=${TAG:-_dlack}
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -275,11 +277,11 @@ mkdir -p $SLACK_X_BUILD_DIR
           if [ -r $CWD/makepkg/${PKGNAME} ]; then
             BUILD=$MODBUILD . $CWD/makepkg/${PKGNAME}
           else
-            /sbin/makepkg -l y -c n ${SLACK_X_BUILD_DIR}/${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}.txz
+            /sbin/makepkg -l y -c n ${OUTPUT}/${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}${TAG}.txz
             if [ "$UPGRADE_PACKAGES" = "yes" ]; then
-              /sbin/upgradepkg --install-new ${SLACK_X_BUILD_DIR}/${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}.txz
+              /sbin/upgradepkg --install-new ${OUTPUT}/${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}${TAG}.txz
             elif [ "$UPGRADE_PACKAGES" = "always" ]; then
-              /sbin/upgradepkg --install-new --reinstall ${SLACK_X_BUILD_DIR}/${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}.txz
+              /sbin/upgradepkg --install-new --reinstall ${OUTPUT}/${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}${TAG}.txz
             fi
           fi
         fi
@@ -331,11 +333,11 @@ mkdir -p $SLACK_X_BUILD_DIR
       if [ -r $CWD/makepkg/${PKGNAME} ]; then
         BUILD=$MODBUILD . $CWD/makepkg/${PKGNAME}
       else
-        /sbin/makepkg -l y -c n ${SLACK_X_BUILD_DIR}/x11-${x_source_dir}-${VERSION}-${PKGARCH}-${SRCDIRBUILD}.txz
+        /sbin/makepkg -l y -c n ${OUTPUT}/x11-${x_source_dir}-${VERSION}-${PKGARCH}-${SRCDIRBUILD}${TAG}.txz
         if [ "$UPGRADE_PACKAGES" = "yes" ]; then
-          /sbin/upgradepkg --install-new ${SLACK_X_BUILD_DIR}/x11-${x_source_dir}-${VERSION}-${PKGARCH}-${SRCDIRBUILD}.txz
+          /sbin/upgradepkg --install-new ${OUTPUT}/x11-${x_source_dir}-${VERSION}-${PKGARCH}-${SRCDIRBUILD}${TAG}.txz
         elif [ "$UPGRADE_PACKAGES" = "always" ]; then
-          /sbin/upgradepkg --install-new --reinstall ${SLACK_X_BUILD_DIR}/x11-${x_source_dir}-${VERSION}-${PKGARCH}-${SRCDIRBUILD}.txz
+          /sbin/upgradepkg --install-new --reinstall ${OUTPUT}/x11-${x_source_dir}-${VERSION}-${PKGARCH}-${SRCDIRBUILD}${TAG}.txz
         fi
       fi
     )
