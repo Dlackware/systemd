@@ -21,7 +21,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=libdrm
-VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
+VERSION=${VERSION:-2.4.58}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -34,7 +34,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://dri.freedesktop.org/libdrm/libdrm-2.4.58.tar.gz
+wget -c http://dri.freedesktop.org/${PKGNAM}/${PKGNAM}-${VERSION}.tar.gz
 
 NUMJOBS=${NUMJOBS:-" -j7 "}
 
@@ -128,4 +128,3 @@ cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $TMP/package-${PKGNAM}
 /sbin/makepkg -l y -c n $OUTPUT/${PKGNAM}-$VERSION-$ARCH-$BUILD$TAG.txz
-

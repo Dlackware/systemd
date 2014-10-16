@@ -61,7 +61,7 @@ fi
 
 set -e # Exit on most errors
 
-rm -rf $PKG
+rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $SRCNAM-$VERSION

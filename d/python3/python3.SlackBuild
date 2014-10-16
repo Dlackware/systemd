@@ -73,7 +73,7 @@ TOOLSDIR=../lib${LIBDIRSUFFIX}/python${PYVER}/site-packages
 
 set -eu
 
-rm -rf $PKG
+rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf Python-$VERSION

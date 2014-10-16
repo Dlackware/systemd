@@ -58,7 +58,7 @@ else
   LIBDIRSUFFIX=""
 fi
 
-rm -rf $PKG
+rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf LVM2.$VERSION

@@ -1,6 +1,9 @@
 #!/bin/sh
 
 # Copyright 2009, 2010, 2011, 2012, 2014  Patrick J. Volkerding, Sebeka, Minnesota, USA
+#
+# Modified 2014 for dlackware by Bart van der Hall, Amsterdam, NL
+#
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -23,14 +26,19 @@
 # Slackware build script for bash-completion
 
 VERSION=2.1
-ARCH=noarch
-BUILD=${BUILD:-2}
+ARCH=x86_64
+BUILD=${BUILD:-1}
+TAG=${TAG:-_dlack}
 
 CWD=$(pwd)
-TMP=${TMP:-/tmp}
+TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-bash-completion
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
 
-rm -rf $PKG
+wget -c ftp://ftp.slackware.com/pub/slackware/slackware64-current/extra/source/bash-completion/bash-completion-${VERSION}.tar.bz2
+
+
+rm -rf $TMP
 mkdir -p $TMP $PKG
 cd $TMP
 rm -rf bash-completion-$VERSION
@@ -44,10 +52,10 @@ find . \
  -exec chmod 644 {} \;
 
 # Fixup sh completion for us
-zcat $CWD/fixup-sh-script-completions.diff.gz | patch -p1 --verbose || exit 1
+cat $CWD/fixup-sh-script-completions.diff | patch -p1 --verbose || exit 1
 
 # Fix for bash 4.3:
-zcat $CWD/words_bad_array_subscript.patch.gz | patch -p1 --verbose || exit 1
+cat $CWD/words_bad_array_subscript.patch | patch -p1 --verbose || exit 1
 
 ./configure \
   --prefix=/usr \
@@ -84,4 +92,4 @@ mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $TMP/bash-completion-$VERSION-$ARCH-$BUILD.txz
+/sbin/makepkg -l y -c n ${OUTPUT}/bash-completion-${VERSION}-${ARCH}-${BUILD}${TAG}.txz
