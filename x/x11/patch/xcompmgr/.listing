@@ -1,0 +1,4 @@
+drwxr-xr-x    2 4015     4015          116 Oct 13  2013 .
+drwxr-xr-x    8 4015     4015         4096 Jul 29 22:27 ..
+-rw-r--r--    4 4015     4015          425 Oct 13  2013 patch-XFixesSetPictureClipRegion-shadow-fix-xcompmgr.c.diff.gz
+-rw-r--r--    8 4015     4015          464 Mar 03  2011 xcompmgr-follow-icccm-spec.diff.gz

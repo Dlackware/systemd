@@ -1,0 +1,52 @@
+
+# Copyright 2009  Patrick J. Volkerding, Sebeka, MN, USA
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+# Add documentation:
+mkdir -p $PKG/usr/doc/libxcb-$MODULAR_PACKAGE_VERSION
+cp -a \
+  COPYING INSTALL NEWS README \
+  $PKG/usr/doc/libxcb-$MODULAR_PACKAGE_VERSION
+mv $PKG/usr/share/doc/libxcb/tutorial $PKG/usr/doc/libxcb-$MODULAR_PACKAGE_VERSION
+# The manual isn't building for now, so...
+rm -rf $PKG/usr/share/doc/libxcb
+rmdir $PKG/usr/share/doc
+rmdir $PKG/usr/share
+
+# Older versions of libxcb shipped a poorly libtooled .la file that caused
+# the now-gone libxcb-xlib.so module to be incorrectly linked with many
+# binaries and libraries, and cause the module to be listed (again,
+# incorrectly) in a lot of .la files.  Rather than breaking a large amount
+# of existing X programs, we will use this simple trick to allow old binaries
+# to keep running, and new things to compile even if a bogus .la file
+# referencing libxcb-xlib is in the development environment.
+#
+# References to libxcb-xlib will go away as things are recompiled in the
+# future (we've eliminated any remaining references in Slackware itself).
+#
+# It's like letting a sliver work out instead of cutting off the finger.
+
+( cd $PKG/usr/lib
+  ln -sf libxcb.so.1 libxcb-xlib.so.0
+  ln -sf libxcb-xlib.so.0 libxcb-xlib.so
+  ln -sf libxcb.la libxcb-xlib.la
+)
+

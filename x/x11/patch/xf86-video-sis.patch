@@ -1,0 +1,2 @@
+zcat $CWD/patch/xf86-video-sis/sis-0.10.7-git.patch.gz | patch -p1 --verbose \
+     || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }

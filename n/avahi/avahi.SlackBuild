@@ -126,9 +126,9 @@ mv ${PKG}/etc/dbus-1/system.d/avahi-dbus.conf \
    ${PKG}/etc/dbus-1/system.d/avahi-dbus.conf.new || exit 1
 
 mkdir -p ${PKG}/var/log/setup
-zcat ${CWD}/setup.onlyonce.rc${PKGNAM}daemon.gz \
-  > ${PKG}/var/log/setup/setup.onlyonce.rc${PKGNAM}daemon || exit 1
-chmod 0755 ${PKG}/var/log/setup/setup.onlyonce.rc${PKGNAM}daemon || exit 1
+#zcat ${CWD}/setup.onlyonce.rc${PKGNAM}daemon.gz \
+#  > ${PKG}/var/log/setup/setup.onlyonce.rc${PKGNAM}daemon || exit 1
+#chmod 0755 ${PKG}/var/log/setup/setup.onlyonce.rc${PKGNAM}daemon || exit 1
 
 desktop-file-install --delete-original --vendor="" \
   --dir ${PKG}/usr/share/applications \

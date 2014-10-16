@@ -1,0 +1,1 @@
+zcat $CWD/patch/xorg-server/x11.startwithblackscreen.diff.gz | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }

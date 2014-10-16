@@ -1,0 +1,25 @@
+# Rationale for this is here:
+
+# commit bde65934fe8b40a5fdc8a469d0355caca59e81b5
+# Author: Alan Coopersmith <alan.coopersmith@oracle.com>
+# Date:   Sat Jul 21 09:27:10 2012 -0700
+# 
+#     Add iopl.h to source lists in util/Makefile.am so it gets packaged
+#     
+#     Was missed when it was created in commit c421f2477c9999, since
+#     "make distcheck" passes due to configure determining it can't
+#     build the utils without the header and moving on.
+#     
+#     Reported-by: Andreas Radke <a.radke@arcor.de>
+#     Signed-off-by: Alan Coopersmith <alan.coopersmith@oracle.com>
+
+# iopl.h obtained from git repo
+cp $CWD/patch/xf86-video-chips/iopl.h util/ \
+     || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+# Remove obsolete references to mibstore.h and miInitializeBackingStore():
+grep -r -l '#include "mibstore.h"' * | while read file ; do
+  sed -i "s/#include \"mibstore.h\"//g" $file
+done
+grep -r -l 'miInitializeBackingStore(pScreen);' | while read file ; do
+  sed -i "s/miInitializeBackingStore(pScreen);//g" $file
+done

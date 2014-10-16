@@ -1,0 +1,1 @@
+zcat $CWD/patch/xdm/xdm.glibc.crypt.diff.gz | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }

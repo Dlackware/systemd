@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+libXcm: libXcm (reference implementation of the net-color specification)
+libXcm:
+libXcm: The libXcm library is a reference implementation of the net-color 
+libXcm: spec.  It allows to attach color regions to X windows to communicate 
+libXcm: with color servers.
+libXcm:
+libXcm:
+libXcm:
+libXcm:
+libXcm:
+libXcm:

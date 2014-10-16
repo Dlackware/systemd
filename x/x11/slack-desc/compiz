@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+compiz: compiz (OpenGL window and compositing manager)
+compiz:
+compiz: Compiz is an OpenGL compositing manager that use
+compiz: GLX_EXT_texture_from_pixmap for binding redirected top-level windows
+compiz: to texture objects. It has a flexible plug-in system and it is designed
+compiz: to run well on most graphics hardware.
+compiz:
+compiz:
+compiz:
+compiz:
+compiz:

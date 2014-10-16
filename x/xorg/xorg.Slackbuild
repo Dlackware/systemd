@@ -1,0 +1,2 @@
+sh ../x/x11.Slackbuild xserver xorg-server
+sh ../x/x11.Slackbuild input xf86-input-evdev

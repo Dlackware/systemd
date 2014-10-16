@@ -1,0 +1,13 @@
+drwxr-xr-x   12 4015     4015          150 Aug 25 03:32 .
+drwxr-xr-x   10 4015     4015         4096 Jul 13 23:55 ..
+drwxr-xr-x    2 4015     4015         8192 Aug 25 03:32 app
+drwxr-xr-x    2 4015     4015          103 May 13 05:57 data
+drwxr-xr-x    2 4015     4015           70 Jun 13  2012 doc
+drwxr-xr-x    2 4015     4015         4096 Aug 25 03:31 driver
+drwxr-xr-x    2 4015     4015         4096 Mar 04  2012 font
+-rwxr-xr-x    6 4015     4015          989 Mar 24  2012 get-xf86-video-nouveau.sh
+drwxr-xr-x    2 4015     4015         4096 Jul 29 22:26 lib
+drwxr-xr-x    2 4015     4015         4096 Jul 14 22:14 proto
+drwxr-xr-x    2 4015     4015         4096 May 21 22:28 util
+drwxr-xr-x    2 4015     4015         4096 Aug 25 03:30 xcb
+drwxr-xr-x    2 4015     4015           38 Jul 14 22:52 xserver
