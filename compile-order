@@ -1,5 +1,5 @@
 ### [systemd-min] begin
-#ap/bash-completion
+ap/bash-completion
 d/python3
 a/cracklib
 a/pam
@@ -38,13 +38,15 @@ l/gst-libav
 l/libcanberra
 n/bluez
 x/wayland
-#d/llvm
-#x/mesa
+#########################
+x/libdrm
+d/llvm
+x/mesa
 #x/x11/xorg-server
 #x/x11/xf86-input-evdev
-#a/cups
-#n/httpd
-#a/procps
-#n/php
-#n/yptools
+a/cups
+n/httpd
+a/procps
+n/php
+n/yptools
 ### [systemd-all] end

@@ -1,0 +1,17 @@
+--- ./doc/alpine.1.orig	2008-03-14 18:53:39.000000000 -0500
++++ ./doc/alpine.1	2008-08-06 20:00:13.000000000 -0500
+@@ -305,11 +305,11 @@
+ .br
+ /etc/mime.types	System-wide file ext. to MIME type mapping
+ .br
+-/usr/local/lib/pine.info	Local pointer to system administrator.
++/etc/pine.info	Local pointer to system administrator.
+ .br
+-/usr/local/lib/pine.conf	System-wide configuration file.
++/etc/pine.conf	System-wide configuration file.
+ .br
+-/usr/local/lib/pine.conf.fixed	 Non-overridable configuration file.
++/etc/pine.conf.fixed	 Non-overridable configuration file.
+ .br
+ /tmp/.\\usr\\spool\\mail\\xxxx	Per-folder mailbox lock files.
+ .br

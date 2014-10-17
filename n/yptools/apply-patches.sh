@@ -8,7 +8,7 @@ DLACK_PATCHDIR=${CWD}/patches
 patch -p1 -E --backup --verbose -i ${DLACK_PATCHDIR}/yp-tools-2.14-glibc217-crypt.diff
 
 ( cd ${YPBSRCDIR}
-  zcat ${DLACK_PATCHDIR}/ypbind-1.11-gettextdomain.patch.gz | patch -p1 -E --backup --verbose
+  cat ${DLACK_PATCHDIR}/ypbind-1.11-gettextdomain.patch | patch -p1 -E --backup --verbose
   patch -p1 -E --backup --verbose -i ${DLACK_PATCHDIR}/ypbind-mt-1.37.1-systemd209.patch
 )
 

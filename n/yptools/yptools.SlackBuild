@@ -155,7 +155,7 @@ make install DESTDIR=${PKG} INSTALL_PROGRAM=install || exit 1
 
 mkdir -p ${PKG}/etc
 # Add etc/nsswitch.conf-nis as a full NIS+ example config file:
-zcat ${CWD}/nsswitch.conf-nis.gz > ${PKG}/etc/nsswitch.conf-nis.new || exit 1
+cat ${CWD}/nsswitch.conf-nis > ${PKG}/etc/nsswitch.conf-nis.new || exit 1
 
 ( cd ${YPBSRCDIR} || exit 1
   DLACK_CONFIGURE || exit 1
@@ -207,7 +207,7 @@ zcat ${CWD}/nsswitch.conf-nis.gz > ${PKG}/etc/nsswitch.conf-nis.new || exit 1
 ) || exit 1
 
 mkdir -p ${PKG}/etc/rc.d
-zcat ${CWD}/rc.yp.gz \
+cat ${CWD}/rc.yp \
   > ${PKG}/etc/rc.d/rc.yp.new || exit 1
 chmod 0644 ${PKG}/etc/rc.d/rc.yp.new
 

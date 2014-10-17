@@ -26,7 +26,7 @@
 # Modified 2014  Bart van der Hall, Almere, NL
 
 PKGNAM=php
-VERSION=${VERSION:-5.4.29}
+VERSION=${VERSION:-5.6.2}
 ALPINE=2.11
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
@@ -46,11 +46,11 @@ NUMJOBS=${NUMJOBS:-" -j7 "}
 wget -c http://us.php.net/distributions/$PKGNAM-$VERSION.tar.bz2
 
 CWD=$(pwd)
-TMP=${TMP:-/tmp}
+TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-$PKGNAM
 OUTPUT=${OUTPUT:-/var/cache/dlackware}
 
-rm -rf $PKG
+rm -rf $TMP
 mkdir -p $TMP $PKG
 
 if [ "$ARCH" = "i386" ]; then
@@ -103,7 +103,7 @@ rm -rf $PKGNAM-$VERSION
 tar xvf $CWD/$PKGNAM-$VERSION.tar.?z* || exit 1
 cd $PKGNAM-$VERSION
 
-zcat $CWD/init.d.php-fpm.in.diff.gz | patch -p1 --verbose || exit 1
+cat $CWD/init.d.php-fpm.in.diff | patch -p1 --verbose || exit 1
 
 # cleanup:
 find . -name "*.orig" -delete
@@ -117,7 +117,7 @@ if [ -d $PKGNAME-$VERSION/pear/packages ]; then
 fi
 
 if [ "$ARCH" = "s390" ]; then
-  zcat $CWD/php.configure.s390.diff.gz | patch -p1 || exit
+  cat $CWD/php.configure.s390.diff | patch -p1 || exit
 fi
 
 # Fixup perms/owners:
@@ -134,10 +134,10 @@ find . -name "*.h" -exec chmod 644 {} \;
 find . -name "*.orig" -exec rm {} \;
 
 # Patch ini files:
-zcat $CWD/php.ini-development.diff.gz | patch -p1 --verbose || exit 1
-zcat $CWD/php.ini-development.diff.gz | patch -p1 --verbose php.ini-production || exit 1
-zcat $CWD/php-fpm.conf.diff.gz | patch -p1 --verbose || exit 1
-cat $CWD/php-systemd209.patch | patch -p1 --verbose || exit 1
+cat $CWD/php.ini-development.diff | patch -p1 --verbose || exit 1
+cat $CWD/php.ini-development.diff | patch -p1 --verbose php.ini-production || exit 1
+cat $CWD/php-fpm.conf.diff | patch -p1 --verbose || exit 1
+#cat $CWD/php-systemd209.patch | patch -p1 --verbose || exit 1
 
 # Install the build folder into /usr/lib$LIBDIRSUFFIX/php/build
 # and adapt phpize accordingly:

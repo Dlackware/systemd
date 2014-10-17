@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=procps
-VERSION=${VERSION:-3.3.9}
+VERSION=${VERSION:-3.3.10}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -70,7 +70,7 @@ case "$ARCH" in
     *)    TARGET=$ARCH-slackware-linux ;;
 esac
 
-rm -rf $PKG
+rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf procps-ng-$VERSION

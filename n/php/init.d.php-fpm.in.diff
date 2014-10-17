@@ -1,0 +1,11 @@
+--- ./sapi/fpm/init.d.php-fpm.in.orig	2013-05-08 00:41:20.000000000 -0500
++++ ./sapi/fpm/init.d.php-fpm.in	2013-05-19 14:52:33.952089160 -0500
+@@ -14,7 +14,7 @@
+ exec_prefix=@exec_prefix@
+ 
+ php_fpm_BIN=@sbindir@/php-fpm
+-php_fpm_CONF=@sysconfdir@/php-fpm.conf
++php_fpm_CONF=@sysconfdir@/php-fpm/php-fpm.conf
+ php_fpm_PID=@localstatedir@/run/php-fpm.pid
+ 
+ 
