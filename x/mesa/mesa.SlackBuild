@@ -29,7 +29,7 @@ TAG=${TAG:-_dlack}
 # Be sure this list is up-to-date:
 DRI_DRIVERS="i915,i965,nouveau,r200,radeon,swrast"
 GALLIUM_DRIVERS="nouveau,r300,r600,svga,radeonsi,swrast"
-EGL_PLATFORMS="drm,x11,wayland"
+EGL_PLATFORMS="wayland,x11,drm"
 
 NUMJOBS=${NUMJOBS:--j7}
 
@@ -86,35 +86,38 @@ rm -f src/gallium/state_trackers/d3d1x/w32api
 
 #autoreconf -ivf
 
-CFLAGS="${SLKCFLAGS} -frtti -fexceptions" \
-CXXFLAGS="${SLKCFLAGS} -frtti -fexceptions" \
+CFLAGS="$SLKCFLAGS" \
 ./configure \
   --prefix=/usr \
-  --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
-  --localstatedir=/var/lib \
-  --infodir=/usr/info \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
   --mandir=/usr/man \
-  --docdir=/usr/doc/${PKGNAM}-${VERSION} \
-  --disable-silent-rules \
+  --docdir=/usr/doc/mesa-$VERSION \
   --with-dri-driverdir=/usr/lib${LIBDIRSUFFIX}/xorg/modules/dri \
-  --enable-glx-tls \
-  --enable-texture-float=yes \
-  --enable-egl \
-  --with-egl-platforms="$EGL_PLATFORMS" \
-  --with-gallium-drivers="$GALLIUM_DRIVERS" \
   --with-dri-drivers="$DRI_DRIVERS" \
-  --disable-gles1 \
-  --enable-gles2 \
+  --with-gallium-drivers="$GALLIUM_DRIVERS" \
+  --with-egl-platforms="$EGL_PLATFORMS" \
+  --enable-gallium-llvm \
+  --enable-llvm-shared-libs \
+  --enable-egl \
+  --enable-texture-float \
+  --enable-gallium-gbm \
+  --enable-gallium-egl \
+  --enable-shared-glapi \
+  --enable-xa \
+  --enable-osmesa \
+  --enable-dri \
+  --enable-dri3 \
   --enable-shared-glapi \
   --enable-gbm \
-  --enable-gallium-llvm \
-  --with-llvm-shared-libs \
-  --disable-gallium-egl \
-  --disable-asm \
-  --enable-osmesa \
-  --enable-xa \
+  --enable-glx \
+  --enable-glx-tls \
+  --disable-gles1 \
+  --enable-gles2 \
   --build=$ARCH-slackware-linux || exit 1
+
+make $NUMJOBS || make || exit 1
+make install DESTDIR=$PKG || exit 1
 
 # Build and install:
 make clean

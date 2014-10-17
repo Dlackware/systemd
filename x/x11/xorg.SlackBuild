@@ -1,0 +1,2 @@
+./x11.SlackBuild xserver xorg-server
+./x11.SlackBuild driver xf86-input-evdev

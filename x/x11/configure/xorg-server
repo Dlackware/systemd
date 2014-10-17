@@ -30,8 +30,8 @@ CFLAGS="$SLKCFLAGS" \
   --with-int10=x86emu \
   --with-default-font-path="${DEF_FONTPATH}" \
   --with-module-dir=/usr/lib${LIBDIRSUFFIX}/xorg/modules \
-  --with-os-name="Slackware 14.2" \
-  --with-os-vendor="Slackware Linux Project" \
+  --with-os-name="Dlackware 14.2" \
+  --with-os-vendor="Dlackware Linux Project" \
   --with-xkb-path=/etc/X11/xkb \
   --with-xkb-output=/var/lib/xkb \
   $BUILD_SERVERS \
