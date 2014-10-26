@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-216}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-3}
 TAG=${TAG:-_dlack}
 
 # Set to NO to disable pam support
@@ -196,12 +196,6 @@ find $PKG | xargs file | grep -e "executable" -e "shared object" \
 # Slackware inittab compliance
 ln -sf graphical.target ${PKG}/lib/systemd/system/runlevel4.target || exit 1
 
-install -pm0644 ${CWD}/config/services/var-{lock,run}.mount ${PKG}/lib/systemd/system/ || exit 1
-ln -sf ../var-lock.mount \
-  ${PKG}/lib/systemd/system/local-fs.target.wants/var-lock.mount || exit 1
-ln -sf ../var-run.mount \
-  ${PKG}/lib/systemd/system/local-fs.target.wants/var-run.mount || exit 1
-
 # rc.local and rc.local_shutdown
 install -pm0644 units/rc-local.service.in \
   ${PKG}/lib/systemd/system/rc-local.service || exit 1
@@ -228,6 +222,11 @@ else
   for manpage in telinit halt reboot poweroff runlevel shutdown; do
     mv ${PKG}/usr/man/man8/{,systemd.}"${manpage}.8" || exit 1
   done
+install -pm0644 ${CWD}/config/services/var-{lock,run}.mount ${PKG}/lib/systemd/system/ || exit 1
+ln -sf ../var-lock.mount \
+  ${PKG}/lib/systemd/system/local-fs.target.wants/var-lock.mount || exit 1
+ln -sf ../var-run.mount \
+  ${PKG}/lib/systemd/system/local-fs.target.wants/var-run.mount || exit 1
 fi
 
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd
@@ -316,19 +315,19 @@ for file in ${CWD}/config/services/*.service ;do
 done
 
 ln -s ../slackware-motd.service \
-  ${PKG}/lib/systemd/system/basic.target.wants/slackware-motd.service || exit 1
-ln -s ../slackware-depmod.service \
-  ${PKG}/lib/systemd/system/local-fs.target.wants/slackware-depmod.service || exit 1
+  ${PKG}/lib/systemd/system/multi-user.target.wants/slackware-motd.service || exit 1
+# ln -s ../slackware-depmod.service \
+#  ${PKG}/lib/systemd/system/local-fs.target.wants/slackware-depmod.service || exit 1
 ln -s ../slackware-lvm-init.service \
   ${PKG}/lib/systemd/system/local-fs.target.wants/slackware-lvm-init.service || exit 1
-ln -s ../systemd-clean-dead-links.service \
-  ${PKG}/lib/systemd/system/shutdown.target.wants/systemd-clean-dead-links.service || exit 1
+#ln -s ../systemd-clean-dead-links.service \
+#  ${PKG}/lib/systemd/system/shutdown.target.wants/systemd-clean-dead-links.service || exit 1
 ln -sf ../display-manager.service \
   ${PKG}/lib/systemd/system/graphical.target.wants/display-manager.service || exit 1
 #ln -sf ../../../../lib/systemd/system/inet1.service \
 #  ${PKG}/etc/systemd/system/network.target.wants/inet1.service || exit 1
-ln -sf ../ldconfig.service \
-  ${PKG}/lib/systemd/system/multi-user.target.wants/ldconfig.service || exit 1
+#ln -sf ../ldconfig.service \
+#  ${PKG}/lib/systemd/system/multi-user.target.wants/ldconfig.service || exit 1
 
 #for file in bootchart journald logind system user ;do
 #  mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
