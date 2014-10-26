@@ -1,0 +1,5 @@
+PKGNAM="json-c"
+VERSION="0.12"
+HOMEPAGE="https://github.com/json-c/json-c/wiki"
+DOWNLOAD="https://s3.amazonaws.com/json-c_releases/releases/json-c-0.12.tar.gz"
+MD5SUM="3ca4bbb881dfc4017e8021b5e0a8c491"

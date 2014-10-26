@@ -1,0 +1,7 @@
+PKGNAM="python3"
+VERSION="3.4.1"
+HOMEPAGE="https://www.python.org/"
+DOWNLOAD="https://python.org/ftp/python/3.4.1/Python-3.4.1.tar.xz \
+          https://python.org/ftp/python/doc/3.4.0/python-3.4.0-docs-html.tar.bz2"
+MD5SUM="6cafc183b4106476dd73d5738d7f616a \
+        cdbef126ee7ef0908352fabc4dc5bee5"
