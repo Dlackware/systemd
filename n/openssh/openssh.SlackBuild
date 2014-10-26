@@ -24,7 +24,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=openssh
-VERSION=${VERSION:-6.6p1}
+VERSION=${VERSION:-6.7p1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -46,7 +46,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c ftp://ftp.fsn.hu/pub/OpenBSD/OpenSSH/portable/openssh-6.6p1.tar.gz
+wget -c ftp://ftp.fsn.hu/pub/OpenBSD/OpenSSH/portable/openssh-6.7p1.tar.gz
 
 NUMJOBS=${NUMJOBS:--j6}
 
