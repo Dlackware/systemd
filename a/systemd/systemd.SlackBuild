@@ -230,7 +230,7 @@ ln -sf ../var-run.mount \
 fi
 
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd
-#ln -sf ../../../dev/null ${PKG}/etc/udev/rules.d/80-net-name-slot.rules
+ln -sf ../../../dev/null ${PKG}/etc/udev/rules.d/80-net-setup-link.rules
 
 if [ "${SBO_PAM}" = "YES" ] ; then
   mv ${PKG}/etc/pam.d/systemd-user ${PKG}/etc/pam.d/systemd-user.new || exit 1
@@ -303,10 +303,6 @@ for file in bootchart journald logind resolved system timesyncd user ;do
   mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
 done
 
-
-#rm -f ${PKG}/etc/systemd/system/multi-user.target.wants/systemd-networkd.service
-#ln -sf ../systemd-networkd.service ${PKG}/lib/systemd/system/multi-user.target.wants/
-
 echo 'd /run/console 755 root root' > ${PKG}/usr/lib/tmpfiles.d/console.conf || exit 1
 
 for file in ${CWD}/config/services/*.service ;do
@@ -316,22 +312,10 @@ done
 
 ln -s ../slackware-motd.service \
   ${PKG}/lib/systemd/system/multi-user.target.wants/slackware-motd.service || exit 1
-# ln -s ../slackware-depmod.service \
-#  ${PKG}/lib/systemd/system/local-fs.target.wants/slackware-depmod.service || exit 1
 ln -s ../slackware-lvm-init.service \
   ${PKG}/lib/systemd/system/local-fs.target.wants/slackware-lvm-init.service || exit 1
-#ln -s ../systemd-clean-dead-links.service \
-#  ${PKG}/lib/systemd/system/shutdown.target.wants/systemd-clean-dead-links.service || exit 1
 ln -sf ../display-manager.service \
   ${PKG}/lib/systemd/system/graphical.target.wants/display-manager.service || exit 1
-#ln -sf ../../../../lib/systemd/system/inet1.service \
-#  ${PKG}/etc/systemd/system/network.target.wants/inet1.service || exit 1
-#ln -sf ../ldconfig.service \
-#  ${PKG}/lib/systemd/system/multi-user.target.wants/ldconfig.service || exit 1
-
-#for file in bootchart journald logind system user ;do
-#  mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
-#done
 
 rm -f ${PKG}/usr/lib/sysctl.d/50-coredump.conf
 
@@ -368,6 +352,7 @@ done
 
 # Add various helper scripts:
 install -m0644 ${CWD}/config/scripts/20-dhcp.network ${PKG}/lib/systemd/network/ || exit 1
+install -m0644 ${CWD}/config/scripts/20-eth-dhcp.network ${PKG}/lib/systemd/network/ || exit 1
 
 chmod 755 ${PKG}/lib/udev/*
 
