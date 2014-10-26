@@ -1,0 +1,5 @@
+PKGNAM="libdrm"
+VERSION="2.4.58"
+HOMEPAGE="http://dri.freedesktop.org/wiki/"
+DOWNLOAD="http://dri.freedesktop.org/libdrm/libdrm-2.4.58.tar.gz"
+MD5SUM="e56c0c79f7b17f761b0287b25b500cce"

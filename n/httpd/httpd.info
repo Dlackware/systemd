@@ -1,0 +1,5 @@
+PKGNAM="httpd"
+VERSION="2.4.10"
+HOMEPAGE="http://httpd.apache.org/"
+DOWNLOAD="http://www.apache.org/dist/httpd/httpd-2.4.10.tar.bz2"
+MD5SUM="44543dff14a4ebc1e9e2d86780507156"

@@ -1,0 +1,9 @@
+PKGNAM="yptools"
+VERSION="2.14"
+HOMEPAGE="http://www.linux-nis.org/nis/yp-tools/"
+DOWNLOAD="http://www.linux-nis.org/download/yp-tools/yp-tools-2.14.tar.bz2 \
+          http://www.linux-nis.org/download/ypbind-mt/ypbind-mt-1.37.1.tar.bz2 \
+          http://www.linux-nis.org/download/ypserv/ypserv-2.31.tar.bz2"
+MD5SUM="ba1f121c17e3ad65368be173b977cd13 \
+        8af8d35e7b9a7fcc3a1576697a04bd82
+        4537b8f0e917edca8f57b70b9cbc37f3"

@@ -1,0 +1,5 @@
+PKGNAM="avahi"
+VERSION="0.6.31"
+HOMEPAGE="http://avahi.org/"
+DOWNLOAD="http://distfiles.alpinelinux.org/distfiles/avahi-0.6.31.tar.gz"
+MD5SUM="2f22745b8f7368ad5a0a3fddac343f2d"
