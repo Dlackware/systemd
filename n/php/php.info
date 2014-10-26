@@ -1,0 +1,5 @@
+PKGNAM="php"
+VERSION="5.6.2"
+HOMEPAGE="http://php.net/"
+DOWNLOAD="http://us.php.net/distributions/php-5.6.2.tar.bz2"
+MD5SUM="97202449bf4f011c477ff860b173a92a"

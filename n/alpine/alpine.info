@@ -1,0 +1,7 @@
+PKGNAM="alpine"
+VERSION="2.11"
+HOMEPAGE="http://patches.freeiz.com/alpine"
+DOWNLOAD="ftp://ftp.slackware.com/pub/slackware/slackware-current/source/n/alpine/alpine-2.11.tar.xz \
+          ftp://ftp.slackware.com/pub/slackware/slackware-current/source/n/alpine/pinepgp-0.18.0.tar.gz"
+MD5SUM="a3bba218787691080d706b36215eec06 \
+        b87eaea3c74429e8e83f68b1ed337120"
