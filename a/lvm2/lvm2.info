@@ -1,0 +1,5 @@
+PKGNAM="lvm2"
+VERSION="2.02.106"
+HOMEPAGE="https://www.sourceware.org/lvm2/"
+DOWNLOAD="ftp://sources.redhat.com/pub/lvm2/LVM2.2.02.106.tgz"
+MD5SUM="77f84279fb649b3dc4edad1c6d1a1b0e"

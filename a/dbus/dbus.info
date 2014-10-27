@@ -1,0 +1,5 @@
+PKGNAM="dbus"
+VERSION="1.8.8"
+HOMEPAGE="http://www.freedesktop.org/wiki/Software/dbus/"
+DOWNLOAD="http://dbus.freedesktop.org/releases/dbus/dbus-1.8.8.tar.gz"
+MD5SUM="b9f4a18ee3faa1e07c04aa1d83239c43"

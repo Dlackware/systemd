@@ -1,0 +1,5 @@
+PKGNAM="cups"
+VERSION="1.7.5"
+HOMEPAGE="https://www.cups.org/"
+DOWNLOAD="http://www.cups.org/software/1.7.5/cups-1.7.5-source.tar.bz2"
+MD5SUM="5d893edc2957005f78e2b2423fdace2e"

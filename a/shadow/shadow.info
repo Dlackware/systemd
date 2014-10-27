@@ -1,0 +1,5 @@
+PKGNAM="shadow"
+VERSION="4.2.1"
+HOMEPAGE="http://pkg-shadow.alioth.debian.org/"
+DOWNLOAD="ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/shadow/shadow-4.2.1.tar.xz"
+MD5SUM="2bfafe7d4962682d31b5eba65dba4fc8"
