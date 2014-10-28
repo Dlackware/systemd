@@ -1,0 +1,5 @@
+PKGNAM="system-config-printer"
+VERSION="1.5.1"
+HOMEPAGE="http://cyberelk.net/tim/software/system-config-printer/"
+DOWNLOAD="http://cyberelk.net/tim/data/system-config-printer/1.5/system-config-printer-1.5.1.tar.xz"
+MD5SUM="64057f7064d2e7383ccce593aa7db8d3"

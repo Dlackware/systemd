@@ -1,0 +1,5 @@
+PKGNAM="libndp"
+VERSION="1.2"
+HOMEPAGE="http://libndp.org/"
+DOWNLOAD="http://libndp.org/files/libndp-1.2.tar.gz"
+MD5SUM="f94d2a72bd3e2c58bf2dfd827c9681a8"

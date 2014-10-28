@@ -1,0 +1,5 @@
+PKGNAM="sbc"
+VERSION="1.2"
+HOMEPAGE="https://www.kernel.org/pub/linux/bluetooth/"
+DOWNLOAD="http://www.kernel.org/pub/linux/bluetooth/sbc-1.2.tar.xz"
+MD5SUM="ec65c444ad4c32aa85702641045b19e9"

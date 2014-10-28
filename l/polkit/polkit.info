@@ -1,0 +1,5 @@
+PKGNAM="polkit"
+VERSION="0.112"
+HOMEPAGE="http://www.freedesktop.org/wiki/Software/PolicyKit"
+DOWNLOAD="http://www.freedesktop.org/software/polkit/releases/polkit-0.112.tar.gz"
+MD5SUM="b0f2fa00a55f47c6a5d88e9b73f80127"

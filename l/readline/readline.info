@@ -1,0 +1,5 @@
+PKGNAM="readline"
+VERSION="5.2"
+HOMEPAGE="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html"
+DOWNLOAD="ftp://ftp.gnu.org/gnu/readline/readline-5.2.tar.gz"
+MD5SUM="e39331f32ad14009b9ff49cc10c5e751"

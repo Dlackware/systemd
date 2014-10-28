@@ -1,0 +1,5 @@
+PKGNAM="alsa-plugins"
+VERSION="1.0.27"
+HOMEPAGE="http://www.alsa-project.org"
+DOWNLOAD="http://alsa.cybermirror.org/plugins/alsa-plugins-1.0.27.tar.bz2"
+MD5SUM="ada0163e0e84c787bfc929ad0f3f5cb8"

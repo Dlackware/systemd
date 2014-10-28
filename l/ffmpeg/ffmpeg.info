@@ -1,0 +1,5 @@
+PKGNAM="ffmpeg"
+VERSION="2.2.3"
+HOMEPAGE="http://ffmpeg.org/"
+DOWNLOAD="http://www.ffmpeg.org/releases/ffmpeg-2.2.3.tar.bz2"
+MD5SUM="dbb5b6b69bd010916f17df0ae596e0b1"
