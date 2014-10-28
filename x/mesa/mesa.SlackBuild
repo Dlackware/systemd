@@ -22,7 +22,7 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=mesa
-VERSION=${VERSION:-10.2.9}
+VERSION=${VERSION:-10.3.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -75,7 +75,6 @@ chmod -R u+w,go+r-w,a-s .
 
 # Let's kill the warning about operating on a dangling symlink:
 rm -f src/gallium/state_trackers/d3d1x/w32api
-
 
 #patch -p1 --verbose <$CWD/nv50-fix-build.patch
 #patch -p1 --verbose <$CWD/mesa-9.2-hardware-float.patch
