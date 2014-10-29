@@ -1,0 +1,6 @@
+PKGNAM="libinput"
+VERSION="0.6.0"
+HOMEPAGE="http://www.freedesktop.org/software/Wiki/libinput/"
+DOWNLOAD="http://www.freedesktop.org/software/libinput/libinput-0.6.0.tar.xz"
+MD5SUM=""
+

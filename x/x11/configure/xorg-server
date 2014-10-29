@@ -3,6 +3,7 @@ BUILD_SERVERS="--enable-xorg \
   --enable-dmx \
   --enable-xvfb \
   --enable-xnest \
+  --enable-xwayland \
   --enable-kdrive \
   --enable-xephyr \
   --enable-xfbdev \

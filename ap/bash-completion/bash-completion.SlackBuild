@@ -39,7 +39,7 @@ wget -c ftp://ftp.slackware.com/pub/slackware/slackware64-current/extra/source/b
 
 
 rm -rf $TMP
-mkdir -p $TMP $PKG
+mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf bash-completion-$VERSION
 tar xvf $CWD/bash-completion-$VERSION.tar.?z*

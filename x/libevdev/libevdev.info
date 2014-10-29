@@ -1,0 +1,6 @@
+PKGNAM="libevdev"
+VERSION="1.3"
+HOMEPAGE="http://www.freedesktop.org/software/Wiki/libevdev/"
+DOWNLOAD="http://www.freedesktop.org/software/libevdev/libevdev-1.3.tar.xz"
+MD5SUM=""
+

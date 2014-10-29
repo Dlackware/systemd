@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+libevdev: libevdev (wrapper library for evdev devices)
+libevdev:
+libevdev: libevdev is a wrapper library for evdev devices.  It moves the common
+libevdev: tasks when dealing with evdev devices into a library and provides a 
+libevdev: library interface to the callers, thus avoiding erroneous ioctls, etc.
+libevdev:
+libevdev: http://www.freedesktop.org/wiki/Software/libevdev/
+libevdev:
+libevdev:
+libevdev:
+libevdev:
