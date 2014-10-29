@@ -30,7 +30,9 @@
 # To install ALL newly built packages (even if they are already installed),
 # use UPGRADE_PACKAGES=always
 # To not upgrade, pass UPGRADE_PACKAGES=no
-UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-yes}
+UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-always}
+
+lftp -c "mirror http://dlackware.omgwtfroflol.com/current/sources/x/x11/src"
 
 pkgbase() {
   PKGEXT=$(echo $1 | rev | cut -f 1 -d . | rev)

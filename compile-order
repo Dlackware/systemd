@@ -39,7 +39,6 @@ l/libcanberra
 n/bluez
 x/libxkbcommon
 x/wayland
-#########################
 x/libdrm
 x/libevdev
 x/libinput
@@ -51,7 +50,5 @@ a/procps
 n/php
 n/yptools
 x/libepoxy
-#x/x11/fontsproto - 1.2.3
-#x/x11/xorg-server - 1.16.1
-#x/x11/xf86-input-evdev
+x/x11
 ### [systemd-all] end
