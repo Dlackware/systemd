@@ -13,8 +13,8 @@ l/polkit
 l/libndp
 l/readline
 n/NetworkManager
-### [systemd-min] end
-### [systemd-all] begin
+## [systemd-min] end
+## [systemd-all] begin
 d/json-c
 a/util-linux
 l/libatasmart

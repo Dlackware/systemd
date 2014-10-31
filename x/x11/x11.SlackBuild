@@ -32,7 +32,7 @@
 # To not upgrade, pass UPGRADE_PACKAGES=no
 UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-always}
 
-lftp -c "mirror http://dlackware.omgwtfroflol.com/current/sources/x/x11/src"
+lftp -c "mirror http://dlackware2.omgwtfroflol.com/current/sources/x/x11/src/"
 
 pkgbase() {
   PKGEXT=$(echo $1 | rev | cut -f 1 -d . | rev)

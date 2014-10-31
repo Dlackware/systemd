@@ -30,9 +30,6 @@ BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 TAR=$PKGNAM-$VERSION.tar.xz
 
-# Set to NO to disable systemd session support instead consolekit/needs pam
-SBO_SYSTEMD=${SBO_SYSTEMD:-YES}
-
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -105,12 +102,13 @@ find . \
 PPPD=$( basename $(find /usr/lib${LIBDIRSUFFIX}/pppd -type d -maxdepth 1 -mindepth 1) )
 [ -z "$PPPD" ] && PPPD=2.4.5
 
-unset SBO_SYSTEMDOPTS
-[ "${SBO_SYSTEMD}" = "YES" ] && SBO_SYSTEMDOPTS=systemd
+sed -i -e '/^Alias=/aAlias=network.service' data/${PKGNAM}.service.in || exit 1
 
 patch -p1 -E --backup --verbose -i $CWD/02-dbus_access_network_manager.patch
-patch -p1 -E --backup --verbose -i $CWD/disable_set_hostname.patch
+#patch -p1 -E --backup --verbose -i $CWD/disable_set_hostname.patch
 patch -p0 -E --backup --verbose -i $CWD/networkmanager-0.9.8.8-systemd209.patch
+
+NOCONFIGURE=1 sh ./autogen.sh || exit $?
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
@@ -122,7 +120,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --mandir=/usr/man \
   --docdir=/usr/doc/$PKGNAM-$VERSION \
   --with-pppd-plugin-dir=/usr/lib${LIBDIRSUFFIX}/pppd/$PPPD \
-  --with-crypto=nss \
+  --with-crypto=gnutls \
   --without-resolvconf \
   --with-dhcpcd=/sbin/dhcpcd \
   --with-dhclient=/usr/sbin/dhclient \
@@ -133,8 +131,8 @@ CXXFLAGS="$SLKCFLAGS" \
   --enable-qt \
   --disable-wimax \
   --disable-libndp \
-  --with-session-tracking=${SBO_SYSTEMDOPTS:-consolekit} \
-  --with-suspend-resume=${SBO_SYSTEMDOPTS:-upower} \
+  --with-session-tracking=systemd \
+  --with-suspend-resume=systemd \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --enable-more-warnings=no \
   --with-modem-manager-1=yes \
@@ -167,17 +165,6 @@ mkdir -p ${PKG}/etc/${PKGNAM}/system-connections
 mkdir -p ${PKG}/usr/share/gnome-vpn-properties
 mkdir -p ${PKG}/var/lib/${PKGNAM}
 
-# In case NetworkManager tries to install something here:
-rm -f $PKG/etc/rc.d/rc.networkmanager
-
-# Don't clobber existing rc.networkmanager
-# Don't run NetworkManager by default just because it got installed.
-# Instead, the init script will have to be made executable first.
-# This should avoid nasty surprises on potentially remotely located machines.
-mkdir -p $PKG/etc/rc.d
-cat $CWD/rc.networkmanager > $PKG/etc/rc.d/rc.networkmanager.new
-chmod 0644 $PKG/etc/rc.d/rc.networkmanager.new
-
 # Add a 'starter' NetworkManager.conf file
 # This sets the hostname (during postinstall) to match the system's name
 # and defines dhcpcd as the dhcp client to use
@@ -189,8 +176,6 @@ mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
 cp -a \
   AUTHORS CONTRIBUTING COPYING ChangeLog INSTALL NEWS README TODO \
   $PKG/usr/doc/$PKGNAM-$VERSION
-# In case someone needs this still:
-cp $CWD/55NetworkManager $PKG/usr/doc/$PKGNAM-$VERSION/
 
 # If there's a ChangeLog, installing at least part of the recent history
 # is useful, but don't let it get totally out of control:
@@ -198,12 +183,6 @@ if [ -r ChangeLog ]; then
   cat ChangeLog | head -n 1000 > $PKG/usr/doc/$PKGNAM-$VERSION/ChangeLog
   touch -r ChangeLog $PKG/usr/doc/$PKGNAM-$VERSION/ChangeLog
 fi
-
-# Lets remove the standard NetworkManager.service file
-# So we can add Conflicts with inet1.service
-rm -f $PKG/lib/systemd/system/NetworkManager.service
-cat $CWD/NetworkManager.service > \
-    $PKG/lib/systemd/system/NetworkManager.service
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc

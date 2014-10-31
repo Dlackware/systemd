@@ -28,16 +28,13 @@ if [ -e etc/HOSTNAME ]; then
     etc/NetworkManager/NetworkManager.conf.new
 fi
 
-# Preserve permissions, but move this into place.  Otherwise the net
-# connection could be lost at a remote location.
-preserve_perms etc/rc.d/rc.networkmanager.new
-config etc/NetworkManager/NetworkManager.conf.new
+config NetworkManager.conf.new
 
-# If the .pid file is found in the old location, move it to the new one:
-if [ -r var/run/NetworkManager.pid ]; then
-  mv var/run/NetworkManager.pid var/run/NetworkManager/NetworkManager.pid
+if [ -x bin/systemctl ] ; then
+ /bin/systemctl enable NetworkManager >/dev/null 2>&1
 fi
 
 if [ -x bin/systemctl ] ; then
  /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
+

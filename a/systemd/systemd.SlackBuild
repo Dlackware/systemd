@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-216}
-BUILD=${BUILD:-3}
+BUILD=${BUILD:-4}
 TAG=${TAG:-_dlack}
 
 # Set to NO to disable pam support
@@ -195,6 +195,7 @@ find $PKG | xargs file | grep -e "executable" -e "shared object" \
 ################################### systemd ####################################
 # Slackware inittab compliance
 ln -sf graphical.target ${PKG}/lib/systemd/system/runlevel4.target || exit 1
+ln -sf multi-user.target ${PKG}/lib/systemd/system/runlevel3.target || exit 1
 
 # rc.local and rc.local_shutdown
 install -pm0644 units/rc-local.service.in \
