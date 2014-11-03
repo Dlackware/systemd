@@ -23,7 +23,7 @@
 # Slackware build script for util-linux
 
 PKGNAM=util-linux
-VERSION=${VERSION:-2.25.1}
+VERSION=${VERSION:-2.25.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -45,7 +45,7 @@ fi
 wget -c http://www.kernel.org/pub/linux/utils/${PKGNAM}/v2.25/${PKGNAM}-${VERSION}.tar.xz \
 	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/adjtimex_${ADJTIMEXVERS}.orig.tar.gz \
 	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/bsdstrings.tar.gz \
-	http://dropline.omgwtfroflol.com/download/net-tools-${NETTOOLVERS}.tar.xz \
+	http://dlackware.omgwtfroflol.com/current/net-tools-${NETTOOLVERS}.tar.xz \
 	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/setserial-${SETSERIALVERS}.tar.gz \
 	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/ziptool-${ZIPTOOLVERS}.tar.xz
 
@@ -82,15 +82,11 @@ find . \
  -exec chmod 644 {} \;
 
 # Set to YES to use with shadow with pam support.
-SBO_PAM=${SBO_PAM:-YES}
-# Set to YES if using with systemd
-SBO_SYSTEMD=${SBO_SYSTEMD:-YES}
-
+SBO_PAMD_DIR=${CWD}/pamd
 SBO_PATCHDIR=${CWD}/patches
 
 DATE=$(LC_ALL=C date +%d-%b-%Y)
 
-SBO_PAMD_DIR=${CWD}/pamd
 
 # Disabled login stuff from being built, as this is provided by shadow
 #
@@ -109,11 +105,7 @@ SBO_PAMD_DIR=${CWD}/pamd
 patch -p1 --verbose< $SBO_PATCHDIR/util-linux-ng.fdisk-no-solaris.diff || exit 1
 patch -p1 --verbose< $SBO_PATCHDIR/2.23-login-lastlog-create.patch || exit 1
 
-unset SBO_PAMOPTS SBO_SYSTEMDOPTS
-[ "${SBO_PAM}" = "YES" ] && export SBO_PAMOPTS=yes
-[ "${SBO_SYSTEMD}" = "YES" ] && SBO_SYSTEMDOPTS='--with-systemdsystemunitdir=/lib/systemd/system --with-systemd'
-
-export ac_cv_header_security_pam_misc_h=${SBO_PAMOPTS:-no}
+export ac_cv_header_security_pam_misc_h=yes
 
 if [ "${SB_AUTOGEN}" = "YES" ] ;then
   sh ./autogen.sh || exit $?
@@ -154,8 +146,8 @@ CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BI
   --disable-makeinstall-chown \
   --enable-libblkid \
   --enable-libuuid \
-  ${SBO_SYSTEMDOPTS} \
-  --enable-socket-activation \
+  --with-systemdsystemunitdir=/lib/systemd/system \
+  --with-systemd \
   --build=$ARCH-slackware-linux || exit 1
 
 make || exit 1
@@ -308,13 +300,11 @@ cd $TMP/util-linux-$VERSION # Go back home :)
   ln -s hwclock.8 clock.8
 )
 
-if [ "${SBO_PAM}" = "YES" ] ;then
-  mkdir -p ${PKG}/etc/pam.d ${PKG}/etc/security/console.apps ${PKG}/usr/man/man8
-  for pamd in runuser runuser-l ; do
-    install -m 644 ${SBO_PAMD_DIR}/${pamd}.pamd \
-      ${PKG}/etc/pam.d/${pamd}.new || exit 1
-  done
-fi
+mkdir -p ${PKG}/etc/pam.d ${PKG}/etc/security/console.apps ${PKG}/usr/man/man8
+for pamd in runuser runuser-l ; do
+  install -m 644 ${SBO_PAMD_DIR}/${pamd}.pamd \
+    ${PKG}/etc/pam.d/${pamd}.new || exit 1
+done
 
 mkdir -p $PKG/run/uuidd $PKG/usr/lib/tmpfiles.d
 cp $CWD/uuidd.conf $PKG/usr/lib/tmpfiles.d || exit 1

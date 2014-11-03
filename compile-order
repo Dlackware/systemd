@@ -7,16 +7,18 @@ l/libpwquality
 a/shadow
 udev%a/systemd
 a/dbus
+a/util-linux
 n/openssh
-### !reboot
+## [systemd-min] end
+##
+## !reboot
+##
+## [systemd-all] begin
 l/polkit
 l/libndp
 l/readline
 n/NetworkManager
-## [systemd-min] end
-## [systemd-all] begin
 d/json-c
-a/util-linux
 l/libatasmart
 l/system-config-printer
 a/lvm2

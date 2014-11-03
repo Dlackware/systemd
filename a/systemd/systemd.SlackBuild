@@ -146,11 +146,16 @@ CXXFLAGS="${SLKCFLAGS}" \
   --enable-split-usr \
   --enable-pam \
   --disable-audit \
+  --disable-sysuser \
   --disable-selinux \
   --disable-kdbus \
   --with-sysvinit-path="" \
   --with-sysvrcnd-path="" \
   --with-firmware-path="/lib/firmware/updates:/usr/lib/firmware/updates:/lib/firmware:/usr/lib/firmware" \
+  --with-dbuspolicydir=/etc/dbus-1/system.d               \
+  --with-dbusinterfacedir=/usr/share/dbus-1/interfaces    \
+  --with-dbussessionservicedir=/usr/share/dbus-1/services \
+  --with-dbussystemservicedir=/usr/share/dbus-1/system-services \
   --disable-silent-rules \
   --build=$ARCH-slackware-linux
 
