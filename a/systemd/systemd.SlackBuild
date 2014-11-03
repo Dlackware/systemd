@@ -31,8 +31,6 @@ VERSION=${VERSION:-216}
 BUILD=${BUILD:-4}
 TAG=${TAG:-_dlack}
 
-# Set to NO to disable pam support
-SBO_PAM=${SBO_PAM:-YES}
 # Set YES to set systemd as default init
 SBO_INIT=${SBO_INIT:-YES}
 
@@ -131,13 +129,6 @@ if [ "${SBO_AUTOGEN}" = "YES" ] ;then
   autoreconf -ivf || exit $?
 fi
 
-unset SBO_PAMOPTS
-if [ "${SBO_PAM}" = "YES" ] ;then
-  SBO_PAMOPTS='--enable-pam'
-else
-  SBO_PAMOPTS='--disable-pam'
-fi
-
 CFLAGS="${SLKCFLAGS} -fno-lto"
 CXXFLAGS="${SLKCFLAGS}" \
 ./configure \
@@ -153,7 +144,7 @@ CXXFLAGS="${SLKCFLAGS}" \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
   --enable-dependency-tracking \
   --enable-split-usr \
-  ${SBO_PAMOPTS} \
+  --enable-pam \
   --disable-audit \
   --disable-selinux \
   --disable-kdbus \
@@ -233,11 +224,7 @@ fi
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd
 ln -sf ../../../dev/null ${PKG}/etc/udev/rules.d/80-net-setup-link.rules
 
-if [ "${SBO_PAM}" = "YES" ] ; then
-  mv ${PKG}/etc/pam.d/systemd-user ${PKG}/etc/pam.d/systemd-user.new || exit 1
-else
-  rm -f ${PKG}/usr/man/man8/pam*
-fi
+mv ${PKG}/etc/pam.d/systemd-user ${PKG}/etc/pam.d/systemd-user.new || exit 1
 
 #touch ${PKG}/etc/hostname.new
 touch ${PKG}/etc/vconsole.conf.new
@@ -293,12 +280,14 @@ mkdir -p ${PKG}/lib/systemd/system-generators
 mkdir -p ${PKG}/lib/systemd/user-generators
 
 # Mask legacy stuff
-ln -s rescue.service ${PKG}/lib/systemd/system/single.service
+ln -sf rescue.service ${PKG}/lib/systemd/system/single.service
 
 for srv in networkd resolved timesyncd ;do
-  rm -f ${PKG}/etc/systemd/system/multi-user.target.wants/systemd-${srv}.service
-  ln -sf ../systemd-${srv}.service ${PKG}/lib/systemd/system/multi-user.target.wants/
+  ln -sf ../../../../lib/systemd/system/systemd-${srv}.service \
+  $PKG/etc/systemd/system/multi-user.target.wants/systemd-${srv}.service
 done
+
+ln -sf ../run/systemd/resolve/resolv.conf $PKG/etc/resolv.conf
 
 for file in bootchart journald logind resolved system timesyncd user ;do
   mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
@@ -344,6 +333,7 @@ for file in ${CWD}/config/modprobe.d/*.conf ;do
   install -m0644 ${file} \
     ${PKG}/lib/modprobe.d/ || exit 1
 done
+
 install -pm0644 ${CWD}/config/modprobe.d/README ${PKG}/etc/modprobe.d/ || exit 1
 
 # Add some slack-scripts

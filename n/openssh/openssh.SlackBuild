@@ -28,9 +28,6 @@ VERSION=${VERSION:-6.7p1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
-# Set to NO to disable pam support
-SBO_PAM=${SBO_PAM:-YES}
-
 # Set initial variables:
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -86,19 +83,7 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-unset SBO_PAMOPTS
-if [ "${SBO_PAM}" = "YES" ]
-then
-  SBO_PAMOPTS='--with-pam --libexecdir=/lib${LIBDIRSUFFIX}/security'
-else
-  SBO_PAMOPTS='--without-pam --libexecdir=/usr/libexec'
-fi
-
-# Enable PAM in the server
-if [ "${SBO_PAM}" = "YES" ]
-then
-  cat $CWD/sshd_config-pam.diff | patch -p1
-fi
+cat $CWD/sshd_config-pam.diff | patch -p1
 
 if [ -d /usr/kerberos ]
 then
@@ -111,9 +96,9 @@ CFLAGS="$SLKCFLAGS" \
   --prefix=/usr \
   --mandir=/usr/man \
   --sysconfdir=/etc/ssh \
-  ${SBO_PAMOPTS} \
+  --with-pam \
+  --libexecdir=/lib${LIBDIRSUFFIX}/security \
   --with-md5-passwords \
-  --with-tcp-wrappers \
   --with-default-path=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin \
   ${krb_flag} \
   --with-privsep-path=/var/empty \
@@ -220,12 +205,10 @@ EOF
   chmod 644 lib/systemd/system/sshd.socket
 
 
-if [ "${SBO_PAM}" = "YES" ] ;then
   # Add the pam stuff:
   mkdir -p etc/pam.d
   cat $CWD/sshd.pam > etc/pam.d/sshd.new
   chmod 0644 etc/pam.d/sshd.new
-fi
 
   # Copy runtime installation files:
   mkdir -p install
