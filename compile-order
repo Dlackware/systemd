@@ -9,15 +9,15 @@ udev%a/systemd
 a/dbus
 a/util-linux
 n/openssh
+l/libndp
+l/readline
+n/NetworkManager
 ## [systemd-min] end
 ##
 ## !reboot
 ##
 ## [systemd-all] begin
 l/polkit
-l/libndp
-l/readline
-n/NetworkManager
 d/json-c
 l/libatasmart
 l/system-config-printer

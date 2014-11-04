@@ -10,11 +10,10 @@ config() {
   # Otherwise, we leave the .new copy for the admin to consider...
 }
 
-config etc/ssh/ssh_config.new
-config etc/ssh/sshd_config.new
 config etc/rc.d/rc.sshd.new
 config etc/pam.d/sshd.new
 config etc/default/sshd.new
+
 
 # If the sshd user/group/shadow don't exist, add them:
 
@@ -29,6 +28,10 @@ fi
 if ! grep -q "^sshd:" etc/shadow ; then
   echo "sshd:*:9797:0:::::" >> etc/shadow
 fi
+
+
+mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config
+mv /etc/ssh/sshd_config.new /etc/ssh/sshd_config
 
 # Add a btmp file to store login failure if one doesn't exist:
 if [ ! -r var/log/btmp ]; then

@@ -54,6 +54,18 @@ else
     uuidd 2> /dev/null
 fi
 
+config() {
+  NEW="$1"
+  OLD="$(dirname $NEW)/$(basename $NEW .new)"
+  # If there's no config file by that name, mv it over:
+  if [ ! -r $OLD ]; then
+    mv $NEW $OLD
+  elif [ "$(cat $OLD | md5sum)" = "$(cat $NEW | md5sum)" ]; then # toss the redundant copy
+    rm $NEW
+  fi
+  # Otherwise, we leave the .new copy for the admin to consider...
+}
+
 # Fix permissions
 chroot . /bin/chmod 4755 /bin/mount
 chroot . /bin/chmod 4755 /bin/umount
@@ -74,3 +86,9 @@ if [ -e etc/mtab ] ;then
   ln -s /proc/self/mounts /etc/mtab
 fi
 
+
+
+config etc/pam.d/runuser-l.new
+config etc/pam.d/runuser.new
+config etc/rc.d/rc.serial.new
+config etc/serial.conf.new
