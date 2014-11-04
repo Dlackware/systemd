@@ -1,0 +1,1 @@
+cp -f /etc/resolv.conf.googledns /etc/resolv.conf

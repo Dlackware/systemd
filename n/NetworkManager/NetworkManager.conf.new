@@ -4,7 +4,7 @@
 
 [main]
 plugins=keyfile
+dhcp=dhcpcd
 
 [keyfile]
-hostname=dlackware
-unmanaged-devices=interface-name:en*
+hostname=yourhostname

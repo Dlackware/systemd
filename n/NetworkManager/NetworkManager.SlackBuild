@@ -26,7 +26,7 @@
 
 PKGNAM=NetworkManager
 VERSION=${VERSION:-0.9.10.0}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 TAR=$PKGNAM-$VERSION.tar.xz
 
@@ -39,7 +39,6 @@ if [ -z "$ARCH" ]; then
        *) export ARCH=$( uname -m ) ;;
   esac
 fi
-
 
 wget -c https://download.gnome.org/sources/${PKGNAM}/0.9/${PKGNAM}-${VERSION}.tar.xz
 
@@ -60,7 +59,7 @@ OUTPUT=${OUTPUT:-/var/cache/dlackware}
 #   )
 #    rm -r $PKGNAM-$VERSION/.git/
 #    tar cvf $TAR $PKGNAM-$VERSION
-#    rm -r $PKGNAM-$VERSION    
+#    rm -r $PKGNAM-$VERSION
 #fi
 
 if [ "$ARCH" = "i486" ]; then
@@ -105,7 +104,7 @@ PPPD=$( basename $(find /usr/lib${LIBDIRSUFFIX}/pppd -type d -maxdepth 1 -mindep
 sed -i -e '/^Alias=/aAlias=network.service' data/${PKGNAM}.service.in || exit 1
 
 patch -p1 -E --backup --verbose -i $CWD/02-dbus_access_network_manager.patch
-#patch -p1 -E --backup --verbose -i $CWD/disable_set_hostname.patch
+patch -p1 -E --backup --verbose -i $CWD/disable_set_hostname.patch
 patch -p0 -E --backup --verbose -i $CWD/networkmanager-0.9.8.8-systemd209.patch
 
 NOCONFIGURE=1 sh ./autogen.sh || exit $?
@@ -120,17 +119,16 @@ CXXFLAGS="$SLKCFLAGS" \
   --mandir=/usr/man \
   --docdir=/usr/doc/$PKGNAM-$VERSION \
   --with-pppd-plugin-dir=/usr/lib${LIBDIRSUFFIX}/pppd/$PPPD \
-  --with-crypto=gnutls \
-  --without-resolvconf \
+  --with-crypto=nss \
+  --with-resolvconf=yes \
   --with-dhcpcd=/sbin/dhcpcd \
-  --with-dhclient=/usr/sbin/dhclient \
+  --with-dhclient=yes \
   --with-iptables=/usr/sbin/iptables \
   --enable-polkit=yes \
   --enable-modify-system \
   --enable-concheck \
-  --enable-qt \
+  --disable-qt \
   --disable-wimax \
-  --disable-libndp \
   --with-session-tracking=systemd \
   --with-suspend-resume=systemd \
   --with-systemdsystemunitdir=/lib/systemd/system \
@@ -168,7 +166,6 @@ mkdir -p ${PKG}/var/lib/${PKGNAM}
 # Add a 'starter' NetworkManager.conf file
 # This sets the hostname (during postinstall) to match the system's name
 # and defines dhcpcd as the dhcp client to use
-mkdir -p $PKG/etc/NetworkManager
 cat $CWD/NetworkManager.conf.new > \
     $PKG/etc/NetworkManager/NetworkManager.conf.new
 

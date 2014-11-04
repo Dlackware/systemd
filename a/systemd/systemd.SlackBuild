@@ -27,8 +27,8 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-216}
-BUILD=${BUILD:-4}
+VERSION=${VERSION:-217}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -145,19 +145,18 @@ CXXFLAGS="${SLKCFLAGS}" \
   --enable-dependency-tracking \
   --enable-split-usr \
   --enable-pam \
+  --disable-networkd \
   --disable-audit \
-  --disable-sysuser \
   --disable-selinux \
   --disable-kdbus \
   --with-sysvinit-path="" \
   --with-sysvrcnd-path="" \
-  --with-firmware-path="/lib/firmware/updates:/usr/lib/firmware/updates:/lib/firmware:/usr/lib/firmware" \
-  --with-dbuspolicydir=/etc/dbus-1/system.d               \
-  --with-dbusinterfacedir=/usr/share/dbus-1/interfaces    \
+  --with-dbuspolicydir=/etc/dbus-1/system.d \
+  --with-dbusinterfacedir=/usr/share/dbus-1/interfaces \
   --with-dbussessionservicedir=/usr/share/dbus-1/services \
   --with-dbussystemservicedir=/usr/share/dbus-1/system-services \
   --disable-silent-rules \
-  --build=$ARCH-slackware-linux
+  --build=$ARCH-slackware-linux || exit 1
 
 make $NUMJOBS || make || exit 1
 make install DESTDIR=$PKG \
@@ -219,11 +218,11 @@ else
   for manpage in telinit halt reboot poweroff runlevel shutdown; do
     mv ${PKG}/usr/man/man8/{,systemd.}"${manpage}.8" || exit 1
   done
-install -pm0644 ${CWD}/config/services/var-{lock,run}.mount ${PKG}/lib/systemd/system/ || exit 1
-ln -sf ../var-lock.mount \
-  ${PKG}/lib/systemd/system/local-fs.target.wants/var-lock.mount || exit 1
-ln -sf ../var-run.mount \
-  ${PKG}/lib/systemd/system/local-fs.target.wants/var-run.mount || exit 1
+#install -pm0644 ${CWD}/config/services/var-{lock,run}.mount ${PKG}/lib/systemd/system/ || exit 1
+#ln -sf ../var-lock.mount \
+#  ${PKG}/lib/systemd/system/local-fs.target.wants/var-lock.mount || exit 1
+#ln -sf ../var-run.mount \
+#  ${PKG}/lib/systemd/system/local-fs.target.wants/var-run.mount || exit 1
 fi
 
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd
@@ -258,15 +257,21 @@ touch ${PKG}/etc/udev/hwdb.bin
 
 # Make sure these directories are properly owned
 mkdir -p ${PKG}/lib/systemd/system/basic.target.wants
+mkdir -p ${PKG}/etc/systemd/system/basic.target.wants
 mkdir -p ${PKG}/lib/systemd/system/default.target.wants
+mkdir -p ${PKG}/etc/systemd/system/default.target.wants
 mkdir -p ${PKG}/lib/systemd/system/dbus.target.wants
+mkdir -p ${PKG}/etc/systemd/system/dbus.target.wants
 mkdir -p ${PKG}/lib/systemd/system/graphical.target.wants
+mkdir -p ${PKG}/etc/systemd/system/graphical.target.wants
 mkdir -p ${PKG}/lib/systemd/system/local-fs.target.wants
+mkdir -p ${PKG}/etc/systemd/system/local-fs.target.wants
 mkdir -p ${PKG}/lib/systemd/system/multi-user.target.wants
+mkdir -p ${PKG}/etc/systemd/system/multi-user.target.wants
 mkdir -p ${PKG}/lib/systemd/system/network.target.wants
+mkdir -p ${PKG}/etc/systemd/system/network.target.wants
 mkdir -p ${PKG}/lib/systemd/system/shutdown.target.wants
 mkdir -p ${PKG}/lib/systemd/system/syslog.target.wants
-mkdir -p ${PKG}/etc/systemd/system/network.target.wants
 
 # Temporary workaround for rhbz#1002806
 mkdir -p ${PKG}/lib/systemd/system/poweroff.target.wants
@@ -287,14 +292,12 @@ mkdir -p ${PKG}/lib/systemd/user-generators
 # Mask legacy stuff
 ln -sf rescue.service ${PKG}/lib/systemd/system/single.service
 
-for srv in networkd resolved timesyncd ;do
+for srv in resolved timesyncd ;do
   ln -sf ../../../../lib/systemd/system/systemd-${srv}.service \
   $PKG/etc/systemd/system/multi-user.target.wants/systemd-${srv}.service
 done
 
-ln -sf ../run/systemd/resolve/resolv.conf $PKG/etc/resolv.conf
-
-for file in bootchart journald logind resolved system timesyncd user ;do
+for file in bootchart journald resolved timesyncd logind system user ;do
   mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
 done
 
@@ -305,12 +308,13 @@ for file in ${CWD}/config/services/*.service ;do
     ${PKG}/lib/systemd/system/ || exit 1
 done
 
-ln -s ../slackware-motd.service \
-  ${PKG}/lib/systemd/system/multi-user.target.wants/slackware-motd.service || exit 1
-ln -s ../slackware-lvm-init.service \
-  ${PKG}/lib/systemd/system/local-fs.target.wants/slackware-lvm-init.service || exit 1
-ln -sf ../display-manager.service \
-  ${PKG}/lib/systemd/system/graphical.target.wants/display-manager.service || exit 1
+mkdir -p
+ln -s ../../../../lib/systemd/system/slackware-motd.service \
+  ${PKG}/etc/systemd/system/multi-user.target.wants/slackware-motd.service || exit 1
+ln -s ../../../../lib/systemd/system/slackware-lvm-init.service \
+  ${PKG}/etc/systemd/system/local-fs.target.wants/slackware-lvm-init.service || exit 1
+ln -sf ../../../../lib/systemd/system/display-manager.service \
+  ${PKG}/etc/systemd/system/graphical.target.wants/display-manager.service || exit 1
 
 rm -f ${PKG}/usr/lib/sysctl.d/50-coredump.conf
 
@@ -347,8 +351,6 @@ for file in ${CWD}/config/slack-scripts/* ; do
 done
 
 # Add various helper scripts:
-install -m0644 ${CWD}/config/scripts/20-dhcp.network ${PKG}/lib/systemd/network/ || exit 1
-install -m0644 ${CWD}/config/scripts/20-eth-dhcp.network ${PKG}/lib/systemd/network/ || exit 1
 
 chmod 755 ${PKG}/lib/udev/*
 

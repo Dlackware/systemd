@@ -28,7 +28,7 @@ if [ -e etc/HOSTNAME ]; then
     etc/NetworkManager/NetworkManager.conf.new
 fi
 
-config NetworkManager.conf.new
+config etc/NetworkManager/NetworkManager.conf.new
 
 if [ -x bin/systemctl ] ; then
  /bin/systemctl enable NetworkManager >/dev/null 2>&1
