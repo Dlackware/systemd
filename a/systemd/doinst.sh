@@ -39,6 +39,7 @@ config etc/systemd/timesyncd.conf.new
 config etc/systemd/user.conf.new
 config etc/vconsole.conf.new
 config var/lib/systemd/catalog/database.new
+
 rm -f etc/locale.conf.new
 rm -f etc/machine-id.new
 rm -f etc/machine-info.new
@@ -400,3 +401,5 @@ ${CHROOT} /usr/bin/setfacl -Rnm g:adm:rx,d:g:adm:rx /var/log/journal/ >/dev/null
 # Move old stuff around in /var/lib
 ${CHROOT} mv /var/lib/random-seed /var/lib/systemd/random-seed >/dev/null 2>&1 || :
 ${CHROOT} mv /var/lib/backlight /var/lib/systemd/backlight >/dev/null 2>&1 || :
+
+

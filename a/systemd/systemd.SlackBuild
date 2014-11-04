@@ -145,7 +145,6 @@ CXXFLAGS="${SLKCFLAGS}" \
   --enable-dependency-tracking \
   --enable-split-usr \
   --enable-pam \
-  --disable-networkd \
   --disable-audit \
   --disable-selinux \
   --disable-kdbus \
@@ -218,11 +217,11 @@ else
   for manpage in telinit halt reboot poweroff runlevel shutdown; do
     mv ${PKG}/usr/man/man8/{,systemd.}"${manpage}.8" || exit 1
   done
-#install -pm0644 ${CWD}/config/services/var-{lock,run}.mount ${PKG}/lib/systemd/system/ || exit 1
-#ln -sf ../var-lock.mount \
-#  ${PKG}/lib/systemd/system/local-fs.target.wants/var-lock.mount || exit 1
-#ln -sf ../var-run.mount \
-#  ${PKG}/lib/systemd/system/local-fs.target.wants/var-run.mount || exit 1
+install -pm0644 ${CWD}/config/services/var-{lock,run}.mount ${PKG}/lib/systemd/system/ || exit 1
+ln -sf ../var-lock.mount \
+  ${PKG}/lib/systemd/system/local-fs.target.wants/var-lock.mount || exit 1
+ln -sf ../var-run.mount \
+  ${PKG}/lib/systemd/system/local-fs.target.wants/var-run.mount || exit 1
 fi
 
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd
@@ -291,11 +290,6 @@ mkdir -p ${PKG}/lib/systemd/user-generators
 
 # Mask legacy stuff
 ln -sf rescue.service ${PKG}/lib/systemd/system/single.service
-
-for srv in resolved timesyncd ;do
-  ln -sf ../../../../lib/systemd/system/systemd-${srv}.service \
-  $PKG/etc/systemd/system/multi-user.target.wants/systemd-${srv}.service
-done
 
 for file in bootchart journald resolved timesyncd logind system user ;do
   mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
