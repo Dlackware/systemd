@@ -204,7 +204,6 @@ mv ${PKG}/lib/systemd/systemd ${PKG}/lib/systemd/systemd.new || exit 1
 chmod 0755 ${PKG}/lib/systemd/systemd.new
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd || exit 1
 
-if [ "${SBO_INIT}" = "YES" ] ;then
 mkdir -p ${PKG}/sbin
   ln -s ../lib/systemd/systemd ${PKG}/sbin/init
   ln -s ../bin/systemctl ${PKG}/sbin/reboot
@@ -213,16 +212,14 @@ mkdir -p ${PKG}/sbin
   ln -s ../bin/systemctl ${PKG}/sbin/shutdown
   ln -s ../bin/systemctl ${PKG}/sbin/telinit
   ln -s ../bin/systemctl ${PKG}/sbin/runlevel
-else
-  for manpage in telinit halt reboot poweroff runlevel shutdown; do
-    mv ${PKG}/usr/man/man8/{,systemd.}"${manpage}.8" || exit 1
-  done
-install -pm0644 ${CWD}/config/services/var-{lock,run}.mount ${PKG}/lib/systemd/system/ || exit 1
+
+install -pm0644 ${CWD}/config/services/var-lock.mount ${PKG}/lib/systemd/system/ || exit 1
+install -pm0644 ${CWD}/config/services/var-run.mount ${PKG}/lib/systemd/system/ || exit 1
+
 ln -sf ../var-lock.mount \
   ${PKG}/lib/systemd/system/local-fs.target.wants/var-lock.mount || exit 1
 ln -sf ../var-run.mount \
   ${PKG}/lib/systemd/system/local-fs.target.wants/var-run.mount || exit 1
-fi
 
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd
 ln -sf ../../../dev/null ${PKG}/etc/udev/rules.d/80-net-setup-link.rules
@@ -297,12 +294,11 @@ done
 
 echo 'd /run/console 755 root root' > ${PKG}/usr/lib/tmpfiles.d/console.conf || exit 1
 
-for file in ${CWD}/config/services/*.service ;do
+for file in ${CWD}/config/services/* ;do
   install -m0644 ${file} \
     ${PKG}/lib/systemd/system/ || exit 1
 done
 
-mkdir -p
 ln -s ../../../../lib/systemd/system/slackware-motd.service \
   ${PKG}/etc/systemd/system/multi-user.target.wants/slackware-motd.service || exit 1
 ln -s ../../../../lib/systemd/system/slackware-lvm-init.service \

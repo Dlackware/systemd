@@ -162,4 +162,7 @@ cat $CWD/slack-desc > $PKG/install/slack-desc
 
 # Create the package itself:
 cd $PKG
+/bin/chown --recursive root:root .  ;
+  /bin/chmod 4755 ./usr/lib/polkit-1/polkit-agent-helper-1 ./usr/bin/pkexec ;
+  /bin/chown polkitd ./etc/polkit-1/rules.d ./usr/share/polkit-1/rules.d ;
 /sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
