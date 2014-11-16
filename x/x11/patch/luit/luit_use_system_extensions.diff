@@ -1,0 +1,38 @@
+--- ./configure.ac.orig	2012-03-22 23:23:07.000000000 -0500
++++ ./configure.ac	2014-07-14 18:22:11.438996085 -0500
+@@ -33,9 +33,7 @@
+ XORG_DEFAULT_OPTIONS
+ 
+ AC_CONFIG_HEADERS([config.h])
+-
+-AC_CANONICAL_HOST
+-
++AC_USE_SYSTEM_EXTENSIONS
+ 
+ AC_CHECK_HEADERS([pty.h stropts.h sys/param.h sys/select.h])
+ AC_CHECK_FUNCS([select grantpt posix_openpt])
+@@ -54,23 +52,16 @@
+ PKG_CHECK_EXISTS(x11, [],
+ 	[AC_MSG_WARN([libX11 not found.  luit may not be able to find locale aliases without it.])])
+ 
++AC_CANONICAL_HOST
+ case $host_os in
+     # darwin has poll() but can't be used to poll character devices (atleast through SnowLeopard)
+     darwin*)
+-        OS_CFLAGS=
+-        ;;
+-    linux*)
+-        AC_CHECK_HEADERS([poll.h])
+-        AC_CHECK_FUNCS([poll])
+-        OS_CFLAGS="-D_XOPEN_SOURCE=500"
+         ;;
+     *)
+         AC_CHECK_HEADERS([poll.h])
+         AC_CHECK_FUNCS([poll])
+-        OS_CFLAGS=
+         ;;
+ esac
+-AC_SUBST(OS_CFLAGS)
+ 
+ AC_CHECK_HEADERS([pty.h stropts.h sys/ioctl.h sys/param.h sys/poll.h sys/select.h sys/time.h termios.h]) 
+ AC_CHECK_FUNCS([grantpt putenv select strdup])

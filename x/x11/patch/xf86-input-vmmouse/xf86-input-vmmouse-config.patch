@@ -1,0 +1,82 @@
+From 336f8633837abe4a1e5ba84b53ac8b9dac5d29a2 Mon Sep 17 00:00:00 2001
+From: Jeremy Huddleston Sequoia <jeremyhu@apple.com>
+Date: Thu, 28 Nov 2013 11:59:53 -0800
+Subject: Always include config.h first
+
+This fixes some build warnings about CSRG_BASED being redefined due to
+incorrect header include ordering.
+
+Signed-off-by: Jeremy Huddleston Sequoia <jeremyhu@apple.com>
+
+diff --git a/shared/vmmouse_client.c b/shared/vmmouse_client.c
+index f34c223..b8e19d6 100644
+--- a/shared/vmmouse_client.c
++++ b/shared/vmmouse_client.c
+@@ -35,6 +35,10 @@
+  *
+  */
+ 
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
+ #include "vmmouse_client.h"
+ #include "vmmouse_proto.h"
+ 
+diff --git a/shared/vmmouse_proto.c b/shared/vmmouse_proto.c
+index b50e071..635c522 100644
+--- a/shared/vmmouse_proto.c
++++ b/shared/vmmouse_proto.c
+@@ -33,6 +33,10 @@
+  */
+ 
+ 
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
+ #include "vmmouse_proto.h"
+ 
+ 
+diff --git a/shared/vmmouse_proto.h b/shared/vmmouse_proto.h
+index 9d7cb22..714f8c5 100644
+--- a/shared/vmmouse_proto.h
++++ b/shared/vmmouse_proto.h
+@@ -36,11 +36,6 @@
+ #ifndef _VMMOUSE_PROTO_H_
+ #define _VMMOUSE_PROTO_H_
+ 
+-
+-#ifdef HAVE_CONFIG_H
+-#include "config.h"
+-#endif
+-
+ #include <stdint.h>
+ 
+ #ifdef HAVE_XORG_SERVER_1_1_0
+diff --git a/tools/vmmouse_detect.c b/tools/vmmouse_detect.c
+index ac238b4..7939ff8 100644
+--- a/tools/vmmouse_detect.c
++++ b/tools/vmmouse_detect.c
+@@ -26,14 +26,14 @@
+  */
+ 
+ 
+-#include <stdlib.h>
+-#include <signal.h>
+-#include "vmmouse_client.h"
+-
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
+ 
++#include <stdlib.h>
++#include <signal.h>
++#include "vmmouse_client.h"
++
+ void
+ segvCB(int sig)
+ {
+-- 
+cgit v0.10.2
+
