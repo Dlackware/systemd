@@ -96,21 +96,28 @@ if [ -s /etc/localtime ]; then
 fi
 
 config() {
-  NEW="\$1"
-  OLD="\$(dirname \$NEW)/\$(basename \$NEW .new)"
+  NEW="$1"
+  OLD="$(dirname $NEW)/$(basename $NEW .new)"
   # If there's no config file by that name, mv it over:
-  if [ ! -r \$OLD ]; then
-    mv \$NEW \$OLD
-  elif [ "\$(cat \$OLD | md5sum)" = "\$(cat \$NEW | md5sum)" ]; then
+  if [ ! -r $OLD ]; then
+    mv $NEW $OLD
+  elif [ "$(cat $OLD | md5sum)" = "$(cat $NEW | md5sum)" ]; then
     # toss the redundant copy
-    rm \$NEW
+    rm $NEW
   fi
   # Otherwise, we leave the .new copy for the admin to consider...
 }
 ## List of conf files to check. The conf files in your package should end in .new
 
+config etc/avahi/avahi-dnsconfd.action.new
+config etc/avahi/avahi-daemon.conf.new
+config etc/avahi/avahi-autoipd.action.new
+config etc/dbus-1/system.d/avahi-dbus.conf.new
+
 # Fix permissions
  /bin/chown avahi.avahi /var/run/avahi-daemon
+
+systemctl enable avahi-daemon.service
 
 if [ -x bin/systemctl ] ; then
  /bin/systemctl --system daemon-reload >/dev/null 2>&1

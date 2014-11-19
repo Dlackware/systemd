@@ -85,16 +85,21 @@ ${CHROOT} /bin/chown pulse.pulse /var/lib/pulse
 ${CHROOT} /bin/chmod 0700 /var/lib/pulse
 
 config() {
-  NEW="\$1"
-  OLD="\$(dirname \$NEW)/\$(basename \$NEW .new)"
+  NEW="$1"
+  OLD="$(dirname $NEW)/$(basename $NEW .new)"
   # If there's no config file by that name, mv it over:
-  if [ ! -r \$OLD ]; then
-    mv \$NEW \$OLD
-  elif [ "\$(cat \$OLD | md5sum)" = "\$(cat \$NEW | md5sum)" ]; then
+  if [ ! -r $OLD ]; then
+    mv $NEW $OLD
+  elif [ "$(cat $OLD | md5sum)" = "$(cat $NEW | md5sum)" ]; then
     # toss the redundant copy
-    rm \$NEW
+    rm $NEW
   fi
   # Otherwise, we leave the .new copy for the admin to consider...
 }
 ## List of conf files to check. The conf files in your package should end in .new
+
+config etc/pulse/client.conf.new
+config etc/pulse/default.pa.new
+config etc/pulse/system.pa.new
+config etc/pulse/daemon.conf.new
 
