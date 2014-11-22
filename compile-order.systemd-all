@@ -1,0 +1,56 @@
+### [systemd-min] begin
+ap/bash-completion
+d/python3
+a/cracklib
+a/pam
+l/libpwquality
+a/shadow
+udev%a/systemd
+a/dbus
+a/util-linux
+n/openssh
+l/libndp
+l/readline
+n/NetworkManager
+## [systemd-min] end
+##
+## !reboot
+##
+## [systemd-all] begin
+l/polkit
+d/json-c
+l/libatasmart
+l/system-config-printer
+a/lvm2
+a/udisks
+a/udisks2
+l/libdaemon
+n/avahi
+l/libx264
+l/sbc
+l/pulseaudio
+l/alsa-plugins
+l/ffmpeg
+l/gstreamer1
+l/gst1-plugins-base
+l/gst1-plugins-bad
+l/gst1-plugins-good
+l/gst1-plugins-ugly
+l/gst-libav
+l/libcanberra
+n/bluez
+x/libxkbcommon
+x/wayland
+x/libdrm
+x/libevdev
+x/libinput
+d/llvm
+x/mesa
+a/cups
+n/httpd
+a/procps
+n/php
+n/yptools
+x/libepoxy
+x/x11
+### [systemd-all] end

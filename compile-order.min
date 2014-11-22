@@ -1,0 +1,15 @@
+### [systemd-min] begin
+ap/bash-completion
+d/python3
+a/cracklib
+a/pam
+l/libpwquality
+a/shadow
+udev%a/systemd
+a/dbus
+a/util-linux
+n/openssh
+l/libndp
+l/readline
+n/NetworkManager
+## [systemd-min] end
