@@ -1,0 +1,5 @@
+PKGNAM="poppler-data"
+VERSION="0.4.7"
+HOMEPAGE="http://poppler.freedesktop.org/"
+DOWNLOAD="http://poppler.freedesktop.org/poppler-data-0.4.7.tar.gz"
+MD5SUM="636a8f2b9f6df9e7ced8ec0946961eaf"

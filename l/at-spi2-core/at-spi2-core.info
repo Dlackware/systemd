@@ -1,0 +1,5 @@
+PKGNAM="at-spi2-core"
+VERSION="2.14.1"
+HOMEPAGE="http://www.gnome.org/"
+DOWNLOAD="http://download.gnome.org/sources/at-spi2-core/2.14/at-spi2-core-2.14.1.tar.xz"
+MD5SUM="a37993cc50d90465c9aeed95e2ac439a"

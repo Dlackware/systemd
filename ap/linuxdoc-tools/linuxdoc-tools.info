@@ -1,0 +1,5 @@
+PKGNAM="linuxdoc-tools"
+VERSION="0.9.69"
+HOMEPAGE="https://tracker.debian.org/pkg/linuxdoc-tools"
+DOWNLOAD="http://ftp.de.debian.org/debian/pool/main/l/linuxdoc-tools/linuxdoc-tools_0.9.69.orig.tar.gz"
+MD5SUM="1d13d500918a7a145b0edc2f16f61dd1"

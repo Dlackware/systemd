@@ -1,0 +1,12 @@
+--- ./gdk/x11/gdkxid.c.orig	2009-12-18 20:54:50.000000000 -0600
++++ ./gdk/x11/gdkxid.c	2010-02-08 14:42:50.000000000 -0600
+@@ -57,9 +57,6 @@
+     display_x11->xid_ht = g_hash_table_new ((GHashFunc) gdk_xid_hash,
+ 					    (GEqualFunc) gdk_xid_equal);
+ 
+-  if (g_hash_table_lookup (display_x11->xid_ht, xid))
+-    g_warning ("XID collision, trouble ahead");
+-
+   g_hash_table_insert (display_x11->xid_ht, xid, data);
+ }
+ 

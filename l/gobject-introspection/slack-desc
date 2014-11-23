@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+                     |-----handy-ruler------------------------------------------------------|
+gobject-introspection: gobject-introspection (introspection information for GObject)
+gobject-introspection:
+gobject-introspection: GObject-introspection is a package which will collect and extend the
+gobject-introspection: API metadata for GObject based libraries. The main motivation of this
+gobject-introspection: work is to centralize all introspection information required to write
+gobject-introspection: a language binding.
+gobject-introspection:
+gobject-introspection:
+gobject-introspection:
+gobject-introspection:
+gobject-introspection:

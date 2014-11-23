@@ -1,0 +1,5 @@
+PKGNAM="libnotify"
+VERSION="0.7.6"
+HOMEPAGE="http://www.gnome.org/"
+DOWNLOAD="http://ftp.gnome.org/pub/gnome/sources/libnotify/0.7/libnotify-0.7.6.tar.xz"
+MD5SUM="a4997019d08f46f3bf57b78e6f795a59"

@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# Copyright 2005 Paul Blazejowski <paulb@blazebox.homeip.net>
+# Available under the terms of the GNU GPL.
+#
+
+NAME="iso-codes"
+VERSION="3.46"
+REVISION="1"
+
+PKG_SOURCEURL='http://pkg-isocodes.alioth.debian.org/downloads/$NAME-$VERSION.tar.xz'
+
+PKG_NEEDSTATIC="unrecognized option"
+
+. $DLG_ROOT/etc/config
+. $DLG_ROOT/lib/dl-base
+
+prepare
+analyzesource
+configure
+make
+makecheck
+makeinstall
+
+# Yeah iso-codes is nasti and puts pkgconfig files in /usr/share
+# And i am lazy to roll a nice diff to fix this tiny nudge ...
+createdir $PKG_STAGEROOT$PKG_PREFIX/lib$LIBSUFFIX
+spewdo "mv $PKG_STAGEROOT$PKG_PREFIX/share/pkgconfig $PKG_STAGEROOT$PKG_PREFIX/lib$LIBSUFFIX"
+
+tidydocumentation
+analyzebinaries
+finalizepackage
+packagize
+cleanup

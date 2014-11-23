@@ -1,0 +1,26 @@
+diff -Nur gtk+-2.24.0.orig/docs/faq/Makefile.am gtk+-2.24.0/docs/faq/Makefile.am
+--- gtk+-2.24.0.orig/docs/faq/Makefile.am	2011-01-05 09:51:19.000000000 -0600
++++ gtk+-2.24.0/docs/faq/Makefile.am	2011-02-11 10:41:13.383824443 -0600
+@@ -9,7 +9,8 @@
+ 	  (cd $(srcdir); \
+ 	   db2html gtk-faq.sgml; \
+ 	   test -d html && rm -r html; \
+-	   mv gtk-faq html); \
++	   mkdir html; \
++	   mv *.html html); \
+ 	fi
+ 
+ pdf:
+diff -Nur gtk+-2.24.0.orig/docs/tutorial/Makefile.am gtk+-2.24.0/docs/tutorial/Makefile.am
+--- gtk+-2.24.0.orig/docs/tutorial/Makefile.am	2011-01-05 09:51:20.000000000 -0600
++++ gtk+-2.24.0/docs/tutorial/Makefile.am	2011-02-11 10:42:04.541622883 -0600
+@@ -42,7 +42,8 @@
+ 	  (cd $(srcdir); \
+ 	   db2html gtk-tut.sgml; \
+ 	   test -d html && rm -r html; \
+-	   mv gtk-tut html; \
++	   mkdir html; \
++	   mv *.html html; \
+ 	   mkdir html/images; \
+ 	   cp images/*.png html/images); \
+ 	fi

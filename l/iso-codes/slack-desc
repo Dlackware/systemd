@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+         |-----handy-ruler------------------------------------------------------|
+iso-codes: iso-codes (country codes)
+iso-codes:
+iso-codes: This package aims to provide a central list of the country,
+iso-codes: language, and currency names and their translations.
+iso-codes:
+iso-codes: The data comes from ISO standards 639 (language names),
+iso-codes: 3166 (country names), and 4217 and the translations are from
+iso-codes: the Translation Project. The data is provided in tabular files
+iso-codes: as well as XML.
+iso-codes:
+iso-codes:

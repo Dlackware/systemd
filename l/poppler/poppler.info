@@ -1,0 +1,5 @@
+PKGNAM="poppler"
+VERSION="0.26.5"
+HOMEPAGE="http://poppler.freedesktop.org/"
+DOWNLOAD="http://poppler.freedesktop.org/poppler-0.26.5.tar.xz"
+MD5SUM="786c943eee550e3a977c181e7778b1c8"

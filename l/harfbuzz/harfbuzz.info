@@ -1,0 +1,5 @@
+PKGNAM="harfbuzz"
+VERSION="0.9.35"
+HOMEPAGE="http://www.freedesktop.org/software/harfbuzz/release/"
+DOWNLOAD="http://www.freedesktop.org/software/harfbuzz/release/harfbuzz-0.9.35.tar.bz2"
+MD5SUM="531ee8650626ecddcd90b2a4637e31d4"

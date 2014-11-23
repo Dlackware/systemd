@@ -1,0 +1,5 @@
+PKGNAM="gdk-pixbuf2"
+VERSION="2.31.1"
+HOMEPAGE="http://www.gnome.org/"
+DOWNLOAD="http://download.gnome.org/sources/gdk-pixbuf/2.31/gdk-pixbuf-2.31.1.tar.xz"
+MD5SUM="74cde211f5b7ac1015d1a7c9feee037c"

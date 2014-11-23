@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+           |-----handy-ruler------------------------------------------------------|
+at-spi2-atk: at-spi2-atk (AT-SPI toolkit bridge)
+at-spi2-atk:
+at-spi2-atk: This package includes a gtk-module that bridges ATK to the new D-Bus
+at-spi2-atk: based AT-SPI as well as C and Python client libraries.
+at-spi2-atk:
+at-spi2-atk: These libraries depend on the at-spi2-core code that contains the
+at-spi2-atk: daemon for registering applications, D-Bus helper libraries and the
+at-spi2-atk: AT-SPI D-Bus specifications.
+at-spi2-atk:
+at-spi2-atk:
+at-spi2-atk:

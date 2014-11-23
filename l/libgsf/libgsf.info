@@ -1,0 +1,5 @@
+PKGNAM="libgsf"
+VERSION="1.14.30"
+HOMEPAGE="http://www.gnome.org/"
+DOWNLOAD="http://download.gnome.org/sources/libgsf/1.14/libgsf-1.14.30.tar.xz"
+MD5SUM="e7b672ef37ef6a853ce149c03e4d3a63"

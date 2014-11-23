@@ -1,0 +1,9 @@
+PKGNAM="libpng"
+VERSION="1.6.14"
+HOMEPAGE="http://www.libpng.org/pub/png/libpng.html"
+DOWNLOAD="http://downloads.sourceforge.net/libpng/libpng-1.6.14.tar.xz \
+          http://downloads.sourceforge.net/libpng/libpng-1.2.50.tar.xz \
+          http://downloads.sourceforge.net/libpng/libpng-1.4.12.tar.xz"
+MD5SUM="aefd9fda2178acab908707737174a0cd \
+        a3e00fccbfe356174ab515b5c00641c7 \
+        74d60e9d76895b4300ce00ad86c126f4"

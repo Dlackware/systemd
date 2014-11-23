@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# Copyright 2010 Sasa Ostrouska <saxa@droplinegnome.org>
+# Available under the terms of the GNU GPL.
+#
+
+NAME="glib-networking"
+VERSION="2.38.2"
+REVISION="1"
+
+PKG_SOURCEURL='$DLG_GNOMEMIRROR//$NAME/$VER_MAJ.$VER_MIN/$NAME-$VERSION.tar.xz'
+PKG_SANIFYNOTOUCH="aclocal.m4 problem"
+
+. $DLG_ROOT/etc/config
+. $DLG_ROOT/lib/dl-base
+
+cflags
+prepare
+analyzesource
+configure --with-ca-certificates=$PKG_SYSCONFDIR/ssl/certs/ca-certificates.crt
+make
+makeinstall install-strip
+tidydocumentation
+analyzebinaries
+finalizepackage
+packagize
+cleanup

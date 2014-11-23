@@ -1,0 +1,5 @@
+PKGNAM="librsvg"
+VERSION="2.40.5"
+HOMEPAGE="https://wiki.gnome.org/Projects/LibRsvg"
+DOWNLOAD="http://download.gnome.org/sources/librsvg/2.40/librsvg-2.40.5.tar.xz"
+MD5SUM="c2b044fccf415902a052d0e978e0ea60"

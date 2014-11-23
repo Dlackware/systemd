@@ -1,0 +1,5 @@
+PKGNAM="gcr"
+VERSION="3.14.0"
+HOMEPAGE="http://www.gnome.org/"
+DOWNLOAD="http://ftp.gnome.org/pub/gnome/sources/gcr/3.14/gcr-3.14.0.tar.xz"
+MD5SUM="f2a620c5f6c0cd570b4e3bed287ed302"

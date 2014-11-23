@@ -1,0 +1,107 @@
+# Incase you're wondering why we're using source RPMs, this is because
+# they contain patches required to either fix build or runtime problems,
+# and it's easier to maintain this hunk of a package when the patches &
+# sources are self contained.
+#
+# Some sources have been recompressed with LZMA for better compression results.
+
+# linuxdoc-tools:
+# https://packages.debian.org/sid/linuxdoc-tools
+#
+# This provides things such as sgml2txt.
+wget -c http://ftp.de.debian.org/debian/pool/main/l/linuxdoc-tools/linuxdoc-tools_0.9.69.orig.tar.gz
+# We're taking some patches from here - now separated out:
+#wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/l/linuxdoc-tools-0.9.68-3.fc19.src.rpm
+
+# OpenSP:
+# http://openjade.sourceforge.net/download.html
+# wget -c http://kent.dl.sourceforge.net/sourceforge/openjade/OpenSP-1.5.2.tar.gz
+# 
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/o/opensp-1.5.2-18.fc21.src.rpm
+
+# OpenJade:
+# http://openjade.sourceforge.net/
+# We're using a gcc 4.6 patch from Fedora's SRPM: 
+#  ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/o/openjade-1.3.2-39.fc17.src.rpm
+# And we're using the old Perl 4 core libraries (as a dirty but effective build time work-around) taken from:
+# http://packages.debian.org/sid/libperl4-corelibs-perl
+# http://ftp.de.debian.org/debian/pool/main/libp/libperl4-corelibs-perl/libperl4-corelibs-perl_0.003.orig.tar.gz
+wget -c http://downloads.sourceforge.net/openjade/openjade-1.3.3-pre1.tar.gz
+
+# sgmltools-common.
+# It's broken and needs patching so we'll use Fedora's.
+#wget -c ftp://sources.redhat.com/pub/docbook-tools/new-trials/SOURCES/sgml-common-0.6.3.tgz
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/s/sgml-common-0.6.3-39.fc19.src.rpm
+
+
+# DocBook docs:
+# http://www.oasis-open.org/docbook/sgml/
+#
+#wget -c http://www.oasis-open.org/docbook/sgml/3.1/docbk31.zip
+#wget -c http://www.docbook.org/sgml/4.5/docbook-4.5.zip
+# We use Debian's source because it's more convenient since they package all versions in one archive:
+wget -c http://ftp.de.debian.org/debian/pool/main/d/docbook/docbook_4.5.orig.tar.gz
+#
+# http://www.linuxfromscratch.org/blfs/view/stable/pst/docbook-dsssl.html
+# Check versions:
+# http://sourceforge.net/projects/docbook/files/
+wget -c ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/docbook-dsssl-1.79.tar.bz2
+wget -c http://switch.dl.sourceforge.net/sourceforge/docbook/docbook-dsssl-doc-1.79.tar.bz2
+# Why don't they put the patches into the distributed source...???
+#wget -c ftp://sources.redhat.com/pub/docbook-tools/new-trials/SOURCES/docbook-utils-0.6.14.tar.gz
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/d/docbook-utils-0.6.14-35.fc19.src.rpm
+#
+#
+wget -c http://www.docbook.org/xml/4.5/docbook-xml-4.5.zip
+# https://sourceforge.net/project/showfiles.php?group_id=21935&package_id=16608
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/d/docbook-style-xsl-1.78.1-1.fc20.src.rpm
+#
+# We use the Fedora "docbook-style-xsl" SRPM for this rather than the original source which is why
+# these "docbook-xsl*" files aren't in our sources directory.
+#wget -c "http://downloads.sourceforge.net/project/docbook/docbook-xsl/1.75.2/docbook-xsl-1.75.2.tar.bz2?use_mirror=freefr"
+##wget -c "http://downloads.sourceforge.net/project/docbook/docbook-xsl-doc/1.75.2/docbook-xsl-doc-1.75.2.tar.bz2?use_mirror=freefr"
+
+
+# gnome-doc-utils, needed to build gtk-doc:
+# Recompressed with LZMA after download.
+# I guess this mirror is out of date now.  It's easier to just look at Fedora's development
+# directory anyway :-)
+# wget -c http://ftp.acc.umu.se/pub/GNOME/sources/gnome-doc-utils/0.20/gnome-doc-utils-0.20.0.tar.bz2
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/g/gnome-doc-utils-0.20.10-4.fc19.src.rpm
+
+# gtk-doc:
+# When upgrading this, it's worth checking the Fedora SRPM.  For version 1.13
+# we're carrying a fix for gtk-doc-fixref.  Make sure newer versions don't need
+# any patches!
+wget -c http://ftp.acc.umu.se/pub/GNOME/sources/gtk-doc/1.20/gtk-doc-1.20.tar.xz
+# http://git.gnome.org/browse/gtk-doc/commit/?id=2bffebcf9c125f5610b8fb660d42c3c5b9dfd4f0
+
+# sgmlspl
+# http://www.cs.indiana.edu/~asengupt/sgml/SGMLSpm/DOC/HTML/sgmlspl/sgmlspl.html
+# http://packages.debian.org/search?keywords=sgmlspl&searchon=names&suite=all&section=all
+# There's nothing in the FTP download site at this time, so I'll take it from Debian.
+wget -c http://ftp.debian.org/debian/pool/main/libs/libsgmls-perl/libsgmls-perl_1.03ii.orig.tar.gz
+wget -c http://ftp.debian.org/debian/pool/main/libs/libsgmls-perl/libsgmls-perl_1.03ii-33.debian.tar.xz
+
+# xmlto
+# https://fedorahosted.org/releases/x/m/xmlto
+# wget -c --no-check-certificate https://fedorahosted.org/releases/x/m/xmlto/xmlto-0.0.23.tar.bz2
+# Fedora includes a patch, so we'll take it:
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/x/xmlto-0.0.26-1.fc21.src.rpm
+
+# AsciiDoc
+# http://www.methods.co.nz/asciidoc/
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/a/asciidoc-8.6.8-1.fc19.src.rpm
+
+# docbook2X:
+#
+# Pre-requisite PERL modules for docbook2X:
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/p/perl-XML-NamespaceSupport-1.11-10.fc19.src.rpm
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/p/perl-XML-SAX-Base-1.08-7.fc19.src.rpm
+wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/p/perl-XML-SAX-0.99-9.fc19.src.rpm
+#
+#http://packages.debian.org/sid/docbook2x
+# Fedora keep it here, but Debian have a couple of (what look to be useful) patches.
+#wget -c ftp://ftp.mirrorservice.org/sites/download.fedora.redhat.com/pub/fedora/linux/development/rawhide/source/SRPMS/d/docbook2X-0.8.8-14.fc19.src.rpm
+wget -c http://ftp.de.debian.org/debian/pool/main/d/docbook2x/docbook2x_0.8.8.orig.tar.gz
+wget -c http://ftp.de.debian.org/debian/pool/main/d/docbook2x/docbook2x_0.8.8-9.debian.tar.gz

@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# Copyright 2004,2007 Dagmar d'Surreal <rivyqntzne@tznvy.pbz>
+# Copyright 2005, 2006 Scott Harmon
+# Available under the terms of the GNU GPL.
+#
+
+NAME="gnome-keyring"
+VERSION="3.10.1"
+REVISION="1"
+
+PKG_SOURCEURL='http://download.gnome.org/sources/$NAME/$VER_MAJ.$VER_MIN/$NAME-$VERSION.tar.xz'
+PKG_SANIFYNOTOUCH='yes'
+
+. $DLG_ROOT/etc/config
+. $DLG_ROOT/lib/dl-base
+
+# buildrequires pam
+PKG_DOCFILES="${PKG_DOCFILES:+$PKG_DOCFILES }doc/file-format.txt"
+PKG_OPTLEVEL="${PKG_OPTLEVEL:+$PKG_OPTLEVEL }-fstack-protector-all"
+
+cflags
+prepare
+analyzesource
+
+if [ "$DLG_ARCH" == "x86-64" ]; then
+	host="x86_64-slackware-linux"
+ else
+	host="i486-slackware-linux"
+fi
+
+configure --with-pam-dir=/lib$LIBSUFFIX/security \
+	--enable-pam \
+	--build=$host
+make
+makeinstall install-strip
+spewdo "rm $PKG_STAGEROOT/lib$LIBSUFFIX/security/pam_gnome_keyring.la"
+tidydocumentation
+analyzebinaries
+finalizepackage
+packagize
+cleanup

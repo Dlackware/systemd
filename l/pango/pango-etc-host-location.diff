@@ -1,0 +1,41 @@
+diff -Nur pango-1.34.0.orig/pango/Makefile.am pango-1.34.0/pango/Makefile.am
+--- pango-1.34.0.orig/pango/Makefile.am	2013-03-04 19:24:38.000000000 -0600
++++ pango-1.34.0/pango/Makefile.am	2013-03-26 01:51:57.804499578 -0500
+@@ -17,6 +17,7 @@
+ 	-DPANGO_ENABLE_BACKEND				\
+ 	-DPANGO_ENABLE_ENGINE				\
+ 	-DSYSCONFDIR=\"$(sysconfdir)\"			\
++	-DHOST=\"$(host_triplet)\"			\
+ 	-DLIBDIR=\"$(libdir)\"				\
+ 	-I$(top_srcdir)					\
+ 	-I$(top_builddir)				\
+diff -Nur pango-1.34.0.orig/pango/Makefile.in pango-1.34.0/pango/Makefile.in
+--- pango-1.34.0.orig/pango/Makefile.in	2013-03-25 21:10:54.000000000 -0500
++++ pango-1.34.0/pango/Makefile.in	2013-03-26 01:52:26.701339768 -0500
+@@ -766,6 +766,7 @@
+ 	-DPANGO_ENABLE_BACKEND				\
+ 	-DPANGO_ENABLE_ENGINE				\
+ 	-DSYSCONFDIR=\"$(sysconfdir)\"			\
++	-DHOST=\"$(host_triplet)\"			\
+ 	-DLIBDIR=\"$(libdir)\"				\
+ 	-I$(top_srcdir)					\
+ 	-I$(top_builddir)				\
+diff -Nur pango-1.34.0.orig/pango/modules.c pango-1.34.0/pango/modules.c
+--- pango-1.34.0.orig/pango/modules.c	2013-01-07 19:19:43.000000000 -0600
++++ pango-1.34.0/pango/modules.c	2013-03-26 01:54:07.418782761 -0500
+@@ -561,6 +561,7 @@
+       files = g_new (char *, 3);
+ 
+       files[0] = g_build_filename (pango_get_sysconf_subdirectory (),
++                                   HOST,
+                                    "pango.modules",
+                                    NULL);
+       files[1] = g_build_filename (pango_get_lib_subdirectory (),
+@@ -682,6 +683,7 @@
+       if (!no_module_warning)
+ 	{
+ 	  gchar *filename = g_build_filename (pango_get_sysconf_subdirectory (),
++					      HOST,
+ 					      "pango.modules",
+ 					      NULL);
+ 	  g_critical ("No modules found:\n"

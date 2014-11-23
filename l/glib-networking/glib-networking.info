@@ -1,0 +1,5 @@
+PKGNAM="glib-networking"
+VERSION="2.42.0"
+HOMEPAGE="http://www.gnome.org/"
+DOWNLOAD="http://ftp.gnome.org/pub/gnome/sources/glib-networking/2.42/glib-networking-2.42.0.tar.xz"
+MD5SUM="d1935e6974da7f39d265303c87a8389b"

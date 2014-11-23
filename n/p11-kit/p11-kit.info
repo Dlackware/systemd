@@ -1,0 +1,5 @@
+PKGNAM="p11-kit"
+VERSION="0.22.1"
+HOMEPAGE="http://p11-glue.freedesktop.org/"
+DOWNLOAD="http://p11-glue.freedesktop.org/releases/p11-kit-0.22.1.tar.gz"
+MD5SUM="4e9bea1106628ffb820bdad24a819fac"

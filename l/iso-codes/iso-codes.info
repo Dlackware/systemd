@@ -1,0 +1,5 @@
+PKGNAM="iso-codes"
+VERSION="3.56"
+HOMEPAGE="http://pkg-isocodes.alioth.debian.org/"
+DOWNLOAD="http://pkg-isocodes.alioth.debian.org/downloads/iso-codes-3.56.tar.xz"
+MD5SUM="d032b2f9750bd59d350e0ccb060c8710"

@@ -1,0 +1,5 @@
+PKGNAM="gnome-keyring"
+VERSION="3.14.0"
+HOMEPAGE="https://wiki.gnome.org/Projects/GnomeKeyring"
+DOWNLOAD="ftp://ftp.gnome.org/pub/gnome/sources/gnome-keyring/3.14/gnome-keyring-3.14.0.tar.xz"
+MD5SUM="ac3e041a7ae9624f6ed9956fd63b57da"

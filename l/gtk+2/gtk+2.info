@@ -1,0 +1,5 @@
+PKGNAM="gtk+2"
+VERSION="2.24.25"
+HOMEPAGE="http://www.gtk.org/"
+DOWNLOAD="ftp://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-2.24.25.tar.xz"
+MD5SUM="612350704dd3aacb95355a4981930c6f"

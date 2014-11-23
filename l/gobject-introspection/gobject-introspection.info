@@ -1,0 +1,5 @@
+PKGNAM="gobject-introspection"
+VERSION="1.42.0"
+HOMEPAGE="http://projects.gnome.org/gobject-introspection/"
+DOWNLOAD="ftp://ftp.acc.umu.se/pub/gnome/sources/gobject-introspection/1.42/gobject-introspection-1.42.0.tar.xz"
+MD5SUM="4fa52f6b67367d9c1b99b98683ced202"

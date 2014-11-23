@@ -403,4 +403,4 @@ ${CHROOT} mv /var/lib/random-seed /var/lib/systemd/random-seed >/dev/null 2>&1 |
 ${CHROOT} mv /var/lib/backlight /var/lib/systemd/backlight >/dev/null 2>&1 || :
 
 # This is temperarily fix that might need to go somewhere in a stock slackware package
-${CHROOT} /bin/ln -s /etc/ssl/cert/ca-certificates.crt /etc/ssl/cert/ca-bundle.crt
+${CHROOT} /bin/ln -s /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-bundle.crt
