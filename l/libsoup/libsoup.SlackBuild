@@ -37,7 +37,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c ftp://ftp.gnome.org/pub/gnome/sources/libsoup/2.48/libsoup-2.48.0.tar.xz
+wget -c http://download.gnome.org/sources/$PKGNAM/2.48/$PKGNAM-$VERSION.tar.xz
 
 NUMJOBS=${NUMJOBS:-" -j7 "}
 
