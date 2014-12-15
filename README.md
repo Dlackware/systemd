@@ -17,4 +17,7 @@ imo should be recompiled and proved unit and service files, but are not in this 
 Thiese packages are for use with the gnome-systemd slackbuilds.
 to have gnome3 running on slackware with systemd.
 
-The compile-order file shows in what order the packages need to be compiled
+The compile-order file shows in what order the packages need to be compiled.
+
+I would like to thank the following persons for the information needed for the slackbuilds.
+Patrick Volkerding, Alien_bob, rworkman, Vincent Batts, Niels Horn and https://github.com/PhantomX
