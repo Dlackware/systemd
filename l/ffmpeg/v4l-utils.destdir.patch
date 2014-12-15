@@ -1,0 +1,15 @@
+--- v4l-utils-0.8.5/utils/keytable/Makefile.orig	2011-07-17 18:06:39.000000000 +0200
++++ v4l-utils-0.8.5/utils/keytable/Makefile	2011-11-12 00:23:10.408112653 +0100
+@@ -34,9 +34,9 @@
+ install: $(TARGETS)
+ 	mkdir -p $(DESTDIR)$(PREFIX)/bin $(DESTDIR)/etc
+ 	install -m 755 $(TARGETS) $(DESTDIR)$(PREFIX)/bin
+-	install -m 644 -p rc_maps.cfg $(DESTDIR)/etc
+-	install -m 755 -d $(DESTDIR)/etc/rc_keymaps
+-	install -m 644 -p rc_keymaps/* $(DESTDIR)/etc/rc_keymaps
++	install -m 644 -p rc_maps.cfg $(DESTDIR)/$(SYSCONFDIR)
++	install -m 755 -d $(DESTDIR)/$(SYSCONFDIR)/rc_keymaps
++	install -m 644 -p rc_keymaps/* $(DESTDIR)/$(SYSCONFDIR)/rc_keymaps
+ 	install -m 755 -d $(DESTDIR)/lib/udev/rules.d
+ 	install -m 644 -p 70-infrared.rules $(DESTDIR)/lib/udev/rules.d
+ 	install -m 755 -d $(DESTDIR)$(MANDIR)/man1

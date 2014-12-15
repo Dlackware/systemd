@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-217}
+VERSION=${VERSION:-218}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -114,7 +114,9 @@ sed -i -e '/udevadm/s|@rootbindir@|/sbin|g' \
 
 # Slackware file is upper case
 sed -i -e 's|/etc/hostname|/etc/HOSTNAME|g' \
-  src/hostname/hostnamed.c src/core/hostname-setup.c || exit 1
+  src/hostname/hostnamed.c src/core/hostname-setup.c \
+  man/{hostname,machine-info}.{5,html,xml} man/hostnamectl.{1,html,xml} \
+  man/systemd.directives.{7,html,xml} || exit 1
 
 # This should be multilib aware...
 sed -i -e "/locale/s|/lib/|/lib${LIBDIRSUFFIX}/|g" \
@@ -142,7 +144,7 @@ CXXFLAGS="${SLKCFLAGS}" \
   --infodir=/usr/info \
   --mandir=/usr/man \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
-  --enable-dependency-tracking \
+  --disable-dependency-tracking \
   --enable-split-usr \
   --enable-pam \
   --disable-audit \

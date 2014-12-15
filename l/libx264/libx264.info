@@ -1,5 +1,0 @@
-PKGNAM="libx264"
-VERSION="20140604-2245-stable"
-HOMEPAGE="http://www.videolan.org/developers/x264.html"
-DOWNLOAD="ftp://ftp.videolan.org/pub/videolan/x264/snapshots/x264-snapshot-20140604-2245-stable.tar.bz2"
-MD5SUM="ba3c038e2d4e1bcfa4e63e9ac19e06d6"

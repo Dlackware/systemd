@@ -1,5 +1,7 @@
-#!/bin/sh
-# Copyright 2013 Bart van der Hall, Istanbul, TR
+#!/bin/bash
+# $Id: ffmpeg.SlackBuild,v 1.75 2014/11/16 21:14:22 root Exp root $
+# Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014  Eric Hameleers, Eindhoven, NL
+# Copyright 2014  Bart van der Hall, Almere, NL
 # All rights reserved.
 #
 #   Permission to use, copy, modify, and distribute this software for
@@ -20,178 +22,1762 @@
 #   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #   SUCH DAMAGE.
 # -----------------------------------------------------------------------------
+#
+# Slackware SlackBuild script 
+# ===========================
+# By:         Eric Hameleers <alien@slackware.com>
+# For:        ffmpeg
+# Descr:      software to record, convert and stream audio and video
+# URL:        http://ffmpeg.org/
+# Needs:      yasm (only compile-time)
+# Changelog:
+# 20070519-1: 19/May/2007 by Eric Hameleers <alien@slackware.com>
+#             * Initial build.
+#               Note that the version is set to the current date
+#               (using `date +%Y%d%m` output) when you build ffmpeg
+#               from source using this SlackBuild.
+#               You can override this behaviour by prepending a specific
+#               value for VERSION to the build command, like so:
+#               VERSION=20070519 ./ffmpeg.SlackBuild
+# 20070612-1: 12/jun/2007 by Eric Hameleers <alien@slackware.com>
+#             * Update. Also, make sure that the script actually works
+#               for newer snapshots if they should be downloaded.
+# 20071006-1: 06/oct/2007 by Eric Hameleers <alien@slackware.com>
+#             * Update. Added documentation of the included libraries.
+# 20071209-1: 09/dec/2007 by Eric Hameleers <alien@slackware.com>
+#             * Update of ffmpeg snapshot plus several of the support libs.
+#               Re-added AMR libraries, added libgsm and 1394 (firewire)
+#               support, and messed up the SlackBuild script pretty good.
+#               Added a download function for checking out SVN/CVS snapshots,
+#               which can easily be expanded for multiple snapshots.
+# 20080303-1: 03/mar/2008 by Eric Hameleers <alien@slackware.com>
+#             * Update of ffmpeg and x264 snapshots to their latest versions.
+#               Added dirac codec support. Internally use variable FFMPEG
+#               instead of VERSION to determine the version of ffmpeg to use
+#               (allows me to use a SVN revision number instead of timestamp).
+# r14080-1:   05/aug/2008 by Eric Hameleers <alien@slackware.com>
+#             * Update of almost all composing libraries. The dirac reference
+#               implementation library was replaced by schroedinger.
+#               This version of the package includes shared libraries which
+#               allows other programs to link to avcodec.
+#               If you install yasm, the SlackBuild will be able to use a
+#               very recent version of the x264 library, else it will fallback
+#               to a version that compiles with Slackware's 'asm'.
+# r16039-1:   09/dec/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated to the 20081209 snapshot. Also updated x264 and lame
+#               codecs, removed liba52 (because ffmpeg now has it's own native
+#               implementation) and added speex codec.
+# r16043-1:   10/dec/2008 by Eric Hameleers <alien@slackware.com>
+#             * Update. Also updated libraw1394 & libdc1394 to their 2.x
+#               versions and made small adaptations so that the script actually
+#               produces working binaries on x86_64
+# 0.5-1:      20/mar/2009 by Eric Hameleers <alien@slackware.com>
+#             * First new official release in ages. Add x264 presets to the
+#               package (idea borrowed from the script at slackbuilds.org).
+# 0.5-2:      13/may/2009 by Eric Hameleers <alien@slackware.com>
+#             * Updates to faac/faad/schro
+# r20056-1:   27/sep/2009 by Eric Hameleers <alien@slackware.com>
+#             * Update. AMR implementation from OpenCORE with a free license
+#               allows to add AMR support to the distributable package.
+#               Also updated the X264 snapshot and libgsm.
+# r22900-1:   26/apr/2010 by Eric Hameleers <alien@slackware.com>
+#             * New snapshot. Updated the schroedinger codec, which is now
+#               on par speed-wise with the dirac codec. Also updated the x264
+#               snapshot (x264 can now produce blu-ray compliant video),
+#               and updated the lame and dc1394 versions. Added support for
+#               RTMP(E) - flash - streams through librtmp.
+# r23357-1:   28/may/2010 by Eric Hameleers <alien@slackware.com>
+#             * New snapshot. Added libvpx plus patches for ffmpeg which
+#               enable support for WebM/VP8 (google-donated new video format).
+# 0.6-1:      18/jun/2010 by Eric Hameleers <alien@slackware.com>
+#             * A stable release. The internal libvpx library was updated to
+#               0.9.1 (no patching needed now), rtmpdump to 2.2e and x264
+#               to a recent snapshot.
+#               I also added VAAPI hardware acceleration support. Look further
+#               down in this script (in the header of the "make_libva" function)
+#               how you can benefit from GPU-accelerated encoding/decoding.
+# 0.6.1-1:    02/feb/2011 by Eric Hameleers <alien@slackware.com>
+#             * I forgot to update to a newer stable release.
+#               Updated internal codecs where available.
+# 0.6.3-1:    12/may/2011 by Eric Hameleers <alien@slackware.com>
+#             * Updated for Slackware 13.37.
+# 0.8.2-1:    11/aug/2011 by Eric Hameleers <alien@slackware.com>
+#             * Update. Add opencore's new AMR-WB and AAC encoders created
+#               for Android by VisualOn: 'libvo-amrwnenc' and 'libvo-aacenc'.
+#               And updated every built-in support library to their latest
+#               version.
+# 0.8.5-1:    07/oct/2011 by Eric Hameleers <alien@slackware.com>
+#             * New release. Also updated versions of internal vpx and x264
+#               libraries. Fix the compilation in case the x264 libraries are
+#               already installed on the system.
+# 0.8.6-1:    08/nov/2011 by Eric Hameleers <alien@slackware.com>
+#             * New release. Also updated versions of internal lame, orc,
+#               x264 libraries.
+# 0.8.7-1:    22/nov/2011 by Eric Hameleers <alien@slackware.com>
+#             * New release.
+# 0.9-1:      13/dec/2011 by Eric Hameleers <alien@slackware.com>
+#             * New release.  Added internal libass (subtitle) and v4l2 support.
+# 0.10.2-1:   05/may/2012 by Eric Hameleers <alien@slackware.com>
+#             * New release.
+# 0.10.3-1:   26/may/2012 by Eric Hameleers <alien@slackware.com>
+#             * Update.
+# 0.11-1:     03/jun/2012 by Eric Hameleers <alien@slackware.com>
+#             * Update.
+# 0.11.2-1:   27/sep/2012 by Eric Hameleers <alien@slackware.com>
+#             * Update.
+# 1.1.2-1:    13/feb/2013 by Eric Hameleers <alien@slackware.com>
+#             * Update. Also updated many internal libraries.
+#               Added ogg opus decoder.
+# 1.2-1:      13/apr/2013 by Eric Hameleers <alien@slackware.com>
+#             * Update.
+# 2.1-1:      26/dec/2013 by Eric Hameleers <alien@slackware.com>
+#             * Update.
+# 2.2.1-1:    02/may/2014 by Eric Hameleers <alien@slackware.com>
+#             * Update. Add teletext subtitle support.
+# 2.4.3-1:    12/nov/2014 by Eric Hameleers <alien@slackware.com>
+#             * Update. Added fdk-aac codec by Android Open Source Project,
+#               and X.265 (HEVC) codec by Videolan project..
+# 2.4.3-1_d:  15/dec/2014 by Bart van der Hall <bartgymnast@hotmail.com>
+#             * Update. Added different output directory and changed TAG name.
+#               
+# Run 'sh ffmpeg.SlackBuild' to build a Slackware package.
+# The package (.txz) plus descriptive .txt file are created in /tmp .
+# Install using 'installpkg'.
+#
+# -----------------------------------------------------------------------------
 
-PKGNAM=ffmpeg
-VERSION=${VERSION:-2.2.3}
+# -- PATENT ALERT! --
+# FFmpeg can be built with MP3 audio encoder (needed for FLV videos) and AAC
+# audio encoder (used in MP4) but these libraries are 'contaminated'
+# with patents from Fraunhofer, Apple etc.
+# You can build these patended algorithms into ffmpeg, and if you are an
+# ordinary end user, no one will bother you for using them.
+# For the binaries based on this SlackBuild that I distribute, it is a
+# different story. I am not allowed to distribute binary packages that
+# incorporate patented code. So here you go. My Slackware package was built
+# with "USE_PATENTS=NO" i.e. without using the lame mp3 and aac libs.
+#USE_PATENTS="NO"
+USE_PATENTS=${USE_PATENTS:-"YES"}
+
+# I don't care if the user says "no" or "NO":
+USE_PATENTS=$(echo $USE_PATENTS | tr 'a-z' 'A-Z')
+
+PRGNAM=ffmpeg
+VERSION=${VERSION:-2.4.3}
 BUILD=${BUILD:-1}
+NUMJOBS=${NUMJOBS:--j7}
 TAG=${TAG:-_dlack}
 
-NUMJOBS=${NUMJOBS:--j7}
+DOCS="COPYING* CREDITS Changelog MAINTAINERS README* \
+      doc/TODO doc/*.txt doc/*.html"
+DOCS_AACENC="AUTHORS COPYING* ChangeLog NEWS NOTICE README"
+DOCS_AACPLUS="AUTHORS COPYING* ChangeLog NEWS README TODO"
+DOCS_AMR="AUTHORS COPYING ChangeLog LICENSE NEWS README"
+DOCS_AMRWBENC="AUTHORS COPYING ChangeLog LICENSE NEWS NOTICE README"
+DOCS_ASS="COPYING Changelog"
+DOCS_AVC1394="AUTHORS COPYING ChangeLog INSTALL NEWS README"
+DOCS_DC1394="AUTHORS COPYING ChangeLog INSTALL NEWS README"
+DOCS_FAAC="AUTHORS COPYING* ChangeLog NEWS README* TODO"
+DOCS_FAAD2="AUTHORS COPYING* ChangeLog NEWS README* TODO"
+DOCS_FDKAAC="ChangeLog NOTICE"
+DOCS_FRIBIDI="AUTHORS COPYING ChangeLog NEWS README THANKS TODO"
+DOCS_GSM="COPYRIGHT ChangeLog* INSTALL MACHINES MANIFEST README"
+DOCS_LAME="API COPYING ChangeLog HACKING LICENSE README STYLEGUIDE TODO USAGE"
+DOCS_LIBVA="COPYING"
+DOCS_LIBZVBI="AUTHORS BUGS COPYING COPYING.LIB ChangeLog INSTALL NEWS README TODO"
+DOCS_OPUS="AUTHORS COPYING ChangeLog NEWS README"
+DOCS_ORC="COPYING README TODO"
+DOCS_RAW1394="AUTHORS COPYING ChangeLog INSTALL NEWS README"
+DOCS_RTMP="AUTHORS COPYING ChangeLog README"
+DOCS_SCHROEDINGER="AUTHORS COPYING* NEWS TODO"
+DOCS_SPEEX=" AUTHORS COPYING ChangeLog NEWS README* TODO"
+DOCS_V4L2="COPYING* ChangeLog README* TODO"
+DOCS_VDPAU="AUTHORS COPYING ChangeLog NEWS README"
+DOCS_VPX="AUTHORS CHANGELOG LICENSE README"
+DOCS_X264="AUTHORS COPYING"
+DOCS_X265="AUTHORS COPYING"
+
+# Support libraries:
+AACENC=0.1.3
+AACPLUS=2.0.2
+AMRWBENC=0.1.3
+AMR=0.1.3
+ASS=0.11.2
+AVC1394=0.5.4
+DC1394=2.1.2
+FAAC=1.28
+FAAD2=2.7
+FDKAAC=0.1.3
+FRIBIDI=0.19.6
+GSM=1.0.13
+LAME=3.99.5
+LIBVA=1.4.1
+LIBZVBI=0.2.35
+OPUS=1.1
+ORC=0.4.18
+RAW1394=2.0.5
+RTMP=2.3
+SCHROEDINGER=1.0.11
+SPEEX=1.2rc1
+V4L=1.6.0
+VDPAU=0.8
+VPX=v1.3.0
+X264=20141111-2245
+X265=1.4
+
+# Where do we look for sources?
+SRCDIR=$(cd $(dirname $0); pwd)
+
+# Place to build (TMP) package (PKG) and output (OUTPUT) the program:
+TMP=${TMP:-/tmp/build}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+# Check for yasm, abort if not found:
+if ! which yasm >/dev/null 2>&1 ; then
+  echo "##"
+  echo "## The 'yasm' program does not seem to be installed."
+  echo "## The X264/VP8 codec compilation needs yasm (nasm will not do)!"
+  echo "## Aborting the build."
+  echo "##"
+  exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Source tarballs and source URLs.
+# Sources which are not patented should have SRCPAT[n]="NO"
+# Sources which are patented should have SRCPAT[n]="YES" which prevents then
+#   from being downloaded and used if we build a patent-free package.
+# ---------------------------------------------------------------------------
+
+# FFMPEG sources:
+if [ "$VERSION" == "HEAD"  ]; then
+  # We check out git's HEAD:
+  BRANCH="master"
+  GITURI=git://git.videolan.org/ffmpeg.git
+  SRCVER=$(date +%Y%m%d)
+  SRCURL[0]=""
+elif [ "$(echo $VERSION | cut -c1-2)" == "20"  ]; then
+  # We check out git at a specific date:
+  BRANCH="master"
+  GITURI=git://git.videolan.org/ffmpeg.git
+  SRCVER=$VERSION
+  SRCURL[0]=""
+else
+  BRANCH=""
+  GITURI=""
+  SRCVER=$VERSION
+  SRCURL[0]="http://ffmpeg.org/releases/ffmpeg-${SRCVER}.tar.bz2"
+fi
+
+SOURCE[0]="$SRCDIR/ffmpeg-${SRCVER}.tar.bz2"
+SRCPAT[0]="NO"
+
+# Orc (oil runtime compiler) is a dependency for schroedinger
+SOURCE[1]="$SRCDIR/orc-${ORC}.tar.gz"
+SRCURL[1]="http://code.entropywave.com/download/orc/orc-${ORC}.tar.gz"
+SRCPAT[1]="NO"
+
+# Dirac video codec support by schroedinger:
+SOURCE[2]="$SRCDIR/schroedinger-${SCHROEDINGER}.tar.gz"
+SRCURL[2]="http://www.diracvideo.org/download/schroedinger/schroedinger-${SCHROEDINGER}.tar.gz"
+SRCPAT[2]="NO"
+
+# SPEEX audio codec:
+SOURCE[3]="$SRCDIR/speex-${SPEEX}.tar.gz"
+SRCURL[3]="http://downloads.us.xiph.org/releases/speex/speex-${SPEEX}.tar.gz"
+SRCPAT[3]="NO"
+
+# X264 encoder - for H264/AVC video streams, for static linking
+SOURCE[4]="$SRCDIR/x264-snapshot-${X264}.tar.bz2"
+SRCURL[4]="ftp://ftp.videolan.org/pub/videolan/x264/snapshots/x264-snapshot-${X264}.tar.bz2"
+SRCPAT[4]="NO"
+
+# FAAD2 support:
+SOURCE[5]="$SRCDIR/faad2-$FAAD2.tar.gz"
+SRCURL[5]="http://downloads.sourceforge.net/faac/faad2-$FAAD2.tar.gz"
+SRCPAT[5]="NO"
+
+# GSM support:
+SOURCE[6]="$SRCDIR/gsm-$GSM.tar.gz"
+SRCURL[6]="http://osxwinebuilder.googlecode.com/files/gsm-$GSM.tar.gz"
+SRCPAT[6]="NO"
+
+# Lame is used for the audio in FLV videos; will statically link with ffmpeg
+SOURCE[7]="$SRCDIR/lame-$LAME.tar.gz"
+SRCURL[7]="http://downloads.sourceforge.net/lame/lame-$LAME.tar.gz"
+SRCPAT[7]="YES"
+
+# Library to support the AVC (Audio/Video Control) Digital Interface Command Set
+SOURCE[8]="$SRCDIR/libavc1394-${AVC1394}.tar.gz"
+SRCURL[8]="http://downloads.sourceforge.net/libavc1394/libavc1394-${AVC1394}.tar.gz"
+SRCPAT[8]="NO"
+
+# Library needed to control IEEE 1394 (firewire-) based cameras
+SOURCE[9]="$SRCDIR/libraw1394-${RAW1394}.tar.gz"
+SRCURL[9]="http://downloads.sourceforge.net/libraw1394/libraw1394-${RAW1394}.tar.gz"
+SRCPAT[9]="NO"
+
+SOURCE[10]="$SRCDIR/libdc1394-${DC1394}.tar.gz"
+SRCURL[10]="http://downloads.sourceforge.net/libdc1394/libdc1394-${DC1394}.tar.gz"
+SRCPAT[10]="NO"
+
+# VisualOn AAC encoding library, for AAC (MP4 audio) encoding
+SOURCE[11]="$SRCDIR/vo-aacenc-$AACENC.tar.gz"
+SRCURL[11]="http://downloads.sourceforge.net/opencore-amr/vo-aacenc-$AACENC.tar.gz"
+SRCPAT[11]="YES"
+
+# librtmp library, supporting RTMP streams
+SOURCE[12]="$SRCDIR/rtmpdump-${RTMP}.tgz"
+SRCURL[12]="http://rtmpdump.mplayerhq.hu/download/rtmpdump-${RTMP}.tgz"
+SRCPAT[12]="NO"
+
+# libvpx library, containing the VP8 codec
+SOURCE[13]="$SRCDIR/libvpx-${VPX}.tar.bz2"
+SRCURL[13]="http://webm.googlecode.com/files/libvpx-${VPX}.tar.bz2"
+SRCPAT[13]="NO"
+
+# Library supporting VAAPI (GPU-accelerated video playback interface)
+SOURCE[14]="$SRCDIR/libva-${LIBVA}.tar.bz2"
+SRCURL[14]="http://www.freedesktop.org/software/vaapi/releases/libva/libva-${LIBVA}.tar.bz2"
+SRCPAT[14]="NO"
+
+# AMR-WB encoder libraries used to encode 3GPP audio
+SOURCE[15]="$SRCDIR/vo-amrwbenc-${AMRWBENC}.tar.gz"
+SRCURL[15]="http://downloads.sourceforge.net/opencore-amr/vo-amrwbenc-${AMRWBENC}.tar.gz"
+SRCPAT[15]="NO"
+
+# AMR-NB de/encoder and WB decoder libraries used to de/encode 3GPP audio
+SOURCE[16]="$SRCDIR/opencore-amr-${AMR}.tar.gz"
+SRCURL[16]="http://downloads.sourceforge.net/opencore-amr/opencore-amr-${AMR}.tar.gz"
+SRCPAT[16]="NO"
+
+# FAAC library, for AAC (MP4 audio) encoding
+SOURCE[17]="$SRCDIR/faac-$FAAC.tar.gz"
+SRCURL[17]="http://downloads.sourceforge.net/faac/faac-$FAAC.tar.gz"
+SRCPAT[17]="YES"
+
+# Unicode BiDirectional algorithm library, requirement for libass.
+SOURCE[18]="$SRCDIR/fribidi-${FRIBIDI}.tar.bz2"
+SRCURL[18]="http://fribidi.org/download/fribidi-${FRIBIDI}.tar.bz2"
+SRCPAT[18]="NO"
+
+# Libass - portable library for SSA/ASS subtitles rendering
+SOURCE[19]="$SRCDIR/libass-$ASS.tar.xz"
+SRCURL[19]="https://github.com/libass/libass/releases/download/${ASS}/libass-$ASS.tar.xz"
+SRCPAT[19]="NO"
+
+# Collection of video4linux support libraries
+SOURCE[20]="$SRCDIR/v4l-utils-${V4L}.tar.bz2"
+SRCURL[20]="http://linuxtv.org/downloads/v4l-utils/v4l-utils-${V4L}.tar.bz2"
+SRCPAT[20]="NO"
+
+# opus codec:
+SOURCE[21]="$SRCDIR/opus-${OPUS}.tar.gz"
+SRCURL[21]="http://downloads.xiph.org/releases/opus/opus-${OPUS}.tar.gz"
+SRCPAT[21]="NO"
+
+# VDPAU for video hardware acceleration:
+SOURCE[22]="$SRCDIR/libvdpau-${VDPAU}.tar.gz"
+SRCURL[22]="http://people.freedesktop.org/~aplattner/vdpau/libvdpau-${VDPAU}.tar.gz"
+SRCPAT[22]="NO"
+
+# libzvbi for teletext subtitle processing:
+SOURCE[23]="$SRCDIR/zvbi-${LIBZVBI}.tar.bz2"
+SRCURL[23]="http://downloads.sourceforge.net/zapping/zvbi-${LIBZVBI}.tar.bz2"
+SRCPAT[23]="NO"
+
+# fdk-aac en/decoder from the Android Open Source Project (opencore-amr):
+SOURCE[24]="$SRCDIR/fdk-aac-${FDKAAC}.tar.gz"
+SRCURL[24]="http://downloads.sourceforge.net/opencore-amr/fdk-aac-${FDKAAC}.tar.gz"
+SRCPAT[24]="YES"
+
+# Videolan's HEVC (x265) codec:
+SOURCE[25]="$SRCDIR/x265-${X265}.tar.gz"
+SRCURL[25]="http://github.com/videolan/x265/archive/${X265}.tar.gz"
+SRCPAT[25]="NO"
+
+## HE-AAC+ v2 shared library:
+#SOURCE[XX]="$SRCDIR/libaacplus-$AACPLUS.tar.gz"
+#SRCURL[XX]="http://tipok.ath.cx/downloads/media/aac+/libaacplus/libaacplus-${AACPLUS}.tar.gz"
+#SRCPAT[XX]="YES"
+#
+## HE-AAC+ v2 reference implementation:
+#SOURCE[XX]="$SRCDIR/26410-800.zip"
+#SRCURL[XX]="http://www.3gpp.org/ftp/Specs/archive/26_series/26.410/26410-800.zip"
+#SRCPAT[XX]="YES"
+
+
+# Use the src_checkout() function if no downloadable tarball exists.
+# This function checks out sources from SVN/CVS and creates a tarball of them.
+src_checkout() {
+  # Param #1 : index in the SOURCE[] array.
+  # Param #2 : full path to where SOURCE[$i] tarball should be created.
+  # Determine the tarball extension:
+  PEXT=$(echo "${2}" | sed -r -e 's/.*[^.].(tar.xz|tar.gz|tar.bz2|tgz).*/\1/')
+  case "$PEXT" in
+    "tar.xz") TARCOMP="J" ;;
+    "tar.gz") TARCOMP="z" ;;
+    "tgz") TARCOMP="z" ;;
+    "tar.bz2") TARCOMP="j" ;;
+    *) echo "Archive can only have extension 'tar.xz', '.tar.gz' '.tar.bz2' or '.tgz'" ; exit 1 ;;
+  esac
+  case ${1} in
+  0) # ffmpeg-${VERSION}
+     mkdir ${PRGNAM}_temp_checkout_$$ \
+       && cd ${PRGNAM}_temp_checkout_$$
+
+       if [ "$VERSION" = "HEAD" ]; then
+         # Checkout without downloading version history (fast!):
+         echo "Checking out HEAD from '$GITURI':"
+         git clone --depth=1 ${GITURI} ${PRGNAM}-${SRCVER}
+       else
+         # Checkout code from a certain branch and/or date; this will take a
+         # long time because we have to clone the complete git-repository first:
+         echo "Checking out $BRANCH at date $SRCVER from '$GITURI':"
+         git clone ${GITURI} ${PRGNAM}-${SRCVER} \
+         && cd ${PRGNAM}-${SRCVER} \
+         && git checkout $BRANCH \
+         && git checkout $(git rev-list -n 1 --before="`date -d $SRCVER`" $BRANC
+H) \
+         && cd ..
+       fi
+       chown -R root:root . \
+       && tar --exclude .git -${TARCOMP}cf ${2} ${PRGNAM}-${SRCVER}
+     cd ..
+     rm -rf ${PRGNAM}_temp_checkout_$$
+     # If VERSION was "HEAD" we still want a date to appear in the pkgname:
+     VERSION=${SRCVER}
+     ;;
+  13) # We clone the git of libvpx at a certain date:
+     mkdir libvpx-${VPX} \
+       && cd libvpx-${VPX} \
+       && git clone git://review.webmproject.org/libvpx.git . \
+       && git checkout $(git rev-list -n 1 --before="`date -d $VPX`" master) \
+       && chown -R root:root . \
+       && cd .. \
+       && tar --exclude .git -${TARCOMP}cf ${2} libvpx-${VPX}
+     rm -rf libvpx-${VPX}
+     ;;
+  *) # Do nothing
+     ;;
+  esac
+}
+
+if [ "${USE_PATENTS}" == "YES" ]; then
+  echo ""
+  echo "**"
+  echo "** This build uses patented code (MP3 and AAC encoders)"
+  echo "** Run the command 'USE_PATENTS=NO $0 $*' to avoid patent issues."
+  echo "**"
+  echo ""
+  sleep 1
+fi
+
+##
+## --- with a little luck, you won't have to edit below this point --- ##
+##
 
 # Automatically determine the architecture we're building on:
+MARCH=$( uname -m )
 if [ -z "$ARCH" ]; then
-  case "$( uname -m )" in
-    i?86) export ARCH=i486 ;;
-    arm*) export ARCH=arm ;;
-       *) export ARCH=$( uname -m ) ;;
+  case "$MARCH" in
+    i?86)    export ARCH=i486 ;;
+    armv7hl) export ARCH=$MARCH ;;
+    arm*)    export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+    *)       export ARCH=$MARCH ;;
   esac
 fi
 
-wget -c http://www.ffmpeg.org/releases/$PKGNAM-$VERSION.tar.bz2
+case "$ARCH" in
+  i486)      SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+             SLKLDFLAGS=""; LIBDIRSUFFIX=""
+             ;;
+  x86_64)    SLKCFLAGS="-O2 -fPIC"
+             SLKLDFLAGS="-L/usr/lib64 -fPIC"; LIBDIRSUFFIX="64"
+             ;;
+  arm*)       SLKCFLAGS="-O2 -march=armv5te"
+             SLKLDFLAGS=""; LIBDIRSUFFIX=""
+             ;;
+  armv7hl)   SLKCFLAGS="-O2 -march=armv7-a -mfpu=vfpv3-d16"
+             SLKLDFLAGS=""; LIBDIRSUFFIX=""
+             ;;
+  *)         SLKCFLAGS="-O2"
+             SLKLDFLAGS=""; LIBDIRSUFFIX=""
+             ;;
+esac
 
-CWD=$(pwd)
-TMP=${TMP:-/tmp/dlackware}
-PKG=$TMP/package-$PKGNAM
-OUTPUT=${OUTPUT:-/var/cache/dlackware}
+case "$ARCH" in
+    arm*) TARGET=$ARCH-slackware-linux-gnueabi ;;
+    *)    TARGET=$ARCH-slackware-linux ;;
+esac
 
-if [ "$ARCH" = "i486" ]; then
-  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
-  LIBDIRSUFFIX=""
-elif [ "$ARCH" = "i686" ]; then
-  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
-  LIBDIRSUFFIX=""
-elif [ "$ARCH" = "x86_64" ]; then
-  SLKCFLAGS="-O2 -fPIC"
-  LIBDIRSUFFIX="64"
-else
-  SLKCFLAGS="-O2"
-  LIBDIRSUFFIX=""
+# Exit the script on errors:
+set -e
+trap 'echo "$0 FAILED at line $LINENO!" | tee $OUTPUT/error-${PRGNAM}.log' ERR
+# Catch unitialized variables:
+set -u
+P1=${1:-1}
+
+# Save old umask and set to 0022:
+_UMASK_=$(umask)
+umask 0022
+
+# Create working directories:
+mkdir -p $TMP/tmp-$PRGNAM # location to build the source
+if [ "$P1" != "--oldbuild" ]; then
+  # If the "--oldbuild" parameter is present, we keep
+  #  the old build files and continue;
+  # By default we remove the remnants of previous build and continue:
+  rm -rf $TMP/tmp-$PRGNAM/* $OUTPUT/*${PRGNAM}*.log
+fi
+mkdir -p $PKG     # place for the package to be built
+rm -rf $PKG/*     # We always erase old package's contents:
+mkdir -p $OUTPUT  # place for the package to be saved
+
+# Source file availability:
+
+# Regular URL downloads follow:
+for (( i = 0; i < ${#SOURCE[*]}; i++ )) ; do
+  # Only download patented code if we are allowing it:
+  if [ "${USE_PATENTS}" == "YES" -o "${SRCPAT[$i]}" != "YES" ]; then
+    if ! [ -f ${SOURCE[$i]} ]; then
+      echo "Source '$(basename ${SOURCE[$i]})' not available yet..."
+      # Check if the $SRCDIR is writable at all - if not, download to $OUTPUT
+      [ -w "$SRCDIR" ] || SOURCE[$i]="$OUTPUT/$(basename ${SOURCE[$i]})"
+      if ! [ "x${SRCURL[$i]}" == "x" ]; then
+        echo "Will download file to $(dirname $SOURCE[$i])"
+        if ! $(wget -nv -T 20 -O "${SOURCE[$i]}" "${SRCURL[$i]}"); then
+          echo "Downloading '$(basename ${SOURCE[$i]})' failed.. aborting the build."
+          mv -f "${SOURCE[$i]}" "${SOURCE[$i]}".FAIL
+          exit 1
+        fi
+      else
+        # Try if we have a SVN/CVS download routine for ${SOURCE[$i]}
+        echo "Will checkout sources to $(dirname $SOURCE[$i])"
+        src_checkout $i "${SOURCE[$i]}"
+      fi
+      if [ ! -f "${SOURCE[$i]}" -o ! -s "${SOURCE[$i]}" ]; then
+        echo "File '$(basename ${SOURCE[$i]})' not available.. aborting the build."
+        exit 1
+      fi
+    fi
+  fi
+done
+
+if [ "$P1" == "--download" ]; then
+  echo "Download complete."
+  exit 0
 fi
 
-# --enable-runtime-cpu is meant for libswscale only and
-# has no influence on the other parts of ffmpeg so there's
-# not really a point in bothering
-PKGARCH=$(uname -m)_custom
+# --- PACKAGE BUILDING ---
 
-# Configure ffmpeg features not autodetected by default
-# Unfortunately ffmpeg's configure doesn't support --enable-feature=yes
-# syntax, so we have to do it the complicated way :/
+echo "++"
+echo "|| $PRGNAM-$VERSION"
+echo "++"
 
-libcelt=""    ; [ "${CELT:-no}" != "no" ]         && libcelt="--enable-libcelt"
-libdc1394=""  ; [ "${DC1394:-no}" != "no" ]       && libdc1394="--enable-libdc1394"
-libfrei0r=""  ; [ "${FREI0R:-no}" != "no" ]       && libfrei0r="--enable-frei0r"
-libgsm=""     ; [ "${GSM:-no}" != "no" ]          && libgsm="--enable-libgsm"
-librtmp=""    ; [ "${RTMP:-no}" != "no" ]         && librtmp="--enable-librtmp"
-dirac_fast="" ; [ "${SCHROEDINGER:-no}" != "no" ] && dirac_fast="--enable-libschroedinger"
-libspeex=""   ; [ "${SPEEX:-no}" != "no" ]        && libspeex="--enable-libspeex"
-libvpx=""     ; [ "${VPX:-no}" != "no" ]          && libvpx="--enable-libvpx"
-libxvid=""    ; [ "${XVID:-no}" != "no" ]         && libxvid="--enable-libxvid"
-libbluray=""  ; [ "${BLURAY:-no}" != "no" ]       && libbluray="--enable-libbluray"
-libass=""     ; [ "${ASS:-no}" != "no" ]          && libass="--enable-libass"
-libopenal=""  ; [ "${OPENAL:-no}" != "no" ]       && libopenal="--enable-openal"
-libiec61883=""; [ "${IEC61883:-no}" != "no" ]     && libiec61883="--enable-libiec61883"
-libilbc="";     [ "${ILBC:-no}" != "no" ]         && libilbc="--enable-libilbc"
-libmodplug="";  [ "${MODPLUG:-no}" != "no" ]      && libmodplug="--enable-libmodplug"
-libopus="";     [ "${OPUS:-no}" != "no" ]         && libopus="--enable-libopus"
-libtwolame="";  [ "${TWOLAME:-no}" != "no" ]      && libtwolame="--enable-libtwolame"
-ladspa="";      [ "${LADSPA:-no}" != "no" ]       && ladspa="--enable-ladspa"
-#opencl="";      [ "${OPENCL:-no}" != "no" ]       && opencl="--enable-opencl"
+cd $TMP/tmp-$PRGNAM
+if [ "$P1" != "--oldbuild" ]; then
+  echo "Extracting the source archive(s) for $PRGNAM..."
+  for (( i = 0; i < ${#SOURCE[*]}; i++ )) ; do
+    # Only extract patented code if we are allowing it:
+    if [ "${USE_PATENTS}" == "YES" -o "${SRCPAT[$i]}" != "YES" ]; then
+      if $(file ${SOURCE[$i]} | grep -qi ": zip"); then
+        unzip ${SOURCE[$i]}
+      else
+        tar -xvf ${SOURCE[$i]}
+      fi
+    fi
+  done
+fi
+chown -R root:root *
+chmod -R u+w,go+r-w,a+X-s *
 
-opencore_amr="" ; [ "${OPENCORE:-no}" != "no" ] && \
-  opencore_amr="--enable-libopencore-amrnb --enable-libopencore-amrwb"
-libfaac=""      ; [ "${FAAC:-no}" != "no" ]     && \
-  { libfaac="--enable-libfaac" ; non_free="--enable-nonfree" ; }
-ssl=""      ; [ "${OPENSSL:-no}" != "no" ]     && \
-  { ssl="--enable-openssl" ; non_free="--enable-nonfree" ; }
-openjpeg=""     ; [ "${JP2:-no}" != "no" ]      && \
-  { openjpeg="--enable-libopenjpeg" ; \
-    SLKCFLAGS="$SLKCFLAGS -I/usr/include/openjpeg-1.5" ; }
+# --- BUILDING ---
 
-mp3lame="--enable-libmp3lame" ; [ "${LAME:-no}" != "yes" ] && mp3lame=""
-libx264="--enable-libx264"    ; [ "${X264:-yes}" != "yes" ] && libx264=""
+echo Building ...
 
-# opencv support is currently broken: http://code.opencv.org/issues/1925
-#libopencv=""  ; [ "${OPENCV:-no}" != "no" ]       && libopencv="--enable-libopencv"
+# We will be installing static libs into the following directory:
+# (when linking ffmpeg together, these libs will be found & used)
+mkdir -p $TMP/tmp-$PRGNAM/ffmpegdeps/usr/{bin,include,lib,man}
+FFMPEGDEPSDIR="$TMP/tmp-$PRGNAM/ffmpegdeps"
 
-set -e
 
-rm -rf $PKG
-mkdir -p $TMP $PKG $OUTPUT
-cd $TMP
-rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.bz2
-cd $PKGNAM-$VERSION
-chown -R root:root .
-find -L . \
- \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
-  -o -perm 511 \) -exec chmod 755 {} \; -o \
- \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
- -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+# -----------------------------------------------------------------------------
+# Compile lame libraries
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_lame()
+{
+echo -e "**\n**  lame ...\n**"
+cd $TMP/tmp-$PRGNAM/lame-${LAME}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_lame.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_lame.log
+# Install lame into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_lame.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/lame
+cp -a $DOCS_LAME $FFMPEGDEPSDIR/doc/lame/ || true
+cd -
+}
 
-# for some reason it tries to #include <X11/Xlib.h>, but doesn't use it
-sed -i s:\#define\ HAVE_X11:\#define\ HAVE_LINUX: ffplay.c || exit 1
-# To make sure the ffserver test will work
-sed -i -e "s:-e debug=off::" tests/ffserver-regression.sh || exit 1
 
-sed -i -e 's/opteron/opteron|athlon64-sse3|k8-sse3|opteron-sse3/g' configure || exit 1
+# -----------------------------------------------------------------------------
+# Compile amr wideband/narrowband library
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_amr()
+{
+echo -e "**\n**  amr ...\n**"
+cd $TMP/tmp-$PRGNAM/opencore-amr-${AMR}
+LDFLAGS="$SLKLDFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+CFLAGS="$SLKCFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --mandir=/usr/man \
+  --localstatedir=/var \
+  --sysconfdir=/etc \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_amr.log
+make $NUMJOBS 2>&1 | tee $OUTPUT/make-${PRGNAM}_amr.log
+make install DESTDIR=$FFMPEGDEPSDIR PREFIX=/usr LIBDIR=/usr/lib${LIBDIRSUFFIX} \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_amr.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/amr
+cp -a $DOCS_AMR $FFMPEGDEPSDIR/doc/amr || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile VisualOn amr wideband encoder library
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_amrwbenc()
+{
+echo -e "**\n**  amrwbenc ...\n**"
+cd $TMP/tmp-$PRGNAM/vo-amrwbenc-${AMRWBENC}
+LDFLAGS="$SLKLDFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+CFLAGS="$SLKCFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --mandir=/usr/man \
+  --localstatedir=/var \
+  --sysconfdir=/etc \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_amrwbenc.log
+make $NUMJOBS 2>&1 | tee $OUTPUT/make-${PRGNAM}_amrwbenc.log
+make install DESTDIR=$FFMPEGDEPSDIR PREFIX=/usr LIBDIR=/usr/lib${LIBDIRSUFFIX} \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_amrwbenc.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/amrwbenc
+cp -a $DOCS_AMRWBENC $FFMPEGDEPSDIR/doc/amrwbenc || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile aacenc library
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_aacenc()
+{
+echo -e "**\n**  aacenc ...\n**"
+cd $TMP/tmp-$PRGNAM/vo-aacenc-${AACENC}
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_aacenc.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_aacenc.log
+# Install aacenc into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_aacenc.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/aacenc
+cp -a $DOCS_AACENC $FFMPEGDEPSDIR/doc/aacenc || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile fdk-aac library
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_fdkaac()
+{
+echo -e "**\n**  fdkaac ...\n**"
+cd $TMP/tmp-$PRGNAM/fdk-aac-${FDKAAC}
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_fdkaac.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_fdkaac.log
+# Install fdkaac into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_fdkaac.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/fdkaac
+cp -a $DOCS_AACENC $FFMPEGDEPSDIR/doc/fdkaac || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile x265 library
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_x265()
+{
+echo -e "**\n**  x265 ...\n**"
+PREVDIR=$(pwd)
+cd $TMP/tmp-$PRGNAM/x265-${X265}
+
+mkdir -p build_x265
+cd build_x265
+  cmake ../source \
+    -DCMAKE_C_FLAGS:STRING="$SLKCFLAGS" \
+    -DCMAKE_CXX_FLAGS:STRING="$SLKCFLAGS" \
+    -DCMAKE_LDFLAGS:STRING="$SLKLDFLAGS" \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DLIB_INSTALL_DIR=lib${LIBDIRSUFFIX} \
+    -DENABLE_SHARED=OFF \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_x265.log
+  make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_x265.log
+  # Install x265 into a temp location so ffmpeg can pickup the library
+  make install DESTDIR=$FFMPEGDEPSDIR \
+    2>&1 | tee -a $OUTPUT/make-${PRGNAM}_x265.log
+cd -
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/x265
+cp -a $DOCS_AACENC $FFMPEGDEPSDIR/doc/x265 || true
+cd $PREVDIR
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile aacplus library
+# The ffmpeg will use this
+# -----------------------------------------------------------------------------
+make_aacplus ()
+{
+echo -e "**\n**  aacplus ...\n**"
+cd $TMP/tmp-$PRGNAM/libaacplus-${AACPLUS}
+
+# This needs the sources of the HE-AAC+ reference implementation:
+cp $SRCDIR/26410-800.zip src/
+
+[ ! -x configure  ] && autoreconf -vif
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_aacplus.log
+# Do not use parallel make here:
+make 2>&1 | tee $OUTPUT/make-${PRGNAM}_aacplus.log
+# Install aacplus into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_aacplus.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/aacplus
+cp -a $DOCS_AACPLUS $FFMPEGDEPSDIR/doc/aacplus || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile dc1394, avc1394 and raw1394 libraries
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_1394()
+{
+echo -e "**\n**  1394 ...\n**"
+OLDDIR=$(pwd)
+cd $TMP/tmp-$PRGNAM/libraw1394-${RAW1394}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --mandir=/usr/man \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_raw1394.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_raw1394.log
+# Install libraw1394 into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_raw1394.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/libraw1394
+cp -a $DOCS_RAW1394 $FFMPEGDEPSDIR/doc/libraw1394 || true
+
+echo -e "**\n**"
+
+cd $TMP/tmp-$PRGNAM/libavc1394-${AVC1394}
+
+CFLAGS="-I$FFMPEGDEPSDIR/usr/include $SLKCFLAGS" \
+CPPFLAGS="-I$FFMPEGDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+LIBRAW1394_CFLAGS="-I$FFMPEGDEPSDIR/usr/include" \
+LIBRAW1394_LIBS="-L$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} -lraw1394" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_avc1394.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_avc1394.log
+# Install libavc1394 into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_avc1394.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/libavc1394
+cp -a $DOCS_AVC1394 $FFMPEGDEPSDIR/doc/libavc1394 || true
+
+echo -e "**\n**"
+
+cd $TMP/tmp-$PRGNAM/libdc1394-${DC1394}
+
+# Make sure that the static libraw1394 is found in the ffmpegdeps:
+CFLAGS="-I$FFMPEGDEPSDIR/usr/include $SLKCFLAGS" \
+CPPFLAGS="-I$FFMPEGDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-examples \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_dc1394.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_dc1394.log
+# Install libdc1394 into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_dc1394.log
+# Fix the pkgconfig file to get rid of unresolved symbols at runtime:
+sed -i -e "/^Libs:/s/$/ -lavc1394 -lraw1394/" $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig/libdc1394-2.pc
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/libdc1394
+cp -a $DOCS_DC1394 $FFMPEGDEPSDIR/doc/libdc1394 || true
+
+cd $OLDDIR
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile faac library
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_faac()
+{
+echo -e "**\n**  faac ...\n**"
+cd $TMP/tmp-$PRGNAM/faac-${FAAC}
+
+# Newer gcc/glibc will bail out otherwise:
+cat $SRCDIR/faac_gcc44.diff | patch -p1 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_faac.log
+
+#sh bootstrap
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --with-mp4v2 \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_faac.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_faac.log
+# Install faac into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_faac.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/faac
+cp -a $DOCS_FAAC $FFMPEGDEPSDIR/doc/faac || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile faad2
+# -----------------------------------------------------------------------------
+make_faad2()
+{
+echo -e "**\n**  faad2 ...\n**"
+#mv $TMP/tmp-$PRGNAM/faad2 $TMP/tmp-$PRGNAM/faad2-${FAAD2}
+cd $TMP/tmp-$PRGNAM/faad2-${FAAD2}
+#autoreconf -vif
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --without-xmms \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_faad2.log
+  # No longer available:
+  #--with-mp4v2 \
+  # Gives errors "faad bitstream value not allowed by specification":
+  #--with-drm \
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_faad2.log
+# Install faad2 into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_faad2.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/faad2
+cp -a $DOCS_FAAD2 $FFMPEGDEPSDIR/doc/faad2 || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile speex codec
+# -----------------------------------------------------------------------------
+make_speex()
+{
+echo -e "**\n**  speex  ...\n**"
+cd $TMP/tmp-$PRGNAM/speex-$SPEEX
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_speex.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_speex.log
+# Install speex into a temp location so ffmpeg can pickup the library
+echo -e "\n**\n**\n"
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_speex.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/speex/
+cp $DOCS_SPEEX $FFMPEGDEPSDIR/doc/speex/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile x264
+# -----------------------------------------------------------------------------
+make_x264()
+{
+echo -e "**\n**  x264  ...\n**"
+if [ "$ARCH" = "x86_64" ]; then
+  ARCHOPTS="--enable-pic"
+else
+  ARCHOPTS=""
+fi
+cd $TMP/tmp-$PRGNAM/x264-snapshot-${X264}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-cli \
+  $ARCHOPTS \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_x264.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_x264.log
+# Install x264 into a temp location so ffmpeg can pickup the library
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_x264.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/x264
+cp -a $DOCS_X264 $FFMPEGDEPSDIR/doc/x264 || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile gsm
+# -----------------------------------------------------------------------------
+make_gsm()
+{
+echo -e "**\n**  gsm  ...\n**"
+GSMMAJ=$(echo $GSM | cut -d. -f1,2)
+GSMPL=$(echo $GSM | cut -d. -f3)
+mv $TMP/tmp-$PRGNAM/gsm-${GSMMAJ}-pl${GSMPL} $TMP/tmp-$PRGNAM/gsm-${GSM}
+cd $TMP/tmp-$PRGNAM/gsm-${GSM}
+# Without this, x86_64 builds will fail:
+sed -i -e "/^CCFLAGS/s,-O2 ,$SLKCFLAGS ," \
+       -e "s,^# LDFLAGS.*,LDFLAGS = $SLKLDFLAGS," Makefile
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_gsm.log
+# Install gsm into a temp location so ffmpeg can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_gsm.log
+mkdir -p $FFMPEGDEPSDIR/usr/{bin,include/gsm,lib${LIBDIRSUFFIX}}
+cp bin/* $FFMPEGDEPSDIR/usr/bin/
+cp inc/gsm.h $FFMPEGDEPSDIR/usr/include/gsm/
+ln -sf gsm/gsm.h $FFMPEGDEPSDIR/usr/include/gsm.h
+cp lib/* $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:          
+mkdir -p $FFMPEGDEPSDIR/doc/gsm
+cp -a $DOCS_GSM $FFMPEGDEPSDIR/doc/gsm || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile orc
+# -----------------------------------------------------------------------------
+make_orc()
+{
+echo -e "**\n**  orc ...\n**"
+cd $TMP/tmp-$PRGNAM/orc-$ORC
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$FFMPEGDEPSDIR/usr \
+  --libdir=$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_orc.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_orc.log
+# Install orc into a temp location so schroedinger can pickup the library
+echo -e "\n**\n**\n"
+# We used --prefix=$FFMPEGDEPSDIR/usr so that schroedinger's build will find the
+# headers in the $FFMPEGDEPSDIR instead of the filesystem root:
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_orc.log
+# Add DOCS to the ffmpeg deps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/orc/
+cp ${DOCS_ORC} $FFMPEGDEPSDIR/doc/orc/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile schroedinger
+# -----------------------------------------------------------------------------
+make_schroedinger()
+{
+echo -e "**\n**  schroedinger ...\n**"
+if [ "$ARCH" = "x86_64" ]; then
+  ARCHOPTS="--with-pic"
+else
+  ARCHOPTS=""
+fi
+cd $TMP/tmp-$PRGNAM/schroedinger-$SCHROEDINGER
+
+# Do not try to build the testsuite, it gives errors about multiple definitions:
+cat $SRCDIR/schroedinger_notests.patch | patch -p1 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_schroedinger.log
+
+# Because of the patch, run autoreconf:
+autoreconf -vif
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="-L$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$FFMPEGDEPSDIR/usr \
+  --libdir=$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  $ARCHOPTS \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_schroedinger.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_schroedinger.log
+# Install schroedinger into a temp location so ffmpeg can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_schroedinger.log
+# Or else the ffmpeg build wil fail:
+cp schroedinger.pc \
+  $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig/schroedinger.pc
+cp schroedinger.pc \
+  $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig/schroedinger-1.0.pc
+( cd $FFMPEGDEPSDIR/usr/include
+  ln -sf schroedinger-1.0/schroedinger
+)
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/schroedinger/
+cp -a $DOCS_SCHROEDINGER $FFMPEGDEPSDIR/doc/schroedinger/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile rtmpdump
+# -----------------------------------------------------------------------------
+make_rtmp()
+{
+echo -e "**\n**  rtmp ...\n**"
+cd $TMP/tmp-$PRGNAM/rtmpdump-$RTMP
+make -C librtmp prefix=/usr OPT="$SLKCFLAGS" all librtmp.pc \
+  2>&1 | tee $OUTPUT/make-${PRGNAM}_rtmp.log
+# Install librtmp into a temp location so ffmpeg can pickup the library
+echo -e "\n**\n**\n"
+mkdir -p $FFMPEGDEPSDIR/usr/{include/librtmp,lib${LIBDIRSUFFIX}/pkgconfig}
+cp -a librtmp/librtmp.a $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}
+cp -a librtmp/{amf.h,http.h,log.h,rtmp.h} $FFMPEGDEPSDIR/usr/include/librtmp
+cp -a librtmp/librtmp.pc $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/rtmp/
+cp -a $DOCS_RTMP $FFMPEGDEPSDIR/doc/rtmp/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile libvdpau
+# -----------------------------------------------------------------------------
+make_vdpau()
+{
+echo -e "**\n**  vdpau ...\n**"
+cd $TMP/tmp-$PRGNAM/libvdpau-$VDPAU
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-documentation \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_vdpau.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_vdpau.log
+# Strip the static lib to prevent linking errors in 64-bit,
+find . -name "*.a" | xargs strip --strip-unneeded
+# Install vdpau into a temp location so ffmpeg can pickup the library
+echo -e "\n**\n**\n"
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_vdpau.log
+# Remove the .so and .la files; we want static linking (but still use
+# the drivers in $(libdir)/va/drivers):
+rm -f $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/libvdpau*.so*
+rm -f $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/libvdpau*.la
+rm -f $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/vdpau/libvdpau*.so*
+rm -f $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/vdpau/libvdpau*.la
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/vdpau/
+cp $DOCS_VDPAU $FFMPEGDEPSDIR/doc/vdpau/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile VP8
+# -----------------------------------------------------------------------------
+make_vpx()
+{
+echo -e "**\n**  vpx  ...\n**"
+cd $TMP/tmp-$PRGNAM/libvpx-${VPX}
+
+case "$ARCH" in
+  i?86)
+    ARCHOPTS="--target=x86-linux-gcc"
+    ;;
+  x86_64)
+    ARCHOPTS="--target=${ARCH}-linux-gcc --enable-pic"
+    ;;
+  armv7hl)
+    ARCHOPTS="--target=armv7-linux-gcc --enable-pic"
+    cat $SRCDIR/libvpx_fix-armhf-link.patch | patch -p1 --verbose
+    export AS=as
+    export AR=ar
+    export CROSS="${TARGET}-"
+    ;;
+  arm*)
+    ARCHOPTS="--target=armv5te-linux-gcc --enable-pic"
+    export AS=as
+    export AR=ar
+    export CROSS="${TARGET}-"
+    ;;
+  *)
+    ARCHOPTS="--target=${ARCH}-linux-gcc"
+    ;;
+esac
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$FFMPEGDEPSDIR/usr \
+  --libdir=$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --disable-examples \
+  --disable-debug-libs \
+  --disable-debug \
+  --enable-postproc \
+  --enable-runtime-cpu-detect \
+  --enable-vp8 \
+  $ARCHOPTS \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_vpx.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_vpx.log
+# Install libvpx into a temp location so ffmpeg can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_vpx.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/vpx
+cp -a $DOCS_VPX $FFMPEGDEPSDIR/doc/vpx/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile libva
+# -----------------------------------------------------------------------------
+make_libva()
+{
+echo -e "**\n**  libva ...\n**"
+cd $TMP/tmp-$PRGNAM/libva-$LIBVA
+
+#
+# == NOTE ON VAAPI ==
+#
+# VAAPI can enable hardware accelerated playback for MPEG-2/4, H.264/AVC
+# and VC-1 video on certain graphics hardware. 
+# The VAAPI support in this ffmeeg package depends on VA drivers that you have
+# to install yourself for your specific hardware. The drivers should go into
+# directory /usr/lib${LIBDIRSUFFIX}/va/drivers .
+# If you install my libva package you can get MPEG-2 hardware acceleration on
+# Intel graphics. If you additionally install my vdpau-video package, then you
+# get hardware acceleration on Nvidia graphics (with nvidia's binary driver).
+# If you own an Ati card and use the fglrx driver, then you can achieve
+# hardware acceleration by installing the xvba-video driver from here:
+# http://www.splitted-desktop.com/~gbeauchesne/xvba-video/ (since I do not own
+# Ati hardware I can not build a package for xvba-video myself)
+
+## Apply a wad of patches:
+#for DPATCH in $(ls debian/patches/*.patch) ; do
+#  cat $DPATCH |patch -p1 --verbose
+#done 2>&1 | tee $OUTPUT/patch-${PRGNAM}_libva.log
+
+# Fix the issue with the pre-generated configure script which will boneheadedly
+# require wayland_scanner. Create 'm4' directory first to prevent another error:
+mkdir m4
+autoreconf -vif \
+  2>&1 | tee $OUTPUT/autoreconf-${PRGNAM}_libva.log
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-wayland=no \
+  --enable-static \
+  --enable-shared \
+  --enable-glx \
+  --with-drivers-path=/usr/lib${LIBDIRSUFFIX}/va/drivers \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_libva.log
+  #--disable-wayland \
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_libva.log
+# Strip the static lib to prevent linking errors in 64-bit,
+find . -name "*.a" | xargs strip --strip-unneeded
+# Install libva into a temp location so ffmpeg can pickup the library
+echo -e "\n**\n**\n"
+make install DESTDIR=$FFMPEGDEPSDIR \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_libva.log
+# Remove the .so and .la files; we want static linking (but still use
+# the drivers in $(libdir)/va/drivers):
+rm -f $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/libva*.so*
+rm -f $FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/libva*.la
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/libva
+cp -a $DOCS_LIBVA $FFMPEGDEPSDIR/doc/libva/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile fribidi
+# -----------------------------------------------------------------------------
+make_fribidi()
+{
+echo -e "**\n**  fribidi  ...\n**"
+cd $TMP/tmp-$PRGNAM/fribidi-$FRIBIDI
+if [ "$ARCH" = "x86_64" ]; then
+  ARCHOPTS="--with-pic"
+else
+  ARCHOPTS=""
+fi
+
+# Allow for internal use of the library:
+cat $SRCDIR/fribidi.patch | patch -p1 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_fribidi.log
+
+# And since we patched the Makefile.am we have to bootstrap:
+rm -f configure
+./bootstrap
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$FFMPEGDEPSDIR/usr \
+  --libdir=$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  $ARCHOPTS \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_fribidi.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_fribidi.log
+# Install fribidi into a temp location so ffmpeg can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_fribidi.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/fribidi
+cp -a $DOCS_FRIBIDI $FFMPEGDEPSDIR/doc/fribidi/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile libass
+# -----------------------------------------------------------------------------
+make_ass()
+{
+echo -e "**\n**  ass  ...\n**"
+cd $TMP/tmp-$PRGNAM/libass-$ASS
+CFLAGS="-I$FFMPEGDEPSDIR/usr/include $SLKCFLAGS" \
+CXXFLAGS="-I$FFMPEGDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$FFMPEGDEPSDIR/usr \
+  --libdir=$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_ass.log
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_ass.log
+# Install libass into a temp location so ffmpeg can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_ass.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/libass
+cp -a $DOCS_ASS $FFMPEGDEPSDIR/doc/libass/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile v4l libraries
+# -----------------------------------------------------------------------------
+make_v4l()
+{
+echo -e "**\n**  v4l ...\n**"
+cd $TMP/tmp-$PRGNAM/v4l-utils-${V4L}
+
+mkdir ${FFMPEGDEPSDIR}/etc
+
+export CFLAGS="$SLKCFLAGS"
+export CPPFLAGS="$SLKCFLAGS"
+export LDFLAGS="$SLKLDFLAGS -ljpeg"
+./configure \
+  --prefix=$FFMPEGDEPSDIR/usr \
+  --libdir=$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --sysconfdir=/etc \
+  --with-udevdir=/lib/udev \
+  --enable-static \
+  --disable-shared \
+  --disable-libdvbv5 \
+  --enable-libv4l \
+  --disable-v4l-utils \
+  --disable-qv4l2 \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_v4l.log
+
+make ${NUMJOBS} LINKTYPE=static  2>&1 | tee $OUTPUT/make-${PRGNAM}_v4l.log
+# Strip the static lib to prevent linking errors in 64-bit,
+# and fix the pkg-config file (to fix unresolved symbols)
+find . -name "*.a" | xargs strip --strip-unneeded
+sed -i "/^Libs: /s/$/ -lv4l2 -lv4lconvert -ljpeg/" lib/libv4l1/libv4l1.pc
+sed -i "/^Libs: /s/ -lv4l2/ -lv4l2 -lv4lconvert -ljpeg/" lib/libv4l2/libv4l2.pc
+# Install libv4l into a temp directory so that ffmpeg can pick it up later:
+make install LINKTYPE=static \
+  sysconfdir=$FFMPEGDEPSDIR/etc \
+  man1dir=$FFMPEGDEPSDIR/usr/man/man1 \
+  keytablesystemdir=$FFMPEGDEPSDIR/lib/udev/rc_keymaps \
+  udevrulesdir=$FFMPEGDEPSDIR/lib/udev/rules.d \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_v4l.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/v4l-utils
+cp -a $DOCS_V4L2 $FFMPEGDEPSDIR/doc/v4l-utils/  || true
+
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile ogg opus libraries
+# -----------------------------------------------------------------------------
+make_opus()
+{
+echo -e "**\n**  opus ...\n**"
+cd $TMP/tmp-$PRGNAM/opus-${OPUS}
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$FFMPEGDEPSDIR/usr \
+  --libdir=$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-doc \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_opus.log
+# Install opus into a temp location so ffmpeg can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_opus.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/opus/
+cp $DOCS_OPUS $FFMPEGDEPSDIR/doc/opus/ || true
+cd -
+}
+
+
+# ----------------------------------------------------------------------------
+# Compile libzvbi, a library that allows ffmpeg to process teletext subtitles
+# ----------------------------------------------------------------------------
+
+make_zvbi()
+{
+echo -e "**\n**  zvbi ...\n**"
+cd $TMP/tmp-$PRGNAM/zvbi-${LIBZVBI}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$FFMPEGDEPSDIR/usr \
+  --libdir=$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$TARGET \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_zvbi.log
+make 2>&1 | tee $OUTPUT/make-${PRGNAM}_zvbi.log
+# Install zvbi into a temp location so ffmpeg can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_zvbi.log
+# Add DOCS to the ffmpegdeps to have it added to ffmpeg package later:
+mkdir -p $FFMPEGDEPSDIR/doc/zvbi/
+cp $DOCS_LIBZVBI $FFMPEGDEPSDIR/doc/zvbi/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile ffmpeg with additional support for -
+#   LAME (MP3), XVID, AAC (MP4), FAAD2 , SPEEX, X264, GSM, SCHROEDINGER
+# -----------------------------------------------------------------------------
+make_ffmpeg()
+{
+echo -e "**\n**  ffmpeg ...\n**"
+OLDDIR=$(pwd)
+cd $TMP/tmp-$PRGNAM
+# Take care of snaphot directory:
+if [ -d ffmpeg-export-* ]; then
+  rm -rf ffmpeg-${VERSION}
+  mv ffmpeg-export-* ffmpeg-${VERSION}
+fi
+
+# Only use patented code if we are allowing it:
+if [ "${USE_PATENTS}" == "YES" ]; then
+  USE_PATENTED="--enable-libmp3lame \
+                --enable-libfaac \
+                --enable-libvo-aacenc \
+                --enable-libfdk-aac \
+                --enable-nonfree"
+                # to be added once I get it to work: --enable-libaacplus \
+else
+  USE_PATENTED=" "
+fi
+
+cd $TMP/tmp-$PRGNAM/ffmpeg-${VERSION}
+
+if [ "$ARCH" = "x86_64" ]; then
+  ARCHOPTS="--arch=x86_64 --enable-pic"
+else
+  ARCHOPTS=""
+fi
+
+# Or else orc's library will not be used in the static linking (orc is listed
+# as a private lib for schroedinger):
+sed -i -e "s/pkg_config --libs/pkg_config --static --libs/" \
+  configure
+
+# Stamp the version into the source:
+[ -f version.sh ] && sed -i -e "s/UNKNOWN/$VERSION/" version.sh
+
+TMPDIR="$TMP" \
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="-L$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS -lpng -lXext" \
+PKG_CONFIG_PATH="$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+PATH="$FFMPEGDEPSDIR/usr/bin:$PATH" \
 ./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --shlibdir=/usr/lib${LIBDIRSUFFIX} \
-  --docdir=/usr/doc/$PKGNAM-$VERSION/html \
+  --docdir=/usr/doc/${PRGNAM}-${VERSION} \
   --mandir=/usr/man \
-  --disable-debug \
-  --enable-shared \
-  --disable-static \
-  --enable-pthreads \
-  --enable-libtheora \
-  --enable-libvorbis \
+  ${USE_PATENTED} \
   --enable-gpl \
   --enable-version3 \
-  --enable-postproc \
-  --enable-swscale \
-  --enable-x11grab \
   --enable-avfilter \
-  --enable-gnutls \
-  --enable-libcdio \
-  --enable-libssh \
-  --arch=$ARCH \
-  $openjpeg \
-  $libdc1394 \
-  $mp3lame \
-  $libfaac \
-  $libxvid \
-  $libx264 \
-  $libspeex \
-  $dirac_fast \
-  $non_free \
-  $libgsm \
-  $libvpx \
-  $librtmp \
-  $opencore_amr \
-  $libfrei0r \
-  $libcelt \
-  $libbluray \
-  $libass \
-  $libopenal \
-  $libiec61883 \
-  $libilbc \
-  $libmodplug \
-  $libopus \
-  $libtwolame \
-  $ladspa \
-  $ssl
+  --enable-avresample \
+  --enable-libass \
+  --enable-libdc1394 \
+  --enable-libgsm \
+  --enable-libopencore-amrnb \
+  --enable-libopencore-amrwb \
+  --enable-libopus \
+  --enable-libschroedinger \
+  --enable-libspeex \
+  --enable-libtheora \
+  --enable-libv4l2 \
+  --enable-libvo-amrwbenc \
+  --enable-libvorbis \
+  --enable-libvpx \
+  --enable-libx264 \
+  --enable-libx265 \
+  --enable-libzvbi \
+  --enable-postproc \
+  --enable-runtime-cpudetect \
+  --enable-vaapi \
+  --enable-vdpau \
+  --enable-memalign-hack \
+  --enable-pthreads \
+  --enable-x11grab \
+  --enable-bzlib \
+  --enable-zlib \
+  --enable-shared \
+  --enable-static \
+  --disable-debug \
+  $ARCHOPTS \
+  --extra-cflags="-I$FFMPEGDEPSDIR/usr/include -DRUNTIME_CPUDETECT" \
+  --extra-ldflags="-L$FFMPEGDEPSDIR/usr/lib${LIBDIRSUFFIX} -ldl -lssl -lcrypto -lz -lusb" \
+  --pkg-config-flags="--static" \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_ffmpeg.log
+  # Use ffmpeg's own implementation:
+  #--enable-librtmp \
+# Need to add "-lfftw3f" to --extra-ldflags if libaacplus gets used
+make ${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_ffmpeg.log
 
-make
-make install DESTDIR=$PKG
-make install-man DESTDIR=$PKG
+cd $OLDDIR
+}
 
-find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | \
-  grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+#
+# OK, we packaged the compile process for the various software libraries
+# into convenient functions... let's call them one by one now:
+#
 
-find $PKG/usr/man -type f -exec gzip -9 {} \;
+#if [ 'xy' != 'xy' ]; then # use this block if you want to skip a lot
 
-mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION/txt
-cp -a Changelog COPYING* CREDITS INSTALL LICENSE MAINTAINERS README RELEASE \
-  VERSION doc/RELEASE_NOTES $PKG/usr/doc/$PKGNAM-$VERSION
-cp -a doc/*.txt $PKG/usr/doc/$PKGNAM-$VERSION/txt/
-cat $CWD/$PKGNAM.SlackBuild > $PKG/usr/doc/$PKGNAM-$VERSION/$PKGNAM.SlackBuild
+# Needed before ffmpeg:
+# Based on the value of $USE_PATENTS enable or disable patented code:
+if [ "${USE_PATENTS}" = "YES" ]; then
+  make_lame
+  make_faac
+  #make_aacplus
+  make_aacenc
+  make_fdkaac
+fi
 
+make_amr
+make_amrwbenc
+make_1394
+make_v4l
+make_opus
+make_speex
+make_gsm
+#make_rtmp
+make_orc
+make_schroedinger
+make_x264
+make_x265
+make_vpx
+make_libva
+make_vdpau
+make_fribidi
+make_ass
+make_zvbi
+
+#fi # end of 'xy'
+
+# ffmpeg uses the above static libraries:
+make_ffmpeg
+
+# End of compilation, proceed to packaging the binaries:
+cd $TMP/tmp-${PRGNAM}/ffmpeg-${VERSION}
+
+# Install all the needed stuff to the package dir
+make DESTDIR=$PKG install 2>&1 |tee $OUTPUT/install-${PRGNAM}.log
+
+# Add x264 & vpx presets.  See 'Preset files' in the man pages.
+echo "** Adding ffmpeg presets:"
+mkdir -p $PKG/usr/share/ffmpeg
+cp -a presets/*.ffpreset $PKG/usr/share/ffmpeg/
+
+# The pkg-config files are full of library dependencies which we built
+# statically, so we need to edit those out so that programs that try to link
+# against our ffmpeg will not get confused:
+echo "** Fixing up pkgconfig files:"
+for PCFILE in $(ls $PKG/usr/lib${LIBDIRSUFFIX}/pkgconfig/*.pc) ; do
+  sed -i -e 's/-lraw1394//g' -e 's/-lavc1394//g' -e 's/-ldc1394//g' \
+         -e 's/-lspeex//g' -e 's/-lgsm//g' -e 's/-lrtmp//g' \
+         -e 's/-lopencore-amrnb//g' -e 's/-lopencore-amrwb//g' \
+         -e 's/-lfaac//g' -e 's/-lfaad//g' \
+         -e 's/-lvo-amrwbenc//g' -e 's/-lvo-aacenc//g' -e 's/-lfdk-aac//g'  \
+         -e 's/-lmp3lame//g' \
+         -e 's/-lopus//g' \
+         -e 's/-lschroedinger-[^ ]*//g' -e 's/-lorc-[^ ]*//g' \
+         -e 's/-lx264//g' -e 's/-lx265//g' -e 's/-lvpx//g' -e 's/-lzvbi//g' \
+         -e "s#-L/tmp/build/tmp-ffmpeg/ffmpegdeps/usr/lib${LIBDIRSUFFIX}##" \
+         $PCFILE 
+done
+
+# Add a configuration file for the ffserver:
+mkdir -p $PKG/etc
+cp -a doc/ffserver.conf  $PKG/etc/ffserver.conf.new
+
+# Add this to the doinst.sh:
+! [ -d $PKG/install ] && mkdir -p $PKG/install
+cat <<EOINS >> $PKG/install/doinst.sh
+# Handle the incoming configuration files:
+config() {
+  for infile in \$1; do
+    NEW="\$infile"
+    OLD="\`dirname \$NEW\`/\`basename \$NEW .new\`"
+    # If there's no config file by that name, mv it over:
+    if [ ! -r \$OLD ]; then
+      mv \$NEW \$OLD
+    elif [ "\`cat \$OLD | md5sum\`" = "\`cat \$NEW | md5sum\`" ]; then
+      # toss the redundant copy
+      rm \$NEW
+    fi
+    # Otherwise, we leave the .new copy for the admin to consider...
+  done
+}
+
+config etc/ffserver.conf.new
+
+EOINS
+
+# Add  documentation (for all the deps as well)
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION || true
+# Add all the supporting packages' documentation too:
+cp -a $FFMPEGDEPSDIR/doc/* $PKG/usr/doc/$PRGNAM-$VERSION || true
+cp -a $SRCDIR/*.{patch,diff} $PKG/usr/doc/$PRGNAM-$VERSION 2>/dev/null || true
+cat $SRCDIR/$(basename $0) > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+find $PKG/usr/doc -type f -exec chmod 644 {} \;
+chown -R root:root $PKG/usr/doc/$PRGNAM-$VERSION/*
+
+# Compress the man page(s)
+if [ -d $PKG/usr/man ]; then
+  find $PKG/usr/man -type f -name "*.?" -exec gzip -9f {} \;
+  for i in $(find $PKG/usr/man -type l -name "*.?") ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+fi
+
+# Strip binaries
+find $PKG | xargs file | grep -e "executable" -e "shared object" \
+  | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+# Add package description:
 mkdir -p $PKG/install
-cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $SRCDIR/slack-desc > $PKG/install/slack-desc
+if [ -f $SRCDIR/doinst.sh ]; then
+  cat $SRCDIR/doinst.sh >> $PKG/install/doinst.sh
+fi
 
+# Build the package:
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
+makepkg --linkadd y --chown n $OUTPUT/${PRGNAM}-${VERSION}-${ARCH}-${BUILD}${TAG}.txz 2>&1 | tee $OUTPUT/makepkg-${PRGNAM}.log
+cd $OUTPUT
+md5sum ${PRGNAM}-${VERSION}-${ARCH}-${BUILD}${TAG}.txz > ${PRGNAM}-${VERSION}-${ARCH}-${BUILD}${TAG}.txz.md5
+cd -
+cat $PKG/install/slack-desc | grep "^${PRGNAM}" > $OUTPUT/${PRGNAM}-${VERSION}-${ARCH}-${BUILD}${TAG}.txt
+
+# Restore the original umask:
+umask ${_UMASK_}
+
