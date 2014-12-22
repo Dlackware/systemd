@@ -145,6 +145,23 @@ CXXFLAGS="${SLKCFLAGS}" \
   --mandir=/usr/man \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
   --disable-dependency-tracking \
+  --enable-kmod \
+  --disable-chkconfig \
+  --enable-xz \
+  --enable-vconsole \
+  --enable-tmpfiles \
+  --enable-rfkill \
+  --enable-localed \
+  --enable-polkit \
+  --enable-ldconfig \
+  --enable-logind \
+  --disable-microhttpd \
+  --disable-libcryptsetup \
+  --enable-vconsole \
+  --disable-firstboot \
+  --disable-apparmor \
+  --enable-timedated \
+  --enable-timesyncd \
   --enable-split-usr \
   --enable-pam \
   --disable-audit \
