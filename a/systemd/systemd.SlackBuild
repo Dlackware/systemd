@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright 2013, 2014  Bart van der Hall, Istanbul, TR
+# Copyright 2013, 2014, 2015  Bart van der Hall, Istanbul, TR
 # All rights reserved.
 #
 #   Permission to use, copy, modify, and distribute this software for
@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-218}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -131,6 +131,8 @@ if [ "${SBO_AUTOGEN}" = "YES" ] ;then
   autoreconf -ivf || exit $?
 fi
 
+export PYTHON=python3
+
 CFLAGS="${SLKCFLAGS} -fno-lto"
 CXXFLAGS="${SLKCFLAGS}" \
 ./configure \
@@ -147,6 +149,7 @@ CXXFLAGS="${SLKCFLAGS}" \
   --disable-dependency-tracking \
   --enable-kmod \
   --disable-chkconfig \
+  --enable-python-devel \
   --enable-xz \
   --enable-vconsole \
   --enable-tmpfiles \
@@ -188,6 +191,7 @@ rm -rf ${PKG}/etc/rc.d/init.d
 mv ${PKG}/usr/lib${LIBDIRSUFFIX}/libnss_myhostname.so.* \
   ${PKG}/lib${LIBDIRSUFFIX}/ || exit 1
 
+# make sure Slackware packages that are build against libudeb.so.0 gets redirected
 ln -sf ../lib${LIBDIRSUFFIX}/libudev.so.1 ${PKG}/lib${LIBDIRSUFFIX}/libudev.so.0
 
 # Good to have on path
@@ -342,9 +346,19 @@ chmod 0755 ${PKG}/etc/rc.d/rc.local_shutdown.new || exit 1
 
 rm -f ${PKG}/etc/udev/udev.conf
 install -m0644 ${CWD}/config/udev.conf ${PKG}/etc/udev/udev.conf || exit 1
+
+# Install a standard google dns resolv
+install -m0644 $CWD/config/resolv.conf.eth0 ${PKG}/etc/resolv.conf.eth0 || exit 1
+
 # Copy Slackware custom rules
 install -m0644 ${CWD}/config/rules.d/* ${PKG}/lib/udev/rules.d/ || exit 1
 
+
+# Install helper script that people can turn on their rc.local script
+# This so that all enabled services are still starting
+install -m0755 ${CWD}/config/rc.d/rc.Msystemd.new ${PKG}/etc/rc.d/rc.Msystemd.new
+
+# This is for proving fallback if you do a dualboot
 install -m0755 ${CWD}/config/rc.d/rc.udev.new \
   ${PKG}/etc/rc.d/rc.udev.new || exit 1
 for file in ${CWD}/config/modprobe.d/*.conf ;do
@@ -360,6 +374,7 @@ for file in ${CWD}/config/slack-scripts/* ; do
 done
 
 # Add various helper scripts:
+install -pm0644 ${CWD}/config/scripts/20-eth-dhcp.network ${PKG}/lib/systemd/network/ || exit 1
 
 chmod 755 ${PKG}/lib/udev/*
 

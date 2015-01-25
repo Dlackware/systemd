@@ -1,6 +1,7 @@
 ### [systemd-min] begin
 ap/bash-completion
 d/python3
+a/krb5
 a/cracklib
 a/pam
 l/libpwquality
@@ -8,8 +9,12 @@ a/shadow
 udev%a/systemd
 a/dbus
 a/util-linux
+l/lxml
+a/pam_krb5
 n/openssh
 l/libndp
 l/readline
 n/NetworkManager
 ## [systemd-min] end
+#
+# !reboot

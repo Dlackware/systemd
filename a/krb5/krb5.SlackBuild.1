@@ -1,0 +1,129 @@
+#!/bin/sh
+
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+PKGNAM=krb5
+VERSION=1.13
+BUILD=${BUILD:-1_pam}
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i486 ;;
+    arm*) export ARCH=arm ;;
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp}
+PKG=$TMP/package-$PKGNAM
+
+if [ "$ARCH" = "x86_64" ]; then
+  LIBDIRSUFFIX="64"
+else
+  LIBDIRSUFFIX=""
+fi
+
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+elif [ "$ARCH" = "s390" ]; then
+  SLKCFLAGS="-O2"
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+elif [ "$ARCH" = "arm" ]; then
+  SLKCFLAGS="-O2 -march=armv4 -mtune=xscale"
+elif [ "$ARCH" = "armel" ]; then
+  SLKCFLAGS="-O2 -march=armv4t"
+else
+  SLKCFLAGS="-O2"
+fi
+
+rm -rf $PKG
+mkdir -p $TMP $PKG
+
+cd $TMP
+
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/$PKGNAM-$VERSION.tar.gz || exit 1
+cd $PKGNAM-$VERSION || exit 1
+
+chown -R root:root .
+find . \
+  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+  -exec chmod 755 {} \; -o \
+  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+  -exec chmod 644 {} \;
+
+cd src || exit 1
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --libdir=/usr/lib$LIBDIRSUFFIX \
+  --localstatedir=/var/lib \
+  --mandir=/usr/man \
+  --with-system-et \
+  --with-system-ss \
+  --without-system-verto \
+  --enable-dns-for-realm \
+  --with-ldap \
+|| exit 1
+
+make -j4 || exit 1
+
+make install DESTDIR=$PKG || exit 1
+
+#mkdir $PKG/lib$LIBDIRSUFFIX
+#( cd $PKG/usr/lib$LIBDIRSUFFIX
+# for f in libkrb5.* libk5crypto.* libkrb5support.* ; do
+#	if [ -h $f ] ; then
+#	    cp -a $f ../../lib$LIBDIRSUFFIX
+#	else
+#	    mv $f ../../lib$LIBDIRSUFFIX
+#	    ln -s ../../lib$LIBDIRSUFFIX/$f
+#	fi
+# done
+#)
+
+mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
+cp -a \
+  ../README ../NOTICE \
+  $PKG/usr/doc/$PKGNAM-$VERSION
+mkdir $PKG/usr/doc/$PKGNAM-$VERSION/examples
+mv $PKG/usr/share/examples/krb5/* $PKG/usr/doc/$PKGNAM-$VERSION/examples
+rm -rf $PKG/usr/share/examples
+
+( cd $PKG
+  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+)
+
+( cd $PKG/usr/man
+  rmdir cat?
+  rm -f man5/.*.5
+  for i in `find . -type l` ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+  gzip -9 */*.?
+)
+
+mkdir -p $PKG/etc/rc.d
+cat $CWD/rc.krb5 > $PKG/etc/rc.d/rc.krb5.new
+
+chmod 700 $PKG/var/lib/krb5kdc
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+cd $PKG
+makepkg -l y -c n $TMP/$PKGNAM-$VERSION-$ARCH-$BUILD.txz

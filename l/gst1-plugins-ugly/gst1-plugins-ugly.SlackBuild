@@ -23,7 +23,7 @@
 
 PKGNAM=gst1-plugins-ugly
 NAME=gst-plugins-ugly
-VERSION=${VERSION:-1.4.3}
+VERSION=${VERSION:-1.4.5}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 

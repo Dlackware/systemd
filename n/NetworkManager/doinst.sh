@@ -30,9 +30,11 @@ fi
 
 config etc/NetworkManager/NetworkManager.conf.new
 
-if [ -x bin/systemctl ] ; then
- /bin/systemctl enable NetworkManager >/dev/null 2>&1
-fi
+# Do not enable NetworkManager or start
+# If you want, disable systemd-networkd
+#if [ -x bin/systemctl ] ; then
+# /bin/systemctl enable NetworkManager >/dev/null 2>&1
+#fi
 
 if [ -x bin/systemctl ] ; then
  /bin/systemctl --system daemon-reload >/dev/null 2>&1

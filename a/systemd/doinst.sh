@@ -30,6 +30,7 @@ config etc/machine-info.new
 config etc/pam.d/systemd-user.new
 config etc/rc.d/rc.local_shutdown.new
 config etc/rc.d/rc.udev.new
+config etc/rc.d/rc.Msystemd.new
 config etc/systemd/bootchart.conf.new
 config etc/systemd/journald.conf.new
 config etc/systemd/logind.conf.new
@@ -402,5 +403,3 @@ ${CHROOT} /usr/bin/setfacl -Rnm g:adm:rx,d:g:adm:rx /var/log/journal/ >/dev/null
 ${CHROOT} mv /var/lib/random-seed /var/lib/systemd/random-seed >/dev/null 2>&1 || :
 ${CHROOT} mv /var/lib/backlight /var/lib/systemd/backlight >/dev/null 2>&1 || :
 
-# This is temperarily fix that might need to go somewhere in a stock slackware package
-${CHROOT} /bin/ln -s /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-bundle.crt

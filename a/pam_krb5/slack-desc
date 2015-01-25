@@ -1,0 +1,5 @@
+pam_krb5: 
+pam_krb5: This is pam_krb5, a pluggable authentication module that can be used by
+pam_krb5: PAM-aware applications to check passwords and obtain ticket granting tickets
+pam_krb5: using Kerberos 5, and to change user passwords.
+pam_krb5: 

@@ -1,5 +1,5 @@
 PKGNAM="libsoup"
-VERSION="2.48.0"
+VERSION="2.48.1"
 HOMEPAGE="https://wiki.gnome.org/Projects/libsoup"
-DOWNLOAD="http://download.gnome.org/sources/libsoup/2.48/libsoup-2.48.0.tar.xz"
-MD5SUM="51ccb76f5262945e1f0316fdc46de567"
+DOWNLOAD="http://download.gnome.org/sources/libsoup/2.48/libsoup-2.48.1.tar.xz"
+MD5SUM="0a8d96e317c29a1fd711687931f8c10c"

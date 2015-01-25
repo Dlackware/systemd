@@ -1,5 +1,5 @@
 PKGNAM="gtk+3"
-VERSION="3.14.5"
+VERSION="3.14.7"
 HOMEPAGE="http://www.gtk.org/"
-DOWNLOAD="http://download.gnome.org/sources/gtk+/3.14/gtk+-3.14.5.tar.xz"
-MD5SUM="c6b72b1cec82061167759b9e6cec9bab"
+DOWNLOAD="http://download.gnome.org/sources/gtk+/3.14/gtk+-3.14.7.tar.xz"
+MD5SUM="025938c2bc09fcc6173b5533681550ee"

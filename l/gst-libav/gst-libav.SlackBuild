@@ -22,7 +22,7 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=gst-libav
-VERSION=${VERSION:-1.4.3}
+VERSION=${VERSION:-1.4.5}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -37,8 +37,8 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-# wget -c http://gstreamer.freedesktop.org/src/$PKGNAM/$PKGNAM-$VERSION.tar.xz
-wget -c http://distfiles.alpinelinux.org/distfiles/$PKGNAM-$VERSION.tar.xz
+wget -c http://gstreamer.freedesktop.org/src/$PKGNAM/$PKGNAM-$VERSION.tar.xz
+# wget -c http://distfiles.alpinelinux.org/distfiles/$PKGNAM-$VERSION.tar.xz
 
 
 CWD=$(pwd)
