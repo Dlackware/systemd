@@ -1,6 +1,7 @@
 ### [systemd-min] begin
 ap/bash-completion
 d/python3
+l/lxml
 a/krb5
 a/cracklib
 a/pam
@@ -9,7 +10,6 @@ a/shadow
 udev%a/systemd
 a/dbus
 a/util-linux
-l/lxml
 a/pam_krb5
 n/openssh
 l/libndp
