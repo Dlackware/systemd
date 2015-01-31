@@ -1,12 +1,18 @@
-libepoxy|-----handy-ruler------------------------------------------------------|
-libepoxy: libepoxy (Direct Rendering Manager runtime library)
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+libepoxy: libepoxy (OpenGL management library)
 libepoxy:
-libepoxy: A library for handling OpenGL function pointer management.
-libepoxy:
-libepoxy: http://github.com/anholt/libepoxy
-libepoxy:
+libepoxy: Epoxy is a library for handling OpenGL function pointer management.
+libepoxy: It tries to solve some of GLEW's problems for which it is a
+libepoxy: replacement - in particular support for GLES and EGL.
 libepoxy:
 libepoxy: 
 libepoxy:
-libepoxy:
+libepoxy: http://github.com/anholt/libepoxy/releases
 libepoxy:
