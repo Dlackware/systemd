@@ -75,9 +75,9 @@ fi
 rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $NAME-$VERSION
-tar xvf $CWD/$NAME-$VERSION.tar.?z*
-cd $NAME-$VERSION
+rm -rf $SRCNAM-$VERSION
+tar xvf $CWD/$SRCNAM-$VERSION.tar.?z*
+cd $SRCNAM-$VERSION
 chown -R root:root .
 find . \
  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
