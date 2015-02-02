@@ -85,10 +85,8 @@ find . \
 
 cat $CWD/sshd_config-pam.diff | patch -p1
 
-if [ -d /usr/kerberos ]
-then
-  krb_flag="--with-kerberos5=/usr/kerberos5"
-fi
+krb_flag="--with-kerberos5"
+
 
 # Compile package:
 CFLAGS="$SLKCFLAGS" \

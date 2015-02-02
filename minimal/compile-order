@@ -1,0 +1,16 @@
+### [systemd-min] begin
+bash-completion
+python3
+lxml
+krb5
+cracklib
+pam
+libpwquality
+shadow
+udev%systemd
+dbus
+util-linux
+pam_krb5
+openssh
+procps
+# !reboot
