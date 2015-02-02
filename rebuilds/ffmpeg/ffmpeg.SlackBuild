@@ -1,7 +1,7 @@
 #!/bin/bash
 # $Id: ffmpeg.SlackBuild,v 1.75 2014/11/16 21:14:22 root Exp root $
 # Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014  Eric Hameleers, Eindhoven, NL
-# Copyright 2014  Bart van der Hall, Almere, NL
+# Copyright 2014, 2015  Bart van der Hall, Almere, NL
 # All rights reserved.
 #
 #   Permission to use, copy, modify, and distribute this software for
@@ -139,7 +139,9 @@
 #               and X.265 (HEVC) codec by Videolan project..
 # 2.4.3-1_d:  15/dec/2014 by Bart van der Hall <bartgymnast@hotmail.com>
 #             * Update. Added different output directory and changed TAG name.
-#               
+# 2.5.3-1_d:  02/feb/2015 by Bart van der Hall <bartgymnast@hotmail.com>
+#             * Update.
+#
 # Run 'sh ffmpeg.SlackBuild' to build a Slackware package.
 # The package (.txz) plus descriptive .txt file are created in /tmp .
 # Install using 'installpkg'.
@@ -163,7 +165,7 @@ USE_PATENTS=${USE_PATENTS:-"YES"}
 USE_PATENTS=$(echo $USE_PATENTS | tr 'a-z' 'A-Z')
 
 PRGNAM=ffmpeg
-VERSION=${VERSION:-2.4.3}
+VERSION=${VERSION:-2.5.3}
 BUILD=${BUILD:-1}
 NUMJOBS=${NUMJOBS:--j7}
 TAG=${TAG:-_dlack}
@@ -222,7 +224,7 @@ SPEEX=1.2rc1
 V4L=1.6.0
 VDPAU=0.8
 VPX=v1.3.0
-X264=20141111-2245
+X264=20141218-2245
 X265=1.4
 
 # Where do we look for sources?
