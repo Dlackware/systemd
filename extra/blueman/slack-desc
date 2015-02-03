@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+blueman: Blueman (Graphical Bluetooth Manager)
+blueman:
+blueman: Blueman is a GTK+ Bluetooth Manager for tasks such as:
+blueman:
+blueman:   - Connecting to 3G/EDGE/GPRS via DUN profile.
+blueman:   - Connecting to/Creating bluetooth networks
+blueman:   - Connecting to input and audio devices
+blueman:   - Sending/Receiving/Browsing files via OBEX
+blueman:   - Pairing
+blueman:
+blueman: Homepage:  http://blueman-project.org

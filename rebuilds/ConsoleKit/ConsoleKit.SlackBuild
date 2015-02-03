@@ -80,7 +80,7 @@ cat $CWD/consolekit-0.2.10-cleanup_console_tags.patch | patch -p1 || exit 1
 # ck-history: don't truncate --frequent output to 8 chars
 # GDM screenscrapes the output and so we need the full username.
 # https://bugzilla.gnome.org/show_bug.cgi?id=650330
-cat $CWD/ck-history-don-t-truncate-frequent-output-to-8-chars.patch | patch -p1 || exit 1
+# cat $CWD/ck-history-don-t-truncate-frequent-output-to-8-chars.patch | patch -p1 || exit 1
 
 # Revert "Only set sessions to be is-local=true if set by a trusted party"
 #   http://cgit.freedesktop.org/ConsoleKit/commit/?id=4f88228f31a63c026c424a92827f26ad7535275c
