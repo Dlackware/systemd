@@ -1,12 +1,12 @@
 ### [systemd-min] begin
-bash-completion
-python3
-lxml
-krb5
-cracklib
-pam
-libpwquality
-shadow
+#bash-completion
+#python3
+#lxml
+#krb5
+#cracklib
+#pam
+#libpwquality
+#shadow
 udev%systemd
 dbus
 util-linux

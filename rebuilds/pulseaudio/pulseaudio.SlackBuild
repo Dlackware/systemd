@@ -22,7 +22,7 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=pulseaudio
-VERSION=${VERSION:-5.0}
+VERSION=${VERSION:-6.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -74,9 +74,9 @@ find . \
 bash_completion_dir=/usr/share/bash-completion/completions
 zsh_completion_dir=/usr/share/zsh/site-functions
 
-patch -p0 --verbose <$CWD/pulseaudio-4.99.4-systemd209.patch || exit 1
-patch -p1 --verbose <$CWD/pulseaudio-4.0-kde_autostart_phase.patch || exit 1
-patch -p1 --verbose <$CWD/pulseaudio-x11_device_manager.patch || exit 1
+#patch -p0 --verbose <$CWD/pulseaudio-4.99.4-systemd209.patch || exit 1
+#patch -p1 --verbose <$CWD/pulseaudio-4.0-kde_autostart_phase.patch || exit 1
+#patch -p1 --verbose <$CWD/pulseaudio-x11_device_manager.patch || exit 1
 
 # seds adapted from Arch
 sed -e '/exit-idle-time/iexit-idle-time=1' \
@@ -121,12 +121,10 @@ CXXFLAGS="${SLKCFLAGS}" \
   --with-access-group=pulse-access \
   --disable-jack \
   --enable-avahi \
-  --enable-systemd \
   --enable-systemd-journal \
   --disable-gconf \
   --disable-hal-compat \
   --disable-asyncns \
-  --disable-orc \
   --disable-esound \
   --disable-bluez4 \
   --enable-bluez5 \
@@ -154,7 +152,7 @@ mv ${PKG}/etc/pulse/system.pa ${PKG}/etc/pulse/system.pa.new || exit 1
 # preserve time stamps
 touch -r src/daemon/daemon.conf.in ${PKG}/etc/pulse/daemon.conf.new
 touch -r src/daemon/default.pa.in ${PKG}/etc/pulse/default.pa.new
-touch -r src/daemon/org.pulseaudio.policy ${PKG}/usr/share/PolicyKit/policy/org.pulseaudio.policy
+#touch -r src/daemon/org.pulseaudio.policy ${PKG}/usr/share/PolicyKit/policy/org.pulseaudio.policy
 touch -r man/pulseaudio.1.xml.in ${PKG}/usr/man/man1/pulseaudio.1
 touch -r man/default.pa.5.xml.in ${PKG}/usr/man/man5/default.pa.5
 touch -r man/pulse-client.conf.5.xml.in ${PKG}/usr/man/man5/pulse-client.conf.5
@@ -171,12 +169,12 @@ EOF
 find ${PKG} | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 
-mv ${PKG}/${bash_completion_dir}/${PKGNAM}-bash-completion.sh \
-  ${PKG}/${bash_completion_dir}/${PKGNAM} || exit 1
+#mv ${PKG}/${bash_completion_dir}/${PKGNAM}-bash-completion.sh \
+#  ${PKG}/${bash_completion_dir}/${PKGNAM} || exit 1
 
-mkdir -p ${PKG}/${zsh_completion_dir}
-install -m 644 shell-completion/pulseaudio-zsh-completion.zsh \
-  ${PKG}/${zsh_completion_dir}/_${PKGNAM} || exit 1
+#mkdir -p ${PKG}/${zsh_completion_dir}
+#install -m 644 shell-completion/pulseaudio-zsh-completion.zsh \
+#  ${PKG}/${zsh_completion_dir}/_${PKGNAM} || exit 1
 
 desktop-file-install --delete-original --vendor "" \
   --dir ${PKG}/etc/xdg/autostart \

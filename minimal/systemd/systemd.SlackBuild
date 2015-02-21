@@ -27,8 +27,8 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-218}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-219}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -151,6 +151,8 @@ CXXFLAGS="${SLKCFLAGS}" \
   --disable-chkconfig \
   --enable-python-devel \
   --enable-xz \
+  --enable-networkd \
+  --enable-resolvd \
   --enable-vconsole \
   --enable-tmpfiles \
   --enable-rfkill \
@@ -160,7 +162,6 @@ CXXFLAGS="${SLKCFLAGS}" \
   --enable-logind \
   --disable-microhttpd \
   --disable-libcryptsetup \
-  --enable-vconsole \
   --disable-firstboot \
   --disable-apparmor \
   --enable-timedated \

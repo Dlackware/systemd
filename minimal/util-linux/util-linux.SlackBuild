@@ -23,14 +23,14 @@
 # Slackware build script for util-linux
 
 PKGNAM=util-linux
-VERSION=${VERSION:-2.25.2}
+VERSION=${VERSION:-2.26}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 ADJTIMEXVERS=1.29
 SETSERIALVERS=2.17
 ZIPTOOLVERS=1.4.0
-NETTOOLVERS="1.60.20131012git"
+#NETTOOLVERS="1.60.20131012git"
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -42,12 +42,14 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://www.kernel.org/pub/linux/utils/${PKGNAM}/v2.25/${PKGNAM}-${VERSION}.tar.xz \
+wget -c http://www.kernel.org/pub/linux/utils/${PKGNAM}/v2.26/${PKGNAM}-${VERSION}.tar.xz \
 	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/adjtimex_${ADJTIMEXVERS}.orig.tar.gz \
 	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/bsdstrings.tar.gz \
-	http://dlackware.omgwtfroflol.com/current/net-tools-${NETTOOLVERS}.tar.xz \
 	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/setserial-${SETSERIALVERS}.tar.gz \
 	ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/ziptool-${ZIPTOOLVERS}.tar.xz
+
+#	http://dlackware.omgwtfroflol.com/current/net-tools-${NETTOOLVERS}.tar.xz \
+
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
@@ -103,7 +105,7 @@ DATE=$(LC_ALL=C date +%d-%b-%Y)
 # our installation scripts, so we have changed the name of partition type
 # 83 back to "Linux swap":
 patch -p1 --verbose< $SBO_PATCHDIR/util-linux-ng.fdisk-no-solaris.diff || exit 1
-patch -p1 --verbose< $SBO_PATCHDIR/2.23-login-lastlog-create.patch || exit 1
+# patch -p1 --verbose< $SBO_PATCHDIR/2.23-login-lastlog-create.patch || exit 1
 
 export ac_cv_header_security_pam_misc_h=yes
 
@@ -116,36 +118,35 @@ sed -i -e 's|${prefix}/${localstatedir}|${localstatedir}|g' configure || exit 1
 CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64" \
 ./configure \
   --prefix=/usr \
-  --exec-prefix=/usr \
-  --sbindir=/sbin \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
-  --localstatedir=/run \
-  --infodir=/usr/info \
+  --localstatedir=/var \
   --mandir=/usr/man \
-  --docdir=/usr/doc/util-linux-${VERSION} \
-  --disable-silent-rules \
+  --infodir=/usr/info \
+  --docdir=/usr/doc/util-linux-$VERSION \
+  --disable-static \
   --enable-agetty \
-  --enable-eject \
+  --disable-eject \
   --enable-kill \
   --disable-last \
+  --enable-line \
   --enable-mesg \
+  --enable-partx \
   --enable-raw \
   --enable-rename \
   --enable-reset \
   --disable-login \
-  --disable-nologin \
-  --disable-su \
-  --disable-sulogin \
   --enable-schedutils \
   --enable-wall \
-  --enable-partx \
-  --enable-tunelp \
   --enable-write \
+  --disable-chfn-chsh \
   --enable-use-tty-group \
-  --disable-makeinstall-chown \
   --enable-libblkid \
+  --enable-libmount \
   --enable-libuuid \
+  --disable-uuidd \
+  --with-python=3 \
+  --enable-tunelp \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --with-systemd \
   --build=$ARCH-slackware-linux || exit 1
@@ -206,30 +207,30 @@ cat strings > $PKG/usr/bin/strings
 chmod 0755 $PKG/usr/bin/strings
 cat strings.1 | gzip -9c > $PKG/usr/man/man1/strings.1.gz
 
-# Add just the hostname utilities from net-tools, so that anyone
-# installing just the A series will not have a hostname (null):
-cd $TMP || exit 1
-rm -rf net-tools-${NETTOOLVERS}
-tar xvf $CWD/net-tools-${NETTOOLVERS}.tar.xz
-cd net-tools-${NETTOOLVERS}
-cat $CWD/net-tools.config.h > config.h
-make
-make hostname
-strip hostname
-cat hostname > $PKG/bin/hostname
-chmod 755 $PKG/bin/hostname
-chown root:root $PKG/bin/hostname
-( cd $PKG/bin
-  ln -sf hostname dnsdomainname
-  ln -sf hostname nisdomainname
-  ln -sf hostname ypdomainname
-  ln -sf hostname domainname
-)
-cd man/en_US
-for page in hostname.1 dnsdomainname.1 nisdomainname.1 ypdomainname.1 \
-domainname.1 ; do
-  cat $page | gzip -9c > $PKG/usr/man/man1/$page.gz
-done
+## Add just the hostname utilities from net-tools, so that anyone
+## installing just the A series will not have a hostname (null):
+#cd $TMP || exit 1
+#rm -rf net-tools-${NETTOOLVERS}
+#tar xvf $CWD/net-tools-${NETTOOLVERS}.tar.xz
+#cd net-tools-${NETTOOLVERS}
+#cat $CWD/net-tools.config.h > config.h
+#make
+#make hostname
+#strip hostname
+#cat hostname > $PKG/bin/hostname
+#chmod 755 $PKG/bin/hostname
+#chown root:root $PKG/bin/hostname
+#( cd $PKG/bin
+#  ln -sf hostname dnsdomainname
+#  ln -sf hostname nisdomainname
+#  ln -sf hostname ypdomainname
+#  ln -sf hostname domainname
+#)
+#cd man/en_US
+#for page in hostname.1 dnsdomainname.1 nisdomainname.1 ypdomainname.1 \
+#domainname.1 ; do
+#  cat $page | gzip -9c > $PKG/usr/man/man1/$page.gz
+#done
 
 # Build adjtimex
 cd $TMP || exit 1
