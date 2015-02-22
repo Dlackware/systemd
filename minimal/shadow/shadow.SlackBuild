@@ -23,7 +23,7 @@
 
 PKGNAM=shadow
 VERSION=${VERSION:-4.2.1}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 # Set to NO to disable pam support
@@ -72,8 +72,12 @@ cd shadow-$VERSION
 
 SBO_PAMD_DIR=${CWD}/pamd
 
-# Lets fix the crypt() problem
-#patch -p1 --verbose <$CWD/shadow.glibc217-crypt.diff || exit 1
+# Relax the restrictions on "su -c" when it is used to become root.
+# It's not likely that root is going to try to inject commands back into
+# the user's shell to hack it, and the unnecessary restriction is causing
+# breakage:
+cat $CWD/shadow.CVE-2005-4890.relax.diff | patch -p1 --verbose || exit 1
+
 
 chown -R root:root .
 find . \

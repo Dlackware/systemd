@@ -22,7 +22,7 @@
 # http://web.mit.edu/kerberos/www/
 
 PKGNAM=krb5
-VERSION=${VERSION:-1.13}
+VERSION=${VERSION:-1.13.1}
 SVER=$(echo ${VERSION} | cut -d. -f1-2)
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
