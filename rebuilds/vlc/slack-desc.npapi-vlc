@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+         |-----handy-ruler------------------------------------------------------|
+npapi-vlc: npapi-vlc (Videolan plugin for Mozilla browsers)
+npapi-vlc:
+npapi-vlc: VLC media player is a multimedia player for various audio and
+npapi-vlc: video formats (MPEG-1, MPEG-2, MPEG-4, DivX, mp3, ogg, ...)
+npapi-vlc: as well as DVDs, VCDs, and various streaming protocols.
+npapi-vlc:
+npapi-vlc: Install this package if you need Videolan plugin for your
+npapi-vlc: Mozilla based browsers.
+npapi-vlc:
+npapi-vlc: vlc home: http://www.videolan.org/
+npapi-vlc:

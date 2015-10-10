@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+systemd: systemd (System and Session Manager)
+systemd:
+systemd: systemd is a system and service manager for Linux, compatible with
+systemd: SysV and LSB init scripts. systemd provides aggressive
+systemd: parallelization capabilities, uses socket and D-Bus activation for
+systemd: starting services, offers on-demand starting of daemons, keeps track
+systemd: of processes using Linux control groups, supports snapshotting and
+systemd: restoring of the system state, maintains mount and automount points
+systemd: and implements an elaborate transactional dependency-based
+systemd: service control logic
+systemd:

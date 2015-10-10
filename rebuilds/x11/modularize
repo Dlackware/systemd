@@ -1,0 +1,8 @@
+# If a package is listed here, it will be built apart from the
+# usual "grab bag" package that's made from each source directory.
+
+xorg-server
+#xorg-server-xephyr
+#xorg-server-xnest
+#xorg-server-xvfb
+xorg-server-xwayland

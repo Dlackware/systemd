@@ -1,0 +1,5 @@
+PKGNAM="pulseaudio"
+VERSION="6.0"
+HOMEPAGE="http://www.freedesktop.org/wiki/Software/PulseAudio/"
+DOWNLOAD="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-6.0.tar.gz"
+MD5SUM="1822a93710dfe42e266102e92a8d2993"

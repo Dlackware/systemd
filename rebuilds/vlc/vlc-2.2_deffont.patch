@@ -1,0 +1,15 @@
+--- a/modules/text_renderer/platform_fonts.h	2015-02-11 19:29:54.000000000 +0100
++++ b/modules/text_renderer/platform_fonts.h	2015-02-11 20:29:32.295403577 +0100
+@@ -55,9 +55,9 @@
+ # define SYSTEM_DEFAULT_MONOSPACE_FONT_FILE "/system/fonts/DroidSansMono.ttf"
+ # define SYSTEM_DEFAULT_MONOSPACE_FAMILY "Droid Sans Mono"
+ #else
+-# define SYSTEM_DEFAULT_FONT_FILE "/usr/share/fonts/truetype/freefont/FreeSerifBold.ttf"
+-# define SYSTEM_DEFAULT_FAMILY "Serif Bold"
+-# define SYSTEM_DEFAULT_MONOSPACE_FONT_FILE "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
++# define SYSTEM_DEFAULT_FONT_FILE "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf"
++# define SYSTEM_DEFAULT_FAMILY "Sans Bold"
++# define SYSTEM_DEFAULT_MONOSPACE_FONT_FILE "/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf"
+ # define SYSTEM_DEFAULT_MONOSPACE_FAMILY "Monospace"
+ #endif
+ 

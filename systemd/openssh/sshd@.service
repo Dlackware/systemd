@@ -1,0 +1,9 @@
+# SSH Service file
+
+[Unit]
+Description=SSH Per-Connection Server
+
+[Service]
+EnvironmentFile=/etc/default/sshd
+ExecStart=-/usr/sbin/sshd -i
+StandardInput=socket

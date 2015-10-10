@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+                 |-----handy-ruler------------------------------------------------------|
+gst1-plugins-good: gst-plugins-good version 1.x (good set of GStreamer plugins)
+gst1-plugins-good:
+gst1-plugins-good: A set of plugins to expand the usefulness of the GStreamer media
+gst1-plugins-good: framework.  This package contains the plugins that the developers
+gst1-plugins-good: consider to have good quality code, correct functionality, and
+gst1-plugins-good: their preferred licence (LGPL for the plug-in code, and LGPL or
+gst1-plugins-good: LGPL-compatible for the supporting library).
+gst1-plugins-good:
+gst1-plugins-good:
+gst1-plugins-good:
+gst1-plugins-good:

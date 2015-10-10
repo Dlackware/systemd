@@ -1,0 +1,5 @@
+PKGNAM="ModemManager"
+VERSION="1.4.0"
+HOMEPAGE="http://www.freedesktop.org/wiki/Software/ModemManager/"
+DOWNLOAD="http://www.freedesktop.org/software/ModemManager/ModemManager-1.4.0.tar.xz"
+MD5SUM="4f78b31c23828dc1037352d6dbb608db"

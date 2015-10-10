@@ -1,0 +1,18 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+    |-----handy-ruler------------------------------------------------------|
+dbus: dbus (D-Bus message bus system)
+dbus:
+dbus: D-Bus supplies both a system daemon (for events such as "new hardware
+dbus: device added" or "printer queue changed") and a per user login
+dbus: session daemon (for general IPC needs among user applications).
+dbus: Also, the message bus is built on top of a general one-to-one message
+dbus: passing framework, which can be used by any two apps to communicate
+dbus: directly (without going through the message bus daemon). 
+dbus:
+dbus:
+dbus:

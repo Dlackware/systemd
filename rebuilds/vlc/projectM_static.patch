@@ -1,0 +1,46 @@
+--- projectM-2.0.1-Source/CMakeLists.txt.orig	2009-12-06 02:42:51.000000000 +0100
++++ projectM-2.0.1-Source/CMakeLists.txt	2010-03-17 13:02:43.000000000 +0100
+@@ -53,7 +53,9 @@
+ SET(PRESET_FACTORY_SOURCES ${PRESET_FACTORY_SOURCES} ${NativePresetFactory_SOURCE_DIR})
+ SET(PRESET_FACTORY_BINARY_DIR ${PRESET_FACTORY_BINARY_DIR} ${NativePresetFactory_BINARY_DIR})
+ SET(PRESET_FACTORY_LINK_TARGETS ${PRESET_FACTORY_LINK_TARGETS} NativePresetFactory)
+-endif(NOT DISABLE_NATIVE_PRESETS)
++else (NOT DISABLE_NATIVE_PRESETS)
++ADD_DEFINITIONS(-DDISABLE_NATIVE_PRESETS)
++endif (NOT DISABLE_NATIVE_PRESETS)
+ 
+ if (NOT DISABLE_MILKDROP_PRESETS)
+ add_subdirectory(MilkdropPresetFactory)
+--- projectM-2.0.1-Source/CMakeLists.txt.orig	2010-03-17 16:03:59.000000000 +0100
++++ projectM-2.0.1-Source/CMakeLists.txt	2010-03-17 17:01:33.000000000 +0100
+@@ -60,7 +60,7 @@
+ if (NOT DISABLE_MILKDROP_PRESETS)
+ add_subdirectory(MilkdropPresetFactory)
+ SET(PRESET_FACTORY_SOURCES ${PRESET_FACTORY_SOURCES} ${MilkdropPresetFactory_SOURCE_DIR})
+-SET(PRESET_FACTORY_BINARY_DIR ${PRESET_FACTORY_BINARY_DIR} ${MilkdropPrmaesetFactory_BINARY_DIR})
++SET(PRESET_FACTORY_BINARY_DIR ${PRESET_FACTORY_BINARY_DIR} ${MilkdropPresetFactory_BINARY_DIR})
+ SET(PRESET_FACTORY_LINK_TARGETS ${PRESET_FACTORY_LINK_TARGETS} MilkdropPresetFactory)
+ endif(NOT DISABLE_MILKDROP_PRESETS)
+ 
+--- projectM-2.0.1-Source/MilkdropPresetFactory/CMakeLists.txt.orig	2009-12-06 02:42:51.000000000 +0100
++++ projectM-2.0.1-Source/MilkdropPresetFactory/CMakeLists.txt	2010-03-17 13:04:12.000000000 +0100
+@@ -5,7 +5,7 @@
+       cmake_policy(SET CMP0003 NEW)
+     endif(COMMAND cmake_policy)
+ 
+-SET(MilkdropPresetFactory_SOURCES BuiltinFuncs.cpp Func.cpp MilkdropPreset.cpp Param.hpp PresetFrameIO.cpp CustomShape.cpp  Eval.cpp MilkdropPresetFactory.cpp PerPixelEqn.cpp BuiltinParams.cpp InitCond.cpp Parser.cpp CustomWave.cpp Expr.cpp PerPointEqn.cpp Param.cpp PerFrameEqn.cpp IdlePreset.cpp)
++SET(MilkdropPresetFactory_SOURCES BuiltinFuncs.cpp Func.cpp MilkdropPreset.cpp Param.hpp PresetFrameIO.cpp CustomShape.cpp  Eval.cpp MilkdropPresetFactory.cpp PerPixelEqn.cpp BuiltinParams.cpp InitCond.cpp Parser.cpp CustomWave.cpp Expr.cpp PerPointEqn.cpp Param.cpp PerFrameEqn.cpp IdlePreset.cpp ../PresetFactory.cpp)
+ 
+ SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+ 
+--- projectM-2.0.1-Source/Renderer/Renderer.cpp.orig	2009-12-06 02:42:51.000000000 +0100
++++ projectM-2.0.1-Source/Renderer/Renderer.cpp	2010-03-18 09:05:05.000000000 +0100
+@@ -222,7 +222,7 @@
+ 	glTranslatef(-0.5, -0.5, 0);
+ 
+ 	// When console refreshes, there is a chance the preset has been changed by the user
+-	refreshConsole();
++	//refreshConsole();
+ 	draw_title_to_screen(false);
+ 	if (this->showhelp % 2)
+ 		draw_help();

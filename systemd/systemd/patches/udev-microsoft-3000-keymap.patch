@@ -1,0 +1,15 @@
+--- hwdb/60-keyboard.hwdb.orig	2013-07-21 19:43:28.000000000 -0300
++++ hwdb/60-keyboard.hwdb	2013-07-23 17:52:45.801801960 -0300
+@@ -672,6 +672,12 @@ keyboard:usb:v045Ep00DB*
+  KEYBOARD_KEY_c022d=zoomin
+  KEYBOARD_KEY_c022e=zoomout
+ 
++# Microsoft Digital Media Keyboard 3000
++keyboard:usb:v045Ep0730*
++ KEYBOARD_KEY_c01b6=images
++ KEYBOARD_KEY_c022d=zoomin
++ KEYBOARD_KEY_c022e=zoomout
++
+ ###########################################################
+ # Micro Star
+ ###########################################################

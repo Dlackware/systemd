@@ -1,0 +1,97 @@
+#%PAM-1.0
+#
+# Most of these PAM modules have man pages included, like 
+# PAM_UNIX(8) for example.
+#
+
+##################
+# Authentication #
+##################
+#
+# To set a limit on failed authentions, the tallying modules
+# can be enabled.
+#
+#auth          required        pam_tally.so deny=10 audit
+#
+auth        required      pam_env.so
+auth        sufficient    pam_unix.so likeauth nullok
+auth        required      pam_deny.so
+
+##################
+# Account checks #
+##################
+#
+# Only root can login if file /etc/nologin exists.
+# This is equivalent to NOLOGINS_FILE on login.defs
+#
+account     required      pam_nologin.so
+#
+# Enable restrictions by time, specified in /etc/security/time.conf
+# This is equivalent to PORTTIME_CHECKS_ENAB on login.defs
+#
+account     required	  pam_time.so		
+account     required      pam_unix.so
+account     sufficient    pam_succeed_if.so uid < 100 quiet
+account     required      pam_permit.so
+
+#####################
+# Password handling #
+#####################
+#
+# If you have CrackLib installed and enabled
+#
+# Passwords will be checked against a huge dictionary and needs to
+# have at least 6 characters (cracklib can't use 5). Some options
+# of cracklib modules are:
+#
+# difok		Number of characters that needs to be different 
+#		between old and new characters
+# minlen	Password minimal length
+# retry		How many times the user can try bad new passwords
+# dcredit,ocredit,ucredit,lcredit
+#		Digiti, Others, Uppercase, Lowercase characters
+#		Positive numbers marks the max number of credits given
+#		by one character class. With dcredit=5 and minlen=6, you
+#		can't use a full numeric password because more than 5
+#		digit characters doesn't count credits to achieve the
+#		minimal length
+#		Negative numbers determine that a password needs to have
+#		at least N characters
+#
+# You can see many other pam_cracklib options at pam_craclib(8) manpage
+# 
+# Also, the "use_authtok" option for pam_unix, is for working with pam_cracklib
+# in sharing the password stack. See pam_unix(8) for more details.
+#
+# If you need to use CrackLib to enforce your passwords, uncomment 
+# two statements:
+#password    requisite     pam_cracklib.so retry=3 minlen=6 \
+#			  difok=1 dcredit=5 ocredit=5 ucredit=5 lcredit=5
+#password    sufficient    pam_unix.so nullok sha512 shadow minlen=6 try_first_pass use_authtok
+#
+# --
+# A less intense option for cracklib, is:
+password    requisite     pam_cracklib.so retry=3
+password    sufficient    pam_unix.so nullok sha512 shadow minlen=6 try_first_pass use_authtok
+# --
+# The default is the "traditional" way, without CrackLib.
+# Passwords needs to have at least 5 characters. If you are using Cracklib,
+# please comment the next statement.
+#password    sufficient    pam_unix.so nullok sha512 shadow minlen=5
+
+# ATTENTION: keep the line for pam_deny.so
+password    required      pam_deny.so
+
+#########################
+# Session Configuration #
+#########################
+#
+# This applies the limits specified in /etc/security/limits.conf
+#
+session     optional      pam_keyinit.so revoke
+session     required      pam_limits.so
+-session    optional      pam_systemd.so
+session     [success=1 default=ignore] pam_succeed_if.so service in crond quiet use_uid
+session     required      pam_unix.so
+#session     required      pam_lastlog.so showfailed nowtmp
+#session     optional      pam_mail.so standard

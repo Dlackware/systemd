@@ -1,0 +1,126 @@
+#!/bin/sh
+# Copyright 2014 Bart van der Hall, Almere, NL.
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# http://web.mit.edu/kerberos/www/
+
+PKGNAM=krb5
+VERSION=${VERSION:-1.13.1}
+SVER=$(echo ${VERSION} | cut -d. -f1-2)
+BUILD=${BUILD:-2}
+TAG=${TAG:-_dlack}
+
+NUMJOBS=${NUMJOBS:-" -j7 "}
+
+wget -c http://web.mit.edu/kerberos/dist/$PKGNAM/1.13/$PKGNAM-$VERSION-signed.tar
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i486 ;;
+    arm*) export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "s390" ]; then
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+fi
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware}
+PKG=$TMP/package-${PKGNAM}
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PKGNAM-$VERSION
+rm -f $TMP/$PKGNAM-$VERSION.tar.gz{,.asc}
+tar xvf $CWD/$PKGNAM-$VERSION-signed.tar -C $TMP
+tar xvf $TMP/$PKGNAM-$VERSION.tar.gz
+cd $PKGNAM-$VERSION
+
+DOCDIR=${PKG}/usr/doc/${PKGNAM}-${VERSION}
+
+#if [ -r ${CWD}/apply-patches.sh ]; then
+#  . ${CWD}/apply-patches.sh
+#fi
+
+cd src || exit 1
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --libdir=/usr/lib$LIBDIRSUFFIX \
+  --localstatedir=/var/lib \
+  --mandir=/usr/man \
+  --with-system-et \
+  --with-system-ss \
+  --without-system-verto \
+  --enable-dns-for-realm \
+  --with-ldap \
+|| exit 1
+
+make -j4 || make || exit $?
+make install DESTDIR=${PKG} EXAMPLEDIR=/usr/doc/${PKGNAM}-${VERSION}/examples || exit $?
+
+( cd $PKG
+  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+)
+
+( cd $PKG/usr/man
+  rmdir cat?
+  rm -f man5/.*.5
+  for i in `find . -type l` ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+  gzip -9 */*.?
+)
+
+mkdir -p $PKG/etc/rc.d
+cat $CWD/rc.krb5 > $PKG/etc/rc.d/rc.krb5.new
+
+chmod 700 $PKG/var/lib/krb5kdc
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+if [ -x bin/systemctl ] ; then
+  ${CHROOT} /bin/systemctl --system daemon-reload >/dev/null 2>&1
+fi
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}

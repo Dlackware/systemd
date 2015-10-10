@@ -1,0 +1,39 @@
+From: Ludovic Fauvet <etix@videolan.org>
+Date: Mon, 8 Apr 2013 12:10:50 +0000 (+0200)
+Subject: lua http: fix two xss vulnerabilities
+X-Git-Url: http://git.videolan.org/?p=vlc%2Fvlc-2.0.git;a=commitdiff_plain;h=d8b8b9c90113cb19d592bd2d6a7e94b4ea85f610
+
+lua http: fix two xss vulnerabilities
+(cherry picked from commit bf02b8dd211d5a52aa301a9a2ff4e73ed8195881)
+
+Signed-off-by: Jean-Baptiste Kempf <jb@videolan.org>
+---
+
+diff --git a/share/lua/http/requests/vlm_cmd.xml b/share/lua/http/requests/vlm_cmd.xml
+index 2e49db3..10a9a4a 100644
+--- a/share/lua/http/requests/vlm_cmd.xml
++++ b/share/lua/http/requests/vlm_cmd.xml
+@@ -27,7 +27,7 @@
+ if _GET["command"] then
+   local msg = vlm:execute_command(_GET["command"])
+   if msg.value then
+-    print(msg.name,":",msg.value)
++    print(msg.name,":",vlc.strings.convert_xml_special_chars(msg.value))
+   end
+ else
+ ?>No command<?vlc
+diff --git a/share/lua/intf/http.lua b/share/lua/intf/http.lua
+index 9d3e7ed..ccc3b23 100644
+--- a/share/lua/intf/http.lua
++++ b/share/lua/intf/http.lua
+@@ -107,7 +107,8 @@ function callback_error(path,url,msg)
+ <title>Error loading ]]..url..[[</title>
+ </head>
+ <body>
+-<h1>Error loading ]]..url..[[</h1><pre>]]..(config.no_error_detail and "Remove configuration option `no_error_detail' on the server to get more information." or tostring(msg))..[[</pre>
++<h1>Error loading ]]..url..[[</h1><pre>]]..(config.no_error_detail and "Remove configuration option `no_error_detail' on the server to get more information."
++or vlc.strings.convert_xml_special_chars(tostring(msg)))..[[</pre>
+ <p>
+ <a href="http://www.videolan.org/">VideoLAN</a><br/>
+ <a href="http://www.lua.org/manual/5.1/">Lua 5.1 Reference Manual</a>
+
