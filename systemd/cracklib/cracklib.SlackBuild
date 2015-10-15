@@ -22,8 +22,8 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=cracklib
-VERSION=${VERSION:-2.9.1}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-2.9.6}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 # Automatically determine the architecture we're building on:
@@ -35,8 +35,8 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://sourceforge.net/projects/${PKGNAM}/files/${PKGNAM}/${VERSION}/${PKGNAM}-${VERSION}.tar.gz \
-	http://sourceforge.net/projects/cracklib/files/cracklib-words/2008-05-07/cracklib-words-20080507.gz
+wget -c https://github.com/cracklib/cracklib/releases/download/$PKGNAM-$VERSION/$PKGNAM-$VERSION.tar.gz \
+        https://github.com/cracklib/cracklib/releases/download/$PKGNAM-$VERSION/$PKGNAM-words-$VERSION.gz
 
 NUMJOBS=${NUMJOBS:--j7}
 
@@ -59,6 +59,8 @@ else
   LIBDIRSUFFIX=""
 fi
 
+DICTPATH=/usr/share/${PKGNAM}/pw_dict
+
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
@@ -72,6 +74,12 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
+
+mkdir cracklib-dicts
+install -pm0644 ${CWD}/$PKGNAM-words-$VERSION.gz cracklib-dicts/ || exit 1
+
+chmod +x util/cracklib-format
+
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
@@ -82,32 +90,50 @@ CXXFLAGS="$SLKCFLAGS" \
   --localstatedir=/var \
   --mandir=/usr/man \
   --docdir=/usr/doc/$PKGNAM-$VERSION \
+  --with-default-dict=/usr/share/cracklib/pw_dict \
   --disable-static \
   --build=$ARCH-slackware-linux
 
 make $NUMJOBS || exit 1
 make install DESTDIR=$PKG || exit 1
+make install DESTDIR=${PKG} INSTALL="install -c -p" -C python || exit 1
 
-mkdir -p $PKG/usr/share/cracklib
-## this big library of words is a judgement call. it'll add 3.3M to the source/
-## and the outcome package
-xzcat $CWD/cracklib-words-20080507.xz | gzip > words.gz
-PATH=$(pwd)/util:$PATH \
-	./util/create-cracklib-dict \
-	-o $PKG/usr/share/cracklib/pw_dict \
-	dicts/cracklib-small words.gz
-mkdir -p $PKG/var/cache/cracklib
-( cd $PKG/var/cache/cracklib
-ln -s /usr/share/cracklib/pw_dict.pwd cracklib_dict.pwd
-ln -s /usr/share/cracklib/pw_dict.pwi cracklib_dict.pwi
-)
+./util/cracklib-format cracklib-dicts/* | \
+./util/cracklib-packer ${PKG}/${DICTPATH}
+./util/cracklib-format ${PKG}/usr/share/${PKGNAM}/cracklib-small | \
+./util/cracklib-packer ${PKG}/usr/share/${PKGNAM}/cracklib-small
+rm -f ${PKG}/usr/share/${PKGNAM}/cracklib-small
+sed s,/usr/lib/cracklib_dict,${DICTPATH},g lib/crack.h \
+  > ${PKG}/usr/include/crack.h
+mkdir -p ${PKG}/usr/sbin
+ln -s cracklib-format ${PKG}/usr/sbin/mkdict
+ln -s cracklib-packer ${PKG}/usr/sbin/packer
 
-( cd $PKG
-  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | \
-    xargs strip --strip-unneeded 2> /dev/null || true
-  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | \
-    xargs strip --strip-unneeded 2> /dev/null
-)
+toprelpath=..
+touch ${PKG}/top
+while ! test -f ${PKG}/usr/lib${LIBDIRSUFFIX}/${toprelpath}/top ; do
+  toprelpath=../${toprelpath}
+done
+rm -f ${PKG}/top
+if test ${DICTPATH} != ${PKG}/usr/lib${LIBDIRSUFFIX}/cracklib_dict ; then
+  ln -s ${toprelpath}${DICTPATH}.hwm ${PKG}/usr/lib${LIBDIRSUFFIX}/cracklib_dict.hwm
+  ln -s ${toprelpath}${DICTPATH}.pwd ${PKG}/usr/lib${LIBDIRSUFFIX}/cracklib_dict.pwd
+  ln -s ${toprelpath}${DICTPATH}.pwi ${PKG}/usr/lib${LIBDIRSUFFIX}/cracklib_dict.pwi
+fi
+rm -f ${PKG}/usr/lib${LIBDIRSUFFIX}/python*/site-packages/_cracklibmodule.*a
+rm -f ${PKG}/usr/lib${LIBDIRSUFFIX}/libcrack.la
+
+find ${PKG} | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+mkdir -p ${PKG}/lib${LIBDIRSUFFIX}
+
+for libname in libcrack ;do
+  mv ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so.* ${PKG}/lib${LIBDIRSUFFIX}/ || exit 1
+  reldir=$(perl -e 'use File::Spec; print File::Spec->abs2rel($ARGV[0], $ARGV[1])' /lib${LIBDIRSUFFIX} /usr/lib${LIBDIRSUFFIX})
+  oldlink=$(readlink ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so)
+  ln -sf ${reldir}/$(basename ${oldlink}) ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so || exit 1
+done
 
 mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
 cp -a \

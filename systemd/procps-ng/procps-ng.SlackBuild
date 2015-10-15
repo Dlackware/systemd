@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PKGNAM=procps
+PKGNAM=procps-ng
 VERSION=${VERSION:-3.3.10}
 PSMISCVER=${PSMISCVER:-22.21}
 PROCINFONGVER=${PROCINFONGVER:-2.0.304}
 PROCINFOVER=${PROCINFOVER:-18}
-BUILD=${BUILD:-3}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:--j7}
@@ -44,10 +44,10 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://prdownloads.sourceforge.net/procps-ng/procps-ng-$VERSION.tar.xz
-wget -c ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-18.tar.xz
-wget -c ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-ng-2.0.304.tar.xz
-wget -c ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/psmisc-22.21.tar.xz
+wget -c http://prdownloads.sourceforge.net/$PKGNAM/$PKGNAM-$VERSION.tar.xz \
+        ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-18.tar.xz \
+        ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-ng-2.0.304.tar.xz \
+        ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/psmisc-22.21.tar.xz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -79,9 +79,9 @@ esac
 rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf procps-ng-$VERSION
-tar xvf $CWD/procps-ng-$VERSION.tar.?z*
-cd procps-ng-$VERSION || exit 1
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
+cd $PKGNAM-$VERSION || exit 1
 tar xvf $CWD/psmisc-$PSMISCVER.tar.xz || exit 1
 tar xvf $CWD/procinfo-ng-$PROCINFONGVER.tar.xz || exit 1
 tar xvf $CWD/procinfo-$PROCINFOVER.tar.xz || exit 1
@@ -161,7 +161,7 @@ mv $PKG/usr/bin/pidof $PKG/sbin/pidof
 cd psmisc-$PSMISCVER || exit 1
 
 # Fix fuser -s:
-zcat $CWD/patches/psmisc.3638cc55b4d08851faba46635d737b24d016665b.diff.gz | patch -p1 --verbose || exit 1
+cat $CWD/patches/psmisc.diff | patch -p1 --verbose || exit 1
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \

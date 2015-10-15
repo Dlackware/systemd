@@ -1,5 +1,5 @@
 PKGNAM="pam"
-VERSION="1.1.8"
+VERSION="1.2.1"
 HOMEPAGE="http://www.linux-pam.org/"
-DOWNLOAD="https://fedorahosted.org/releases/l/i/linux-pam/Linux-PAM-1.1.8.tar.bz2"
-MD5SUM="35b6091af95981b1b2cd60d813b5e4ee"
+DOWNLOAD="http://linux-pam.org/library/Linux-PAM-1.2.1.tar.bz2"
+MD5SUM="9dc53067556d2dd567808fd509519dd6"

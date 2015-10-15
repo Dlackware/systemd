@@ -1,7 +1,7 @@
 PKGNAM="cracklib"
-VERSION="2.9.1"
-HOMEPAGE="https://sourceforge.net/projects/cracklib/"
-DOWNLOAD="http://sourceforge.net/projects/cracklib/files/cracklib/2.9.1/cracklib-2.9.1.tar.gz \
-          http://sourceforge.net/projects/cracklib/files/cracklib-words/2008-05-07/cracklib-words-20080507.gz"
-MD5SUM="90536219c520add2ceb3c26f0d7da404 \
-        7fa6ba0cd50e7f9ccaf4707c810b14f1"
+VERSION="2.9.6"
+HOMEPAGE="http://github.com/cracklib/"
+DOWNLOAD="https://github.com/cracklib/cracklib/releases/download/cracklib-2.9.6/cracklib-2.9.6.tar.gz \
+          https://github.com/cracklib/cracklib/releases/download/cracklib-2.9.6/cracklib-words-2.9.6.gz"
+MD5SUM="c52f463585d85924b28cdc1e373ae06d \
+        cae1257e3a9f95c917cc9dbbab852316"

@@ -24,8 +24,8 @@
 
 SRCNAM=Linux-PAM
 PKGNAM=pam
-VERSION=${VERSION:-1.1.8}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-1.2.1}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 if [ -z "$ARCH" ]; then
@@ -36,10 +36,10 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c https://fedorahosted.org/releases/l/i/linux-pam/${SRCNAM}-${VERSION}.tar.bz2
+wget -c http://linux-pam.org/library/${SRCNAM}-${VERSION}.tar.bz2
 wget -c https://fedorahosted.org/releases/p/a/pam-redhat/pam-redhat-0.99.11.tar.bz2
 
-NUMJOBS=${NUMJOBS:--j7}
+NUMJOBS=${NUMJOBS:--j1}
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -75,28 +75,25 @@ tar xvf $CWD/pam-redhat-0.99.11.tar.bz2 || exit 1
 mv pam-redhat-0.99.11/{CHANGELOG*,COPYING*,README*} .
 mv pam-redhat-0.99.11/* modules
 
-# Throw away the modules that we're simply not interested in.
-for filename in tally2 selinux sepermit tty_audit; do
-	rm -rf modules/pam_$filename
-done
-
-zcat $CWD/patches/pam-1.1.x-edit-modules.patch.gz | patch -p1 --verbose || exit 1
-
-# Churn some patches from .am -> .in:
-autoreconf -ivf
-
-## Make these 2 man pages or the build falls over later on:
-#( cd modules/pam_faillock
-#  xmlto man faillock.8.xml
-#  xmlto man pam_faillock.8.xml
-#)
-
 chown -R root:root .
 find . \
  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
  -exec chmod 755 {} \; -o \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
+
+unset SB_AUTOGEN
+if [ -r ${CWD}/apply-patches.sh ]; then
+  . ${CWD}/apply-patches.sh
+fi
+
+sed -i -e 's|/lib /usr/lib|/lib /usr/lib /lib64 /usr/lib64|g' m4/libtool.m4
+
+if [ "${SBO_AUTOGEN}" = "YES" ] ;then
+  autoreconf -ivf || exit $?
+fi
+
+autoreconf -ivf
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
@@ -106,19 +103,26 @@ CXXFLAGS="$SLKCFLAGS" \
   --sysconfdir=/etc \
   --includedir=/usr/include/security \
   --datarootdir=/usr/share \
-  --localstatedir=/var \
+  --localstatedir=/var/lib \
   --enable-securedir=/lib/security \
   --mandir=/usr/man \
   --docdir=/usr/doc/$PKGNAM-$VERSION \
   --enable-read-both-confs \
   --disable-prelude \
+  --disable-dependency-tracking \
   --disable-audit \
   --disable-nis \
   --disable-selinux \
   --build=$ARCH-slackware-linux || exit 1
 
 make $NUMJOBS || make || exit 1
-make install DESTDIR=$PKG || exit 1
+
+mkdir -p doc/txts
+for readme in modules/pam_*/README ; do
+  cp -f ${readme} doc/txts/README.$(dirname ${readme} | sed -e 's|^modules/||')
+done
+
+make install DESTDIR=$PKG LDCONFIG=: || exit 1
 
 # this is a pam helper, that can only be called from pam
 chmod g+s $PKG/sbin/unix_chkpwd

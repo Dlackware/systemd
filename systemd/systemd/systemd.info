@@ -1,5 +1,5 @@
 PKGNAM="systemd"
-VERSION="218"
+VERSION="219"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd/"
-DOWNLOAD="http://www.freedesktop.org/software/systemd/systemd-218.tar.xz"
-MD5SUM=""
+DOWNLOAD="http://www.freedesktop.org/software/systemd/systemd-219.tar.xz"
+MD5SUM="e0d6c9a4b4f69f66932d2230298c9a34"
