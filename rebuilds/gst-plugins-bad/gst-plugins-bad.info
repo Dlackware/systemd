@@ -1,5 +1,5 @@
 PKGNAM="gst-plugins-bad"
-VERSION="1.4.4"
+VERSION="1.4.5"
 HOMEPAGE="http://gstreamer.freedesktop.org/modules/gst-plugins-bad.html"
-DOWNLOAD="http://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.4.4.tar.xz"
-MD5SUM="972c6e22dd2e44fcf0b04b9d810a56be"
+DOWNLOAD="http://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.4.5.tar.xz"
+MD5SUM="e0bb39412cf4a48fe0397bcf3a7cd451"

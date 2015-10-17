@@ -1,6 +1,6 @@
-zcat $CWD/patch/xorg-server/x11.startwithblackscreen.diff.gz | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
-zcat $CWD/patch/xorg-server/0001-dix-Add-unaccelerated-valuators-to-the-ValuatorMask.patch.gz | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
-zcat $CWD/patch/xorg-server/0002-dix-hook-up-the-unaccelerated-valuator-masks.patch.gz | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
-zcat $CWD/patch/xorg-server/0001-glamor-make-current-in-prepare-paths.patch.gz | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
-zcat $CWD/patch/xorg-server/0001-os-make-sure-the-clientsWritable-fd_set-is-initializ.patch.gz | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
-zcat $CWD/patch/xorg-server/xserver-1.7.0-systemd209.patch.gz | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+cat $CWD/patch/xorg-server/x11.startwithblackscreen.diff | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+cat $CWD/patch/xorg-server/0001-dix-Add-unaccelerated-valuators-to-the-ValuatorMask.patch | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+cat $CWD/patch/xorg-server/0002-dix-hook-up-the-unaccelerated-valuator-masks.patch | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+cat $CWD/patch/xorg-server/0001-glamor-make-current-in-prepare-paths.patch | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+cat $CWD/patch/xorg-server/0001-os-make-sure-the-clientsWritable-fd_set-is-initializ.patch | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+cat $CWD/patch/xorg-server/xserver-1.7.0-systemd209.patch | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }

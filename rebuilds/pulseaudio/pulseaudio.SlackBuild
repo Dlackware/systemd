@@ -74,10 +74,6 @@ find . \
 bash_completion_dir=/usr/share/bash-completion/completions
 zsh_completion_dir=/usr/share/zsh/site-functions
 
-#patch -p0 --verbose <$CWD/pulseaudio-4.99.4-systemd209.patch || exit 1
-#patch -p1 --verbose <$CWD/pulseaudio-4.0-kde_autostart_phase.patch || exit 1
-#patch -p1 --verbose <$CWD/pulseaudio-x11_device_manager.patch || exit 1
-
 # seds adapted from Arch
 sed -e '/exit-idle-time/iexit-idle-time=1' \
   -i src/daemon/daemon.conf.in || exit 1
@@ -116,6 +112,7 @@ CXXFLAGS="${SLKCFLAGS}" \
   --disable-static \
   --disable-rpath \
   --disable-silent-rules \
+  --with-systemduserunitdir=/lib/systemd/user \
   --with-system-user=pulse \
   --with-system-group=pulse \
   --with-access-group=pulse-access \
@@ -138,6 +135,7 @@ make doxygen || exit 1
 make install DESTDIR=${PKG} bashcompletiondir=${bash_completion_dir} || exit $?
 
 rm -f ${PKG}/usr/lib*/*.la ${PKG}/usr/lib*/*/*.la ${PKG}/usr/lib*/pulse-*/modules/*.la
+
 # configure --disable-static had no effect; delete manually.
 rm -f ${PKG}/usr/lib*/*.a ${PKG}/usr/lib*/*/*.a ${PKG}/usr/lib*/pulse-*/modules/*.a
 chmod 0755 ${PKG}/usr/bin/pulseaudio

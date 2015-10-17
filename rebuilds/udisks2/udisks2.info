@@ -1,5 +1,5 @@
 PKGNAM="udisks2"
-VERSION="2.1.3"
+VERSION="2.1.5"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/udisks"
-DOWNLOAD="http://udisks.freedesktop.org/releases/udisks-2.1.3.tar.bz2"
-MD5SUM="f2c793f839058371d1e93a654199438d"
+DOWNLOAD="http://udisks.freedesktop.org/releases/udisks-2.1.5.tar.bz2"
+MD5SUM="73632501002e6de8244f831e38b2b98e"

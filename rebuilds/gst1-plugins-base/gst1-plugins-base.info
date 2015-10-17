@@ -1,5 +1,0 @@
-PKGNAM="gst1-plugins-base"
-VERSION="1.4.3"
-HOMEPAGE="http://gstreamer.freedesktop.org/modules/gst-plugins-base.html"
-DOWNLOAD="http://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.4.3.tar.xz"
-MD5SUM="d8facf3be279585f3ad2e764540376f7"

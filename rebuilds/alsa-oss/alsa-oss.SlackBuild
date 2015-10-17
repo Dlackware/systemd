@@ -36,7 +36,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c wget -c ftp://ftp.alsa-project.org/pub/oss-lib/$PKGNAM-$VERSION.tar.bz2
+wget -c ftp://ftp.alsa-project.org/pub/oss-lib/$PKGNAM-$VERSION.tar.bz2
 
 NUMJOBS=${NUMJOBS:-" -j7 "}
 

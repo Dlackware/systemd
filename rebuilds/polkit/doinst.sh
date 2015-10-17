@@ -57,8 +57,6 @@ fi
 chown polkitd.root /etc/polkit-1/rules.d
 chown polkitd.root /usr/share/polkit-1/rules.d
 
-# chmod 755 /usr/share/polkit-1/rules.d
-
 if [ -x bin/systemctl ] ; then
   /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi

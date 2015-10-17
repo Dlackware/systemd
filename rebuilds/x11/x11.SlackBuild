@@ -80,10 +80,12 @@ else
   LIBDIRSUFFIX=""
 fi
 
+mkdir -p $CWD/src/xserver
 cd $CWD/src/xserver/
 
 wget -c http://ftp.x.org/pub/individual/xserver/xorg-server-1.17.2.tar.bz2
 
+cd $CWD
 # Set up a few useful functions:
 
 fix_perms() {

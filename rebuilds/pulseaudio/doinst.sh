@@ -84,6 +84,9 @@ ${CHROOT} /bin/chown pulse.pulse /var/run/pulse
 ${CHROOT} /bin/chown pulse.pulse /var/lib/pulse
 ${CHROOT} /bin/chmod 0700 /var/lib/pulse
 
+# Create a symlink for the missing dbus-bluez.org.service
+ln -sf usr/share/dbus-1/system-services/org.bluez.service usr/share/dbus-1/system-services/dbus-org.bluez.service
+
 config() {
   NEW="$1"
   OLD="$(dirname $NEW)/$(basename $NEW .new)"

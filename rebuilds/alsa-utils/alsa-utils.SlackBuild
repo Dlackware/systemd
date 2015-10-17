@@ -75,18 +75,74 @@ find . \
   \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
   -exec chmod 644 {} \;
 
-CFLAGS="$SLKCFLAGS" \
+patch -p0 -E --backup --verbose -i ${CWD}/$PKGNAM-1.0.28-alsaconf.patch
+
+sed -i \
+  -e '/^ExecStart=/s|restore|-E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main \0|g' \
+  alsactl/alsa-restore.service.in || exit 1
+sed -i \
+  -e '/^ExecStart=/s|rdaemon|-E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main \0|g' \
+  -e '/ExecStop=/s| rkill| kill|g' \
+  alsactl/alsa-state.service.in || exit
+sed -i \
+  -e '/^ExecStart=/s|store|-E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf \0|g' \
+  alsactl/alsa-store.service.in || exit 1
+
+CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
+CXXFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
 ./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --mandir=/usr/man \
+  --sbindir=/sbin \
   --sysconfdir=/etc \
-  --disable-alsaconf \
+  --localstatedir=/var/lib \
+  --infodir=/usr/info \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --build=$ARCH-slackware-linux
 
 make $NUMJOBS || make || exit 1
 make install DESTDIR=$PKG
+
+mkdir -p ${PKG}/etc/rc.d
+install -pm0755 ${CWD}/rc.alsa \
+  ${PKG}/etc/rc.d/rc.alsa || exit 1
+
+mkdir -p ${PKG}/etc/default
+cat > ${PKG}/etc/default/alsa.new <<'EOF'
+# /etc/rc.d/rc.alsa options
+# Set to YES to enable loading of alsa oss modules.
+ALSA_OSS=NO
+EOF
+
+mkdir -p ${PKG}/usr/sbin
+ln -s ../../sbin/alsactl ${PKG}/usr/sbin/alsactl || exit 1
+
+mkdir -p ${PKG}/etc/alsa
+cat ${CWD}/alsactl.conf > ${PKG}/etc/alsa/alsactl.conf.new || exit 1
+
+# Install support utilities
+mkdir -p ${PKG}/bin
+cat ${CWD}/alsaunmute > ${PKG}/bin/alsaunmute || exit 1
+chmod 0755 ${PKG}/bin/alsaunmute
+
+# Move /usr/share/alsa/init to /lib/alsa/init
+mkdir -p -m 755 ${PKG}/lib/alsa
+mv ${PKG}/usr/share/alsa/init ${PKG}/lib/alsa/ || exit 1
+
+# Link /lib/alsa/init to /usr/share/alsa/init back
+ln -s ../../../lib/alsa/init ${PKG}/usr/share/alsa/init
+
+mkdir -p ${PKG}/lib/udev/rules.d
+cat > ${PKG}/lib/udev/rules.d/90-alsa-restore.rules <<'EOF'
+ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", KERNELS!="card*", GOTO="alsa_restore_go"
+GOTO="alsa_restore_end"
+LABEL="alsa_restore_go"
+TEST!="/etc/alsa/state-daemon.conf", RUN+="/sbin/alsactl -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main restore /dev/$name"
+TEST=="/etc/alsa/state-daemon.conf", RUN+="/sbin/alsactl -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main nrestore /dev/$name"
+LABEL="alsa_restore_end"
+
+EOF
 
 find $PKG | xargs file | grep -e "executable" -e "shared object" \
   | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null

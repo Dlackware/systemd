@@ -1,5 +1,0 @@
-PKGNAM="gstreamer1"
-VERSION="1.4.3"
-HOMEPAGE="http://gstreamer.freedesktop.org/"
-DOWNLOAD="http://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.4.3.tar.xz"
-MD5SUM="7934fd965bbe1398f0ff1edeb7f1fd89"
