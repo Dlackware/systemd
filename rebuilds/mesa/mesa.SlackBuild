@@ -93,7 +93,7 @@ fi
 
 # Don't worry if Mako is not present:
 #sed -i "s,AX_CHECK_PYTHON_MAKO_MODULE(\$PYTHON_MAKO_REQUIRED),,g" configure.ac
-cat $CWD/mesa.no.mako.diff.gz | patch -p1 --verbose || exit 1
+cat $CWD/mesa.no.mako.diffz | patch -p1 --verbose || exit 1
 
 # Seems to need this to avoid tripping over a different libtool version:
 autoreconf -fi
