@@ -1,12 +1,13 @@
 ### [systemd-min] begin
-bash-completion
-python3
-lxml
-krb5
-cracklib
-pam
-libpwquality
-shadow
+#bash-completion
+#python3
+#lxml
+#krb5
+#cracklib
+#pam
+#libpwquality
+#shadow
+#libxkbcommon
 #### If you are updating you can use just systemd here
 udev%systemd
 #systemd

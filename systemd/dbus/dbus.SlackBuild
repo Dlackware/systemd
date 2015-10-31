@@ -23,7 +23,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=dbus
-VERSION=${VERSION:-1.8.20}
+VERSION=${VERSION:-1.10.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -90,12 +90,13 @@ CXXFLAGS="$SLKCFLAGS" \
   --enable-static=no \
   --enable-inotify \
   --enable-x11-autolaunch \
-  --with-system-pid-file=/var/run/dbus/dbus.pid \
-  --with-system-socket=/var/run/dbus/system_bus_socket \
-  --with-console-auth-dir=/var/run/console \
+  --with-system-pid-file=/run/dbus/dbus.pid \
+  --with-system-socket=/run/dbus/system_bus_socket \
+  --with-console-auth-dir=/run/console \
   --with-session-socket-dir=/tmp \
   --with-init-scripts=slackware \
   --enable-systemd \
+  --enable-user-session \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --build=$ARCH-slackware-linux
 
