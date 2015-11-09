@@ -1,5 +1,5 @@
 PKGNAM="gucharmap"
-VERSION="3.16.2"
+VERSION="3.18.1"
 HOMEPAGE="http://www.gnome.org/"
-DOWNLOAD="http://download.gnome.org/sources/gucharmap/3.16/gucharmap-3.16.2.tar.xz"
-MD5SUM="54d58a61c8c22e6ecf5bb33793272f47"
+DOWNLOAD="http://download.gnome.org/sources/gucharmap/3.18/gucharmap-3.18.1.tar.xz"
+MD5SUM=""
