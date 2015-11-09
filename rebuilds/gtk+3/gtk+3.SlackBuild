@@ -22,11 +22,11 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=gtk+3
-VERSION=${VERSION:-3.16.7}
+VERSION=${VERSION:-3.18.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
-wget -c http://download.gnome.org/sources/gtk+/3.16/gtk+-$VERSION.tar.xz
+wget -c http://download.gnome.org/sources/gtk+/3.18/gtk+-$VERSION.tar.xz
 
 NUMJOBS=${NUMJOBS:-" -j7 "}
 
