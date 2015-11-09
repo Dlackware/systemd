@@ -1,0 +1,5 @@
+PKGNAM="glib-networking"
+VERSION="2.46.1"
+HOMEPAGE="http://www.gnome.org/"
+DOWNLOAD="http://download.gnome.org/sources/glib-networking/2.46/glib-networking-2.46.1.tar.xz"
+MD5SUM="c000e0b579f5d8fd48efebc7ac4d95dc"
