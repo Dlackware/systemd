@@ -1,5 +1,5 @@
 PKGNAM="gnome-keyring"
-VERSION="3.16.0"
+VERSION="3.18.3"
 HOMEPAGE="https://wiki.gnome.org/Projects/GnomeKeyring"
-DOWNLOAD="http://download.gnome.org/sources/gnome-keyring/3.16/gnome-keyring-3.16.0.tar.xz"
-MD5SUM="d105927a8dd1791552882744b62351bd"
+DOWNLOAD="http://download.gnome.org/sources/gnome-keyring/3.18/gnome-keyring-3.18.3.tar.xz"
+MD5SUM=""
