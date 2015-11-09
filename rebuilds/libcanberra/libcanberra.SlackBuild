@@ -79,8 +79,8 @@ find . \
  -exec chmod 644 {} \;
 
 
-CFLAGS="$SLKCFLAGS" \
-CXXFLAGS="$SLKCFLAGS" \
+CFLAGS="$SLKCFLAGS -I/usr/include/samba-4.0" \
+CXXFLAGS="$SLKCFLAGS -I/usr/include/samba-4.0" \
 ./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
@@ -94,13 +94,9 @@ CXXFLAGS="$SLKCFLAGS" \
   --enable-alsa \
   --enable-null \
   --enable-pulse \
-  --disable-tdb \
   --with-builtin=dso \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --build=$ARCH-slackware-linux || exit 1
-
-#sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool || exit 1
-#sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool || exit 1
 
 make $NUMJOBS || make || exit 1
 export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
