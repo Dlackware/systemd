@@ -83,7 +83,7 @@ fi
 mkdir -p $CWD/src/xserver
 cd $CWD/src/xserver/
 
-wget -c http://ftp.x.org/pub/individual/xserver/xorg-server-1.17.3.tar.bz2
+wget -c http://ftp.x.org/pub/individual/xserver/xorg-server-1.18.0.tar.bz2
 
 cd $CWD
 # Set up a few useful functions:

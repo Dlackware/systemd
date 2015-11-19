@@ -1,5 +1,5 @@
 PKGNAM="mesa"
-VERSION="11.0.4"
+VERSION="11.0.5"
 HOMEPAGE="http://www.mesa3d.org/"
-DOWNLOAD="ftp://ftp.freedesktop.org/pub/mesa/11.0.4/MesaLib-11.0.4.tar.bz2"
-MD5SUM=""
+DOWNLOAD="ftp://ftp.freedesktop.org/pub/mesa/11.0.5/mesa-11.0.5.tar.xz"
+MD5SUM="b71b5e6c437cd8c85a61a476ab840f9f"

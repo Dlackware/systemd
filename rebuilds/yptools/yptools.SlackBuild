@@ -27,12 +27,12 @@ BUILD=${BUILD:-4}
 
 YPTOOLS=$VERSION
 YPBINDMT=1.38
-#YPMAKE=0.11
 YPSERV=2.32.1
+#YPMAKE=0.11
 
 wget -c http://www.linux-nis.org/download/yp-tools/yp-tools-$VERSION.tar.bz2
 wget -c http://www.linux-nis.org/download/ypbind-mt/ypbind-mt-$YPBINDMT.tar.bz2
-wget -c http://www.linux-nis.org/download/ypserv/ypserv-$YPSVER.tar.bz2
+wget -c http://www.linux-nis.org/download/ypserv/ypserv-$YPSERV.tar.bz2
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
