@@ -1,5 +1,5 @@
 PKGNAM="procps"
-VERSION="3.3.10"
+VERSION="3.3.11"
 HOMEPAGE="https://sourceforge.net/projects/procps-ng/"
-DOWNLOAD="http://prdownloads.sourceforge.net/procps-ng/procps-ng-3.3.10.tar.xz"
-MD5SUM="1fb7f3f6bf92ce6c5c9ed9949ae858fe"
+DOWNLOAD="http://prdownloads.sourceforge.net/procps-ng/procps-ng-3.3.11.tar.xz"
+MD5SUM="6cc5b94c1c5b8cbc89ad345a7b522f74"

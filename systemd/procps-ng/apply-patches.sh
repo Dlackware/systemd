@@ -8,7 +8,7 @@ DLACK_PATCHDIR=${CWD}/patches
 # This is how previous versions of 'w' in Slackware have always
 # defaulted.
 patch -p1 -E --backup --verbose -i ${DLACK_PATCHDIR}/procps.w.showfrom.diff 
-patch -p0 -E --backup --verbose -i ${DLACK_PATCHDIR}/procps-3.3.9-systemd209.patch
+#patch -p0 -E --backup --verbose -i ${DLACK_PATCHDIR}/procps-3.3.9-systemd209.patch
 
 # Set to YES if autogen is needed
 DLACK_AUTOGEN=YES

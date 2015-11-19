@@ -1,12 +1,12 @@
 PKGNAM="util-linux"
-VERSION="2.26.2"
+VERSION="2.27.1"
 HOMEPAGE="http://kernel.org/~kzak/util-linux/"
-DOWNLOAD="http://www.kernel.org/pub/linux/utils/util-linux/v2.25/util-linux-2.26.2.tar.xz \
+DOWNLOAD="http://www.kernel.org/pub/linux/utils/util-linux/v2.27/util-linux-2.27.1.tar.xz \
           ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/adjtimex_1.29.orig.tar.gz \
           ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/bsdstrings.tar.gz \
           ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/setserial-2.17.tar.gz \
           ftp://ftp.slackware.com/pub/slackware/slackware-14.1/source/a/util-linux/ziptool-1.4.0.tar.xz"
-MD5SUM="9bdf368c395f1b70325d0eb22c7f48fb \
+MD5SUM="3cd2698d1363a2c64091c2dadc974647 \
         7ff7731baf829fdf6ad9af963a526cda \
         fbb97d7b9b94ac8b3e5fb36dd794a28d \
         c4867d72c41564318e0107745eb7a0f2 \

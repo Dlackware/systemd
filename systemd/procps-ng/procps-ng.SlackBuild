@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=procps-ng
-VERSION=${VERSION:-3.3.10}
+VERSION=${VERSION:-3.3.11}
 PSMISCVER=${PSMISCVER:-22.21}
 PROCINFONGVER=${PROCINFONGVER:-2.0.304}
 PROCINFOVER=${PROCINFOVER:-18}
@@ -119,6 +119,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
   --enable-static=no \
   --disable-silent-rules \
+  --disable-modern-top \
   --disable-rpath \
   --enable-watch8bit \
   --enable-skill \

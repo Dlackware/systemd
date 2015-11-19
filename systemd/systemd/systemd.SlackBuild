@@ -27,8 +27,8 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-219}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-228}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -46,7 +46,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://www.freedesktop.org/software/${PKGNAM}/${PKGNAM}-${VERSION}.tar.xz
+wget -c https://github.com/systemd/systemd/archive/v${VERSION}.tar.gz
 
 NUMJOBS=${NUMJOBS:--j7}
 
@@ -75,7 +75,7 @@ rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
+tar xvf $CWD/v$VERSION.tar.?z*
 cd $PKGNAM-$VERSION
 chown -R root:root .
 find . \
@@ -115,8 +115,7 @@ sed -i -e '/udevadm/s|@rootbindir@|/sbin|g' \
 # Slackware file is upper case
 sed -i -e 's|/etc/hostname|/etc/HOSTNAME|g' \
   src/hostname/hostnamed.c src/core/hostname-setup.c \
-  man/{hostname,machine-info}.{5,html,xml} man/hostnamectl.{1,html,xml} \
-  man/systemd.directives.{7,html,xml} || exit 1
+  man/{hostname,machine-info}.xml man/hostnamectl.xml || exit 1
 
 # This should be multilib aware...
 sed -i -e "/locale/s|/lib/|/lib${LIBDIRSUFFIX}/|g" \
@@ -133,6 +132,8 @@ fi
 
 export PYTHON=python3
 
+intltoolize
+
 CFLAGS="${SLKCFLAGS} -fno-lto"
 CXXFLAGS="${SLKCFLAGS}" \
 ./configure \
@@ -148,11 +149,9 @@ CXXFLAGS="${SLKCFLAGS}" \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
   --disable-dependency-tracking \
   --enable-kmod \
-  --disable-chkconfig \
-  --enable-python-devel \
   --enable-xz \
   --enable-networkd \
-  --enable-resolvd \
+  --enable-resolved \
   --enable-vconsole \
   --enable-tmpfiles \
   --enable-rfkill \
@@ -170,11 +169,10 @@ CXXFLAGS="${SLKCFLAGS}" \
   --enable-pam \
   --disable-audit \
   --disable-selinux \
-  --disable-kdbus \
+  --enable-kdbus \
   --with-sysvinit-path="" \
   --with-sysvrcnd-path="" \
   --with-dbuspolicydir=/etc/dbus-1/system.d \
-  --with-dbusinterfacedir=/usr/share/dbus-1/interfaces \
   --with-dbussessionservicedir=/usr/share/dbus-1/services \
   --with-dbussystemservicedir=/usr/share/dbus-1/system-services \
   --with-pamlibdir=/lib/security \

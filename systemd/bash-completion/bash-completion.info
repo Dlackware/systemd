@@ -1,5 +1,0 @@
-PKGNAM="bash-completion"
-VERSION="2.1"
-HOMEPAGE="http://bash-completion.alioth.debian.org/"
-DOWNLOAD="ftp://ftp.slackware.com/pub/slackware/slackware64-current/extra/source/bash-completion/bash-completion-2.1.tar.bz2"
-MD5SUM="4e2a9f11a4042a38ee79ddcd048e8b9e"

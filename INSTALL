@@ -1,0 +1,20 @@
+# Revision 14.2 - pre-beta (19 nov 2015)
+#
+# The below instructions are recommended by the devs to
+# build gnome with systemd from source on Slackware
+#
+# 1. Install bash-completion from extra
+#
+# root@:~# slackpkg install bash-completion
+#
+# 2. The newest systemd requires util-linux 2.27.x for libmount
+#    So lets update util-linux first with the slackbuild from slackware
+#
+# root@:~# lftp -c "mirror ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux"
+#
+# Now download util-linux-2.27.1 and delete the sources of 2.26
+# You will need to add these CFLAGS "-lreadline -lncurses" to compile succesfully
+#
+# 3. Now we can actually start with compiling the packages for pam and systemd.
+#
+#
