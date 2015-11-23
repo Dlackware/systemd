@@ -8,7 +8,7 @@ libpwquality
 shadow
 libxkbcommon
 #### If you are updating you can use just systemd here
-#udev%systemd
+#eudev%systemd
 systemd
 dbus
 util-linux
