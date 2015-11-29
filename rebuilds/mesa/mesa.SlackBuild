@@ -22,7 +22,7 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=mesa
-VERSION=${VERSION:-11.0.5}
+VERSION=${VERSION:-11.0.6}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -94,6 +94,9 @@ fi
 # Don't worry if Mako is not present:
 #sed -i "s,AX_CHECK_PYTHON_MAKO_MODULE(\$PYTHON_MAKO_REQUIRED),,g" configure.ac
 cat $CWD/mesa.no.mako.diff | patch -p1 --verbose || exit 1
+
+# Fix detection of libLLVM when built with CMake
+sed -i 's/LLVM_SO_NAME=.*/LLVM_SO_NAME=LLVM/' configure.ac
 
 # Seems to need this to avoid tripping over a different libtool version:
 autoreconf -fi
