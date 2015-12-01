@@ -24,7 +24,7 @@
 
 PKGNAM=util-linux
 VERSION=${VERSION:-2.27.1}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 ADJTIMEXVERS=1.29
@@ -99,16 +99,18 @@ fi
 
 sed -i -e 's|${prefix}/${localstatedir}|${localstatedir}|g' configure || exit 1
 
-CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -lreadline -lncurses" \
+CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64" \
 ./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
-  --localstatedir=/run \
+  --sbindir=/sbin \
+  --localstatedir=/var \
   --mandir=/usr/man \
   --infodir=/usr/info \
   --docdir=/usr/doc/util-linux-$VERSION \
   --disable-static \
+  --without-readline \
   --enable-agetty \
   --disable-eject \
   --enable-kill \
@@ -121,6 +123,8 @@ CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BI
   --enable-reset \
   --disable-login \
   --disable-sulogin \
+  --disable-nologin \
+  --disable-su \
   --enable-schedutils \
   --enable-wall \
   --enable-write \
@@ -140,37 +144,11 @@ make install DESTDIR=$PKG || make install DESTDIR=$PKG
 # Remove all overlap with the shadow package, since --disable-login doesn't quite do that:
 rm $PKG/sbin/nologin $PKG/usr/man/man8/nologin.8 $PKG/sbin/sulogin $PKG/usr/man/man8/sulogin.8
 
-# Move the libblkid, libfdisk, libmount, libsmartcols, and
-# libuuid libraries to /lib${LIBSUFFIX}:
-mkdir -p $PKG/lib${LIBDIRSUFFIX}
-( cd $PKG/usr/lib${LIBDIRSUFFIX}
-  mv libblkid.so.1* $PKG/lib${LIBDIRSUFFIX}
-  mv libfdisk.so.1* $PKG/lib${LIBDIRSUFFIX}
-  mv libmount.so.1* $PKG/lib${LIBDIRSUFFIX}
-  mv libsmartcols.so.1* $PKG/lib${LIBDIRSUFFIX}
-  mv libuuid.so.1* $PKG/lib${LIBDIRSUFFIX}
-  rm -f libblkid.so libfdisk.so libmount.so libsmartcols.so libuuid.so
-  ln -sf ../../lib${LIBDIRSUFFIX}/libblkid.so.1 libblkid.so
-  ln -sf ../../lib${LIBDIRSUFFIX}/libfdisk.so.1 libfdisk.so
-  ln -sf ../../lib${LIBDIRSUFFIX}/libmount.so.1 libmount.so
-  ln -sf ../../lib${LIBDIRSUFFIX}/libsmartcols.so.1 libsmartcols.so
-  ln -sf ../../lib${LIBDIRSUFFIX}/libuuid.so.1 libuuid.so
-
-)
-
-# Moving things around that have been in the same place
-# for 15 years is, IMHO, not a wise idea AT ALL.
-# If this had to be moved, some place out of /usr might
-# have shown a grain of insight...
-if [ -r $PKG/usr/sbin/fdformat ]; then
-  mkdir -p $PKG/usr/bin
-  mv $PKG/usr/sbin/fdformat $PKG/usr/bin/fdformat
-  # Now since stuff will start looking in this new place,
-  # we have no choice but to link these:
-  ( cd $PKG/usr/sbin
-    ln -sf ../bin/fdformat .
-  )
-fi
+for libname in lib{blkid,mount,smartcols,uuid} ;do
+  reldir=$(echo /usr/lib${LIBDIRSUFFIX} | sed 's,/$,,;s,/[^/]\+,../,g')lib${LIBDIRSUFFIX}
+  oldlink=$(readlink ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so)
+  ln -sf ${reldir}/$(basename ${oldlink}) ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so || exit 1
+done
 
 # Build ziptool
 cd $TMP || exit 1
@@ -274,8 +252,7 @@ for pamd in runuser runuser-l ; do
     ${PKG}/etc/pam.d/${pamd}.new || exit 1
 done
 
-mkdir -p $PKG/run/uuidd $PKG/usr/lib/tmpfiles.d
-cp $CWD/uuidd.conf $PKG/usr/lib/tmpfiles.d || exit 1
+mkdir -p $PKG/run/uuidd || exit 1
 
 find $PKG | xargs file | grep -e "executable" -e "shared object" \
   | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null

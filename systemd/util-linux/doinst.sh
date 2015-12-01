@@ -86,8 +86,6 @@ if [ -e etc/mtab ] ;then
   ln -s /proc/self/mounts /etc/mtab
 fi
 
-
-
 config etc/pam.d/runuser-l.new
 config etc/pam.d/runuser.new
 config etc/rc.d/rc.serial.new
