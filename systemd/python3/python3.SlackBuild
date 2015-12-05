@@ -26,7 +26,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=python3
-VERSION=${VERSION:-3.4.3}
+VERSION=${VERSION:-3.5.0}
 DOCS_VERSION=${DOCS_VERSION:-3.4.3}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
@@ -89,29 +89,20 @@ if [ "$ARCH" = "x86_64" ]; then
   patch -p1 -i $CWD/patches/python3.x86_64.diff
 fi
 
-# Remove embedded copy of expat:
-rm -rf Modules/expat || exit 1
+# Remove embedded copies of expat and zlib:
+rm -rf Modules/expat Modules/zlib || exit 1
 
 # Remove embedded copy of libffi:
 for SUBDIR in darwin libffi libffi_arm_wince libffi_msvc libffi_osx ; do
   rm -rf Modules/_ctypes/${SUBDIR} || exit 1 ;
 done
 
-# Remove embedded copy of zlib:
-rm -rf Modules/zlib || exit 1
-
-sed --in-place \
-  --expression="s|http://docs.python.org/library|http://docs.python.org/${PYVER}/library|g" \
-  Lib/pydoc.py || exit 1
-
-find . -name ".cvsignore" |xargs rm -f
-
 # Fix python3 path in cgi.py.
 sed -i '1s|^#.*/usr/local/bin/python|#!/usr/bin/python3|' Lib/cgi.py
 
-# Isolate ensurepip from site-packages, otherwise pip won't be installed if
-# there's Python3 on this system with pip already in site-packages.
-sed -i 's/-m ensurepip/-Sm ensurepip/' Makefile.pre.in
+# If this system already has Python3 with pip in site-packages, ignore it and
+# install pip anyway.
+sed -i 's|\("install",\)|\1 "--ignore-installed",|' Lib/ensurepip/__init__.py
 
 chown -R root:root .
 find -L . \
@@ -151,6 +142,10 @@ make ${NUMJOBS} || make || exit $?
 make install DESTDIR=${PKG} || exit $?
 
 ) || exit $?
+
+# Restore original ensurepip behaviour.
+sed -i 's|\("install",\) "--ignore-installed",|\1|' \
+  $PKG/usr/lib${LIBDIRSUFFIX}/python${PYVER}/ensurepip/__init__.py
 
 DirHoldingGdbPy=${PKG}/usr/share/gdb/auto-load/usr/lib${LIBDIRSUFFIX}
 PathOfGdbPy=${DirHoldingGdbPy}/libpython${LDVERSION}.so.1.0.debug-gdb.py
