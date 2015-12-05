@@ -1,7 +1,7 @@
 PKGNAM="python3"
-VERSION="3.4.2"
+VERSION="3.4.3"
 HOMEPAGE="https://www.python.org/"
-DOWNLOAD="https://python.org/ftp/python/3.4.2/Python-3.4.2.tar.xz \
-          https://python.org/ftp/python/doc/3.4.0/python-3.4.0-docs-html.tar.bz2"
-MD5SUM="36fc7327c02c6f12fa24fc9ba78039e3 \
-        cdbef126ee7ef0908352fabc4dc5bee5"
+DOWNLOAD="https://python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz \
+          https://python.org/ftp/python/doc/3.4.3/python-3.4.3-docs-html.tar.bz2"
+MD5SUM="7d092d1bba6e17f0d9bd21b49e441dd5 \
+        cb6bd508aff25471fb4f32cc848a8c5b"
