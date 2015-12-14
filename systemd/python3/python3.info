@@ -1,7 +1,7 @@
 PKGNAM="python3"
 VERSION="3.4.3"
 HOMEPAGE="https://www.python.org/"
-DOWNLOAD="https://python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz \
+DOWNLOAD="https://python.org/ftp/python/3.5.1/Python-3.5.1.tar.xz \
           https://python.org/ftp/python/doc/3.4.3/python-3.4.3-docs-html.tar.bz2"
-MD5SUM="7d092d1bba6e17f0d9bd21b49e441dd5 \
+MD5SUM="e9ea6f2623fffcdd871b7b19113fde80 \
         cb6bd508aff25471fb4f32cc848a8c5b"
