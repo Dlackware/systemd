@@ -1,5 +1,5 @@
 PRGNAM="lxml"
-VERSION="3.4.1"
+VERSION="3.5.0"
 HOMEPAGE="http://lxml.de/"
-DOWNLOAD="http://pypi.python.org/packages/source/l/lxml/lxml-3.4.1.tar.gz"
-MD5SUM="b7696a3f33d5610b215a343216ab5624"
+DOWNLOAD="http://pypi.python.org/packages/source/l/lxml/lxml-3.5.0.tar.gz"
+MD5SUM="9f0c5f1eb43ff44d5455dab4b4efbe73"
