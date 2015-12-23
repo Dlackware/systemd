@@ -23,8 +23,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=avahi
-VERSION=${VERSION:-0.6.31}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-0.6.32}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 # Automatically determine the architecture we're building on:
@@ -36,8 +36,9 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
+wget -c https://github.com/lathiat/avahi/archive/0.6.32-rc.tar.gz
 # wget -c http://www.avahi.org/download/$PKGNAM-$VERSION.tar.gz
-wget -c http://distfiles.alpinelinux.org/distfiles/$PKGNAM-$VERSION.tar.gz
+#wget -c http://distfiles.alpinelinux.org/distfiles/$PKGNAM-$VERSION.tar.gz
 
 NUMJOBS=${NUMJOBS:-"-j4"}
 
@@ -65,9 +66,9 @@ set -e # Exit on most errors
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
-cd $PKGNAM-$VERSION
+rm -rf $PKGNAM-$VERSION-rc
+tar xvf $CWD/$VERSION-rc.tar.?z*
+cd $PKGNAM-$VERSION-rc
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -81,6 +82,9 @@ fi
 
 autoreconf -ivf
 
+intltoolize
+
+
 CFLAGS="${SLKCFLAGS}" \
 CXXFLAGS="${SLKCFLAGS}" \
 ./configure \
@@ -89,12 +93,14 @@ CXXFLAGS="${SLKCFLAGS}" \
   --sysconfdir=/etc \
   --localstatedir=/var \
   --infodir=/usr/info \
-  --mandir=/usr/man \
+  --disable-manpages \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
   --disable-silent-rules \
   --disable-static \
   --disable-qt3 \
-  --with-distro=slackware \
+  --disable-qt4 \
+  --disable-gtk \
+  --enable-gtk3 \
   --with-avahi-user=avahi \
   --with-avahi-group=avahi \
   --with-avahi-priv-access-group=avahi \
@@ -104,7 +110,7 @@ CXXFLAGS="${SLKCFLAGS}" \
   --enable-compat-libdns_sd \
   --disable-mono \
   --disable-monodoc \
-  --enable-introspection=no || exit 1
+  --enable-introspection || exit 1
 
 make $NUMJOBS || make || exit 1
 make install DESTDIR=$PKG || exit 1
@@ -146,9 +152,6 @@ desktop-file-install --delete-original --vendor="" \
 
 find $PKG | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-
-find $PKG/usr/man -type f -exec gzip -9 {} \;
-for i in $(find $PKG/usr/man -type l); do ln -s $(readlink $i).gz $i.gz; rm $i; done
 
 mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
 cp -a LICENSE docs/* $PKG/usr/doc/$PKGNAM-$VERSION
