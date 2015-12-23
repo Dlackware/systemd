@@ -1,5 +1,4 @@
 
-systemctl enable update-pango-querymodules.service
 systemctl enable update-gdk-pixbuf-loaders.service
 systemctl enable gdm.service
 
