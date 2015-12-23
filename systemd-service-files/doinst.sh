@@ -1,8 +1,6 @@
 
 systemctl enable update-pango-querymodules.service
-systemctl enable update-gio-modules.service
 systemctl enable update-gdk-pixbuf-loaders.service
-systemctl enable glib-compile-schemas.service
 systemctl enable gdm.service
 
 systemctl set-default graphical.target

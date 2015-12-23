@@ -18,7 +18,7 @@
 #
 
 PKGNAM=systemd-service-files
-VERSION=${VERSION:-3.16.2}
+VERSION=${VERSION:-3.18.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -32,11 +32,14 @@ OUTPUT=${OUTPUT:-/var/cache/dlackware}
 set -e # Exit on most errors
 
 rm -rf $PKG
-mkdir -p $OUTPUT \
+mkdir -p $PKG $TMP $OUTPUT \
 	$PKG/lib/systemd/system \
         $PKG/usr/bin \
 
-install -m 0755 $CWD/bin/* $PKG/usr/bin/
+
+
+# install -m 0755 $CWD/bin/* $PKG/usr/bin/
+
 install -m 0644 $CWD/systemd/*.service $PKG/lib/systemd/system/
 
 mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
