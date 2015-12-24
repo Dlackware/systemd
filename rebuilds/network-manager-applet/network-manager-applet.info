@@ -1,5 +1,5 @@
 PKGNAM="network-manager-applet"
-VERSION="1.0.8"
+VERSION="1.0.10"
 HOMEPAGE="http://www.gnome.org/"
-DOWNLOAD="http://download.gnome.org/sources/network-manager-applet/1.0/network-manager-applet-1.0.8.tar.xz"
-MD5SUM="aed8151e9d23d0d5cca9f10ebff2ecbc"
+DOWNLOAD="http://download.gnome.org/sources/network-manager-applet/1.0/network-manager-applet-1.0.10.tar.xz"
+MD5SUM="86b17e1bf1a37c649874883b587c6db6"
