@@ -23,11 +23,13 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=bluez
-VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
+VERSION=${VERSION:-5.37}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:--j7}
+
+wget -c http://www.kernel.org/pub/linux/bluetooth/$PKGNAM-$VERSION.tar.xz
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -71,9 +73,6 @@ find . \
   \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
   -exec chmod 644 {} \;
 
-#patch -p1 < $CWD/bluez-5.30-obexd_without_systemd-1.patch
-#autoreconf -vif
-
 sed -i -e 's|-lreadline|\0 -lncursesw|g' Makefile.{in,tools}
 
 CFLAGS="$SLKCFLAGS" \
@@ -88,6 +87,7 @@ LDFLAGS="-L/usr/lib$LIBDIRSUFFIX" \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
   --enable-library \
   --enable-systemd \
+  --with-systemdsystemunitdir=/lib/systemd/system \
   --build=$ARCH-slackware-linux || exit 1
 
 make $NUMJOBS || make || exit 1
@@ -114,6 +114,8 @@ cat $CWD/config/rc.bluetooth > $PKG/etc/rc.d/rc.bluetooth.new
 # Let's go ahead and let that start by default, unless an existing init
 # script is not executable:
 chmod 755 $PKG/etc/rc.d/rc.bluetooth.new
+
+mkdir -p ${PKG}/var/lib/bluetooth
 
 # Compress and if needed symlink the man pages:
 if [ -d $PKG/usr/man ]; then
