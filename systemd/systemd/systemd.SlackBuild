@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-228}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -170,8 +170,11 @@ CXXFLAGS="${SLKCFLAGS}" \
   --disable-audit \
   --disable-selinux \
   --enable-kdbus \
-  --with-sysvinit-path="" \
-  --with-sysvrcnd-path="" \
+  --with-sysvinit-path=/etc/init.d \
+  --with-sysvrcnd-path=/etc/rc.d \
+  --with-rc-local-script-path-start=/etc/rc.local \
+  --with-rc-local-script-path-stop=/etc/rc.d/rc.local_shutdown \
+  --with-telinit=/sbin/telinit \
   --with-dbuspolicydir=/etc/dbus-1/system.d \
   --with-dbussessionservicedir=/usr/share/dbus-1/services \
   --with-dbussystemservicedir=/usr/share/dbus-1/system-services \
@@ -191,9 +194,6 @@ rm -rf ${PKG}/etc/rc.d/init.d
 
 mv ${PKG}/usr/lib${LIBDIRSUFFIX}/libnss_myhostname.so.* \
   ${PKG}/lib${LIBDIRSUFFIX}/ || exit 1
-
-# make sure Slackware packages that are build against libudeb.so.0 gets redirected
-ln -sf ../lib${LIBDIRSUFFIX}/libudev.so.1 ${PKG}/lib${LIBDIRSUFFIX}/libudev.so.0
 
 # Good to have on path
 mkdir -p ${PKG}/sbin
