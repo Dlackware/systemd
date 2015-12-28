@@ -84,7 +84,6 @@ autoreconf -ivf
 
 intltoolize
 
-
 CFLAGS="${SLKCFLAGS}" \
 CXXFLAGS="${SLKCFLAGS}" \
 ./configure \
@@ -115,7 +114,14 @@ CXXFLAGS="${SLKCFLAGS}" \
 make $NUMJOBS || make || exit 1
 make install DESTDIR=$PKG || exit 1
 
+# Add python3 support
+mkdir -p $PKG/usr/lib64/python3.5/site-packages/avahi/
+cp -r $PKG/usr/lib64/python2.7/site-packages/avahi/* $PKG/usr/lib64/python3.5/site-packages/avahi/
+rm -fv $PKG/usr/lib64/python3.5/site-packages/avahi/*.py{c,o}
+sed -i 's!/usr/bin/python!/usr/bin/python3!' $PKG/usr/lib64/python3.5/site-packages/avahi/ServiceTypeDatabase.py
+
 # remove example
+rm -f ${PKG}/etc/avahi/services/ssh.service
 rm -f ${PKG}/etc/avahi/services/sftp-ssh.service
 
 mkdir -p ${PKG}/var/run/avahi-daemon
