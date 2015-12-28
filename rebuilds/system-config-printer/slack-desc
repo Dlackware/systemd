@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+                     |-----handy-ruler------------------------------------------------------|
+system-config-printer: system-config-printer (CUPS printer administration tool)
+system-config-printer:
+system-config-printer: The purpose of the tool is to configure a CUPS server (often the local
+system-config-printer: machine) using the CUPS API.  The tool is written in Python, using
+system-config-printer: pygtk for the graphical parts and Python bindings (pycups) for the
+system-config-printer: CUPS API.  It is largely the same as using the CUPS web interface for
+system-config-printer: configuring printers, but has the advantage of being a native
+system-config-printer: application rather than a web page.
+system-config-printer:
+system-config-printer: Home: http://cyberelk.net/tim/software/system-config-printer/
+system-config-printer:
