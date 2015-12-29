@@ -85,7 +85,6 @@ CFLAGS="$SLKCFLAGS" \
   --sysconfdir=/etc \
   --mandir=/usr/man \
   --localstatedir=/var/lib \
-  --with-python=python3 \
   --build=$ARCH-slackware-linux
 
 export LD_LIBRARY_PATH="$(pwd)/gio/.libs:$(pwd)/glib/.libs:$(pwd)/gmodule/.libs:$(pwd)/gobject/.libs:$(pwd)/gthread/.libs${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
