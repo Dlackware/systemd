@@ -7,7 +7,6 @@ polkit
 json-c
 libdaemon
 avahi
-sbc
 alsa-utils
 alsa-lib
 alsa-oss
@@ -31,7 +30,7 @@ gnome-keyring
 appstream-glib
 appdata-tools
 gucharmap
-network-manager-applet
 wpa_supplicant
 yptools
+system-config-printer
 x11
