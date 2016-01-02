@@ -25,7 +25,7 @@
 
 PKGNAM=polkit
 VERSION=${VERSION:-0.113}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 # Automatically determine the architecture we're building on:
@@ -76,9 +76,9 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-cat $CWD/05_revert-admin-identities-unix-group-wheel.patch | patch -p1 --verbose || exit 1
-
-autoreconf -ivf
+# As we are working with a different automation system with pam and systemd-login, we should keep the wheel group for admin purposes.
+# cat $CWD/05_revert-admin-identities-unix-group-wheel.patch | patch -p1 --verbose || exit 1
+# autoreconf -ivf
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
