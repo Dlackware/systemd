@@ -7,14 +7,13 @@
 #
 # root@:~# slackpkg install bash-completion
 #
-# 2. The newest systemd requires util-linux 2.27.x for libmount
-#    So lets update util-linux first with the slackbuild from slackware
+# 2. Now we can actually start with compiling the packages for pam and systemd.
+#    There are 2 options.
+#    Option 1.- Compile package by package in the order of compile-order document
+#    Option 2.- use Dlackware build software to compile them autmatically.
 #
-# root@:~# lftp -c "mirror ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux"
+# you will need to compile the following groups:
 #
-# Now download util-linux-2.27.1 and delete the sources of 2.26
-# You will need to add these CFLAGS "-lreadline -lncurses" to compile succesfully
-#
-# 3. Now we can actually start with compiling the packages for pam and systemd.
-#
-#
+# - Systemd
+# - Rebuilds
+# - gnome-systemd
