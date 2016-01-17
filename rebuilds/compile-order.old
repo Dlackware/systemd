@@ -1,15 +1,25 @@
 # these are the package to be rebuild/added as base for the gnome build
 glib2
 glib-networking
+NetworkManager
+ModemManager
 polkit
+json-c
 libdaemon
 avahi
+alsa-utils
+alsa-lib
+alsa-oss
+speex
 libinput
 wayland
 libwebp
 gst-plugins-bad
 gst-plugins-ugly
 gst-libav
+pulseaudio
+alsa-plugins
+libcanberra
 shared-mime-info
 mesa
 gtk+3
@@ -20,4 +30,7 @@ gnome-keyring
 appstream-glib
 appdata-tools
 gucharmap
+wpa_supplicant
+yptools
+system-config-printer
 x11
