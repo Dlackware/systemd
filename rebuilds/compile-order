@@ -20,4 +20,5 @@ gnome-keyring
 appstream-glib
 appdata-tools
 gucharmap
+NetworkManager
 x11
