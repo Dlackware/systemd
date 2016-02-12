@@ -48,8 +48,8 @@ EndSection
 EOF
 
 # Add COPYING file:
-mkdir -p $PKG/usr/doc/xorg-server-$MODULAR_PACKAGE_VERSION
-cp -a COPYING $PKG/usr/doc/xorg-server-$MODULAR_PACKAGE_VERSION
+mkdir -p $PKG/usr/doc/xorg-server-$VERSION
+cp -a COPYING $PKG/usr/doc/xorg-server-$VERSION
 
 # Don't mess with my /var/log/ permissions:
 rmdir $PKG/var/log

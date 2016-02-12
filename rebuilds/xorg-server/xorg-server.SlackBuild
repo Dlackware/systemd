@@ -1,0 +1,208 @@
+#!/bin/sh
+# Copyright 2007-2014  Patrick J. Volkerding, Sebeka, MN, USA
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Set initial variables:
+CWD=$(pwd)
+TMP=${TMP:-/tmp/dlackware}
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i586 ;;
+    arm*) export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+# A lot of this stuff just controls the package names this time:
+VERSION=${VERSION:-1.18.1}
+BUILD=${BUILD:-1}
+PKGARCH=$ARCH
+NUMJOBS=${NUMJOBS:-" -j7 "}
+TAG=${TAG:-_dlack}
+
+# Set the compile options for the $ARCH being used:
+if [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i586" ]; then
+  SLKCFLAGS="-O2 -march=i586 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "s390" ]; then
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+fi
+
+wget -c ftp://ftp.x.org/pub/individual/xserver/xorg-server-${VERSION}.tar.bz2
+
+cd $CWD
+# Set up a few useful functions:
+
+process_man_pages() {
+  # Compress and if needed symlink the man pages:
+  if [ -d usr/man ]; then
+    ( cd usr/man
+      for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd $manpagedir
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink $eachpage ).gz $eachpage.gz
+          rm $eachpage
+        done
+        gzip -9 *.*
+      )
+      done
+    )
+  fi
+}
+
+process_info_pages() {
+  # Compress info pages and purge "dir" file from the package:
+  if [ -d usr/info ]; then
+    ( cd usr/info
+      rm -f dir
+      gzip -9 *
+    )
+  fi
+}
+
+no_usr_share_doc() {
+  # If there are docs, move them:
+  if [ -d usr/share/doc ]; then
+    mkdir -p usr/doc
+    mv usr/share/doc/* usr/doc
+    rmdir usr/share/doc
+  fi
+}
+
+SLACK_X_BUILD_DIR=$TMP/x11-build
+mkdir -p $SLACK_X_BUILD_DIR
+
+# Better have some binaries installed first, as this may not be
+# in the "magic order".  I built mine by hand through trial-and-error
+# before getting this script to work.  It wasn't that hard...  I think.  ;-)
+PKG=${SLACK_X_BUILD_DIR}/package-xserver
+rm -rf $PKG
+mkdir -p $PKG
+
+x_pkg=xorg-server-${VERSION}.tar.bz2
+# Reset $PKGARCH to its initial value:
+PKGARCH=$ARCH
+PKGNAME=$(echo $x_pkg | rev | cut -f 2- -d - | rev)
+
+cd $SLACK_X_BUILD_DIR
+
+if grep -wq "^$PKGNAME" ${CWD}/modularize ; then
+  # Set $PKG to a private dir for the modular package build:
+  PKG=$SLACK_X_BUILD_DIR/package-$PKGNAME
+  rm -rf $PKG
+  mkdir -p $PKG
+fi
+
+rm -rf xorg-server-${VERSION}
+tar xf $CWD/${x_pkg} || exit 1
+cd xorg-server-${VERSION} || exit 1
+
+chown -R root:root .
+find . \
+  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+  -exec chmod 755 {} \; -o \
+  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+  -exec chmod 644 {} \;
+
+# If any patches are needed, call this script to apply them:
+cat $CWD/patch/x11.startwithblackscreen.diff | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+
+# I heard somewhere that -O2 breaks some chipset or another.  If you encounter
+# problems, please contact volkerdi@slackware.com.  Thanks! :-)
+
+# ./configure, using custom configure script if needed:
+if [ -r $CWD/configure/${PKGNAME} ]; then
+  . $CWD/configure/${PKGNAME}
+else
+  # This is the default configure script:
+  . $CWD/configure/configure
+fi
+
+if ! make $NUMJOBS ; then
+  touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed
+  continue
+fi
+
+make install DESTDIR=$PKG
+
+mkdir -p $PKG/usr/doc/${PKGNAME}-${VERSION}
+cp -a \
+  AUTHORS* COPYING* INSTALL* README* NEWS* TODO* \
+  $PKG/usr/doc/${PKGNAME}-${VERSION}
+
+# If there's a ChangeLog, installing at least part of the recent history
+# is useful, but don't let it get totally out of control:
+if [ -r ChangeLog ]; then
+  DOCSDIR=$(echo $PKG/usr/doc/${PKGNAME}-$VERSION)
+  cat ChangeLog | head -n 1000 > $DOCSDIR/ChangeLog
+  touch -r ChangeLog $DOCSDIR/ChangeLog
+fi
+
+# Get rid of zero-length junk files:
+find $PKG/usr/doc/${PKGNAME}-$VERSION -type f -size 0 -exec rm --verbose "{}" \;
+rmdir --verbose $PKG/usr/doc/${PKGNAME}-$VERSION 2> /dev/null
+
+# Strip binaries:
+( cd $PKG
+  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "current ar archive" | grep ELF | cut -f 1 -d : | xargs strip -g 2> /dev/null
+)
+
+# If there's any special post-install things to do, do them:
+if [ -r $CWD/post-install/${PKGNAME}.post-install ]; then
+  RUNSCRIPT=$(mktemp -p $TMP) || exit 1
+  cat $CWD/post-install/${PKGNAME}.post-install \
+    | sed -e "s#usr/lib#usr/lib${LIBDIRSUFFIX}#g" > $RUNSCRIPT
+  . $RUNSCRIPT
+  rm -f $RUNSCRIPT
+fi
+
+# If this package requires some doinst.sh material, add it here:
+if [ -r $CWD/doinst.sh/${PKGNAME} ]; then
+  mkdir -p $PKG/install
+  cat $CWD/doinst.sh/${PKGNAME} \
+    | sed -e "s#usr/lib#usr/lib${LIBDIRSUFFIX}#g" \
+    >> $PKG/install/doinst.sh
+fi
+
+# If this is a modular package, build it here:
+if [ -d $SLACK_X_BUILD_DIR/package-$PKGNAME ]; then
+  cd $PKG
+  process_man_pages
+  process_info_pages
+  no_usr_share_doc          
+  mkdir -p $PKG/install
+
+  cat $CWD/slack-desc/${PKGNAME} > $PKG/install/slack-desc
+
+  . $CWD/makepkg/${PKGNAME}
+fi

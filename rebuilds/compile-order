@@ -21,4 +21,4 @@ appstream-glib
 appdata-tools
 gucharmap
 NetworkManager
-x11
+xorg-server
