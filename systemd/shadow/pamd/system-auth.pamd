@@ -1,6 +1,5 @@
 #%PAM-1.0
 auth        required      pam_env.so
-auth        sufficient    pam_fprintd.so
 auth        sufficient    pam_unix.so nullok try_first_pass
 auth        required      pam_deny.so
 
