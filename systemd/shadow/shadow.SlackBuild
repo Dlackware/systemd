@@ -23,7 +23,7 @@
 
 PKGNAM=shadow
 VERSION=${VERSION:-4.2.1}
-BUILD=${BUILD:-3}
+BUILD=${BUILD:-4}
 TAG=${TAG:-_dlack}
 
 # Set to NO to disable pam support
@@ -157,24 +157,6 @@ chmod 0750 ${PKG}/usr/sbin/{user,group}*
 
 chmod 0600 ${PKG}/etc/default/useradd*
 
-if [ "${SBO_PAM}" = "YES" ]
-then
-	mkdir -p $PKG/etc/pam.d/
-	cp $CWD/pamd/system-auth $PKG/etc/pam.d/
-	cp $CWD/pamd/other $PKG/etc/pam.d/
-	cp $CWD/pamd/login $PKG/etc/pam.d/
-
-	(
-	  cd $PKG/etc/pam.d
-	  for i in * ; do
-		cat $i | grep -vE '(pam_console.so|selinux)' > ${i}.new
-		rm $i
-	  done
-	)
-else
-	mv $PKG/etc/login.access $PKG/etc/login.access.new
-fi
-
 # Add the friendly 'adduser' script:
 cat $CWD/adduser > $PKG/usr/sbin/adduser
 chmod 0755 $PKG/usr/sbin/adduser
@@ -198,8 +180,10 @@ touch $PKG/var/log/faillog.new
 # Use 4711 rather than 4755 permissions where setuid root is required:
 find $PKG -type f -perm 4755 -exec chmod 4711 "{}" \;
 
+mkdir -p $PKG/etc/pam.d/
+
 if [ "${SBO_PAM}" = "YES" ] ; then
-  for pamd in login passwd remote su su-l; do
+  for pamd in login passwd remote su su-l system-auth other; do
      cp -f ${SBO_PAMD_DIR}/${pamd}.pamd \
       ${PKG}/etc/pam.d/${pamd} || exit 1
   done
@@ -207,6 +191,7 @@ if [ "${SBO_PAM}" = "YES" ] ; then
     cp -f ${SBO_PAMD_DIR}/chsh-chfn.pamd \
       ${PKG}/etc/pam.d/${pamd} || exit 1
   done
+
   for opt in \
     CHFN_AUTH \
     CRACKLIB_DICTPATH \
