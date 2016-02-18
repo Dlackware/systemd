@@ -22,4 +22,4 @@ rm -f var/log/faillog.new
 mv /etc/login.defs /etc/login.defs.old
 mv /etc/login.defs.new /etc/login.defs
 
-config etc/default.useradd.new
+#config etc/default.useradd.new
