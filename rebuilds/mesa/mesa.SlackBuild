@@ -22,7 +22,7 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=mesa
-VERSION=${VERSION:-11.1.1}
+VERSION=${VERSION:-11.1.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
