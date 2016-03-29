@@ -178,7 +178,7 @@ CXXFLAGS="${SLKCFLAGS}" \
   --with-dbuspolicydir=/etc/dbus-1/system.d \
   --with-dbussessionservicedir=/usr/share/dbus-1/services \
   --with-dbussystemservicedir=/usr/share/dbus-1/system-services \
-  --with-pamlibdir=/lib/security \
+  --with-pamlibdir=/lib{LIBDIRSUFFIX}/security \
   --with-pamconfdir=/etc/pam.d \
   --disable-silent-rules \
   --build=$ARCH-slackware-linux || exit 1
