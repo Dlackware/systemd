@@ -24,7 +24,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=openssh
-VERSION=${VERSION:-7.1p2}
+VERSION=${VERSION:-7.2p2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -95,7 +95,7 @@ CFLAGS="$SLKCFLAGS" \
   --mandir=/usr/man \
   --sysconfdir=/etc/ssh \
   --with-pam \
-  --libexecdir=/lib/security \
+  --libexecdir=/lib{LIBDIRSUFFIX}/security \
   --with-md5-passwords \
   --with-default-path=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin \
   ${krb_flag} \
