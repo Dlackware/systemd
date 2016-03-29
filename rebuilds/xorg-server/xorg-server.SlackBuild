@@ -35,7 +35,7 @@ if [ -z "$ARCH" ]; then
 fi
 
 # A lot of this stuff just controls the package names this time:
-VERSION=${VERSION:-1.18.1}
+VERSION=${VERSION:-1.18.2}
 BUILD=${BUILD:-1}
 PKGARCH=$ARCH
 NUMJOBS=${NUMJOBS:-" -j7 "}
