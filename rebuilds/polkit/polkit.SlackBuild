@@ -25,7 +25,7 @@
 
 PKGNAM=polkit
 VERSION=${VERSION:-0.113}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-3}
 TAG=${TAG:-_dlack}
 
 # Automatically determine the architecture we're building on:
@@ -76,9 +76,14 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-# As we are working with a different automation system with pam and systemd-login, we should keep the wheel group for admin purposes.
-# cat $CWD/05_revert-admin-identities-unix-group-wheel.patch | patch -p1 --verbose || exit 1
-# autoreconf -ivf
+cat $CWD/dont-set-wheel-group-as-admin.diff | patch -p1 || exit 1
+
+# If we get here and don't have a polkitd user/group, add one.
+# Otherwise a few directories in the package will have wrong permissions.
+if ! grep -q "^polkitd:" /etc/passwd ; then
+  groupadd -fg 87 polkitd
+  useradd -c "PolicyKit daemon owner" -d /var/lib/polkit -u 87 -g polkitd -s /bin/false polkitd
+fi
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
@@ -93,6 +98,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --enable-gtk-doc \
   --mandir=/usr/man \
   --disable-static \
+  --disable-samples \
   --enable-introspection \
   --with-authfw=pam \
   --enable-verbose-mode \
@@ -100,27 +106,17 @@ CXXFLAGS="$SLKCFLAGS" \
   --enable-systemd-login=yes \
   --build=$ARCH-slackware-linux || exit 1
 
-#NOTE: The file /usr/lib/polkit-1/polkit-agent-helper-1 must be owned
-#      by root and have mode 4755 (setuid root binary)
-#NOTE: The file ${exec_prefix}/bin/pkexec must be owned by root and
-#      have mode 4755 (setuid root binary)
-#NOTE: The directory /etc/polkit-1/rules.d must be owned
-#      by user 'polkitd' and have mode 700
-#NOTE: The directory ${datarootdir}/polkit-1/rules.d must be owned
-#      by user 'polkitd' and have mode 700
-
 # Build and install:
 make $NUMJOBS || make || exit 1
 make install DESTDIR=$PKG || exit 1
 
-cp src/polkitagent/polkitagentenumtypes.h \
-  ${PKG}/usr/include/polkit-1/polkitagent/ || exit 1
+# Create homedir for polkit.  This is mentioned in /etc/passwd, but isn't
+# actually used for anything later.  Perms don't matter.
+mkdir -p $PKG/var/lib/polkit
 
-chmod 0700 ${PKG}/etc/polkit-1/rules.d
-chmod 0700 ${PKG}/usr/share/polkit-1/rules.d
-
-mv ${PKG}/etc/polkit-1/rules.d/*.rules \
-  ${PKG}/usr/share/polkit-1/rules.d/ || exit 1
+# Add default policy files for udisks2 and NetworkManager events:
+cat $CWD/10-org.freedesktop.NetworkManager.rules > $PKG/etc/polkit-1/rules.d/10-org.freedesktop.NetworkManager.rules.new
+cat $CWD/20-plugdev-group-mount-override.rules > $PKG/etc/polkit-1/rules.d/20-plugdev-group-mount-override.rules.new
 
 # Strip binaries:
 find $PKG | xargs file | grep -e "executable" -e "shared object" \
@@ -160,6 +156,5 @@ mkdir -p $PKG/install
 cat $CWD/doinst.sh > $PKG/install/doinst.sh
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
-# Create the package itself:
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
