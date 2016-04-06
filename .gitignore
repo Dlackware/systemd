@@ -1,3 +1,4 @@
 *.t?z
+*.tar
 *.[bgx]z*
 .*.sw[op]
