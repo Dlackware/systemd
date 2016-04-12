@@ -41,8 +41,8 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-# wget -c http://0pointer.de/lennart/projects/$PKGNAM/$PKGNAM-$VERSION.tar.gz
-wget -c http://distfiles.alpinelinux.org/distfiles/$PKGNAM-$VERSION.tar.gz
+wget -c http://0pointer.de/lennart/projects/$PKGNAM/$PKGNAM-$VERSION.tar.gz
+# wget -c http://distfiles.alpinelinux.org/distfiles/$PKGNAM-$VERSION.tar.gz
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
