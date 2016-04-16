@@ -134,6 +134,7 @@ find . \
 
 # If any patches are needed, call this script to apply them:
 cat $CWD/patch/x11.startwithblackscreen.diff | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+cat $CWD/patch/xorg-server.combo.mouse.keyboard.layout.patch | patch -p1 --verbose || { touch ${SLACK_X_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
 
 # I heard somewhere that -O2 breaks some chipset or another.  If you encounter
 # problems, please contact volkerdi@slackware.com.  Thanks! :-)
