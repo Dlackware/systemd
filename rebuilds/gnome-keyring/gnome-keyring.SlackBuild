@@ -26,7 +26,7 @@
 
 PKGNAM=gnome-keyring
 VERSION=${VERSION:-3.18.3}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 if [ -z "$ARCH" ]; then
@@ -85,7 +85,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --disable-debug \
   --enable-ssh-agent \
   --disable-schemas-compile \
-  --with-pam-dir=/lib/security \
+  --with-pam-dir=/lib${LIBDIRSUFFIX}/security \
   --enable-pam \
   --build=$ARCH-slackware-linux || exit 1
 

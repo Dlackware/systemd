@@ -27,7 +27,7 @@
 
 PKGNAM=gvfs
 VERSION=${VERSION:-1.26.3}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:--j6}
@@ -76,7 +76,7 @@ find . \
 
 
 patch -p1 -E --backup --verbose -i ${CWD}/${PKGNAM}-archive-integration.patch
-patch -p0 -E --backup --verbose -i $CWD/gvfs-1.8.3-systemd209.patch
+# patch -p0 -E --backup --verbose -i $CWD/gvfs-1.8.3-systemd209.patch
 
 sed -i -e 's|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|g' configure.ac || exit 1
 sed -i -e '/LIBEXEC_DIR/s|\"/gvfs|\"gvfs|g' daemon/main.c || exit 1

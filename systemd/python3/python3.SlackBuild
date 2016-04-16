@@ -42,7 +42,7 @@ if [ -z "$ARCH" ]; then
 fi
 
 wget -c https://python.org/ftp/python/${VERSION}/Python-${VERSION}.tar.xz \
-	https://python.org/ftp/python/doc/${DOCS_VERSION}/python-${DOCS_VERSION}-docs-html.tar.bz2
+	https://docs.python.org/3/archives/python-${DOCS_VERSION}-docs-html.tar.bz2
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
