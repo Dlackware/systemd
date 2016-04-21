@@ -1,5 +1,5 @@
 PKGNAM="gst-libav"
-VERSION="1.6.3"
+VERSION="1.6.4"
 HOMEPAGE="http://gstreamer.freedesktop.org/modules/gst-libav.html"
-DOWNLOAD="http://distfiles.alpinelinux.org/distfiles/gst-libav-1.6.3.tar.xz"
-MD5SUM="cfe9a06913d4fd4067e9e47f6e05fac2"
+DOWNLOAD="http://distfiles.alpinelinux.org/distfiles/gst-libav-1.6.4.tar.xz"
+MD5SUM="d9922f6246f4ff0472d0ac3ada287f52"
