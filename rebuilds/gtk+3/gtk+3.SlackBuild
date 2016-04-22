@@ -23,7 +23,7 @@
 
 PKGNAM=gtk+3
 VERSION=${VERSION:-3.18.9}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 wget -c http://download.gnome.org/sources/gtk+/3.18/gtk+-$VERSION.tar.xz

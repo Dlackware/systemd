@@ -30,19 +30,17 @@ if ! grep -q "^sshd:" etc/shadow ; then
 fi
 
 
-mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config
-mv /etc/ssh/sshd_config.new /etc/ssh/sshd_config
+mv etc/ssh/ssh_config.new etc/ssh/ssh_config
+mv etc/ssh/sshd_config.new etc/ssh/sshd_config
 
 # Add a btmp file to store login failure if one doesn't exist:
 if [ ! -r var/log/btmp ]; then
   ( cd var/log ; umask 077 ; touch btmp )
 fi
 
-# Enable sshd in systemd
- /bin/systemctl enable sshd.socket
- /bin/systemctl start sshd.socket
-
-
 if [ -x bin/systemctl ] ; then
- /bin/systemctl --system daemon-reload >/dev/null 2>&1
+chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
+# Enable sshd in systemd
+chroot . /bin/systemctl enable sshd.socket
+chroot . /bin/systemctl start sshd.socket
 fi

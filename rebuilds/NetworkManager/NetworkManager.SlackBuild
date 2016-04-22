@@ -26,7 +26,7 @@
 
 PKGNAM=NetworkManager
 VERSION=${VERSION:-1.2.0}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 TAR=$PKGNAM-$VERSION.tar.xz
 
@@ -110,7 +110,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --with-dhcpcd=/sbin/dhcpcd \
   --with-dhclient=yes \
   --with-modem-manager-1=yes \
-  --without-libnm-glib \
+  --with-libnm-glib \
   --with-systemd-logind=yes \
   --with-session-tracking=systemd \
   --with-suspend-resume=systemd \

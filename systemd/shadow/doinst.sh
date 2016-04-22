@@ -16,5 +16,5 @@ config etc/default/useradd.new
 config var/log/faillog.new
 rm -f var/log/faillog.new
 
-cp -f /etc/login.defs /etc/login.defs.old
-mv /etc/login.defs.new /etc/login.defs
+mv etc/login.defs etc/login.defs.old
+mv etc/login.defs.new etc/login.defs

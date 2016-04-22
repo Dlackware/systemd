@@ -23,7 +23,7 @@
 
 PKGNAM=shadow
 VERSION=${VERSION:-4.2.1}
-BUILD=${BUILD:-5}
+BUILD=${BUILD:-6}
 TAG=${TAG:-_dlack}
 
 # Set to NO to disable pam support

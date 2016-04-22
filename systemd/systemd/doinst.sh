@@ -334,7 +334,7 @@ else
 fi
 
 enableservice () {
-  if ! ${CHROOT}/bin/systemctl is-enable "${1}" > /dev/null 2>&1 ;then
+  if ! ${CHROOT} /bin/systemctl is-enable "${1}" > /dev/null 2>&1 ;then
     ${CHROOT} /bin/systemctl enable "${1}" 2>&1
   fi
 }

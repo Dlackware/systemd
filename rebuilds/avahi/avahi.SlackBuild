@@ -24,7 +24,7 @@
 
 PKGNAM=avahi
 VERSION=${VERSION:-0.6.32}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-3}
 TAG=${TAG:-_dlack}
 
 # Automatically determine the architecture we're building on:
@@ -38,7 +38,6 @@ fi
 
 wget -c https://github.com/lathiat/avahi/releases/download/v$VERSION/$PKGNAM-$VERSION.tar.gz
 # wget -c http://www.avahi.org/download/$PKGNAM-$VERSION.tar.gz
-#wget -c http://distfiles.alpinelinux.org/distfiles/$PKGNAM-$VERSION.tar.gz
 
 NUMJOBS=${NUMJOBS:-"-j4"}
 

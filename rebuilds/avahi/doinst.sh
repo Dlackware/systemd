@@ -15,6 +15,7 @@ function free_group_id {
   echo ${FREE_GROUP_ID}
 }
 
+chroot . <<EOCR
 # Set up groups.
 if ! grep --quiet '^avahi:' etc/group ;then
   /usr/sbin/groupadd \
@@ -95,6 +96,17 @@ if [ -s /etc/localtime ]; then
   cp -fp /etc/localtime etc/avahi/etc/localtime
 fi
 
+# Fix permissions
+/bin/chown avahi.avahi var/run/avahi-daemon
+
+systemctl enable avahi-daemon.service
+
+if [ -x bin/systemctl ] ; then
+ /bin/systemctl --system daemon-reload >/dev/null 2>&1
+fi
+
+EOCR
+
 config() {
   NEW="$1"
   OLD="$(dirname $NEW)/$(basename $NEW .new)"
@@ -113,12 +125,3 @@ config etc/avahi/avahi-dnsconfd.action.new
 config etc/avahi/avahi-daemon.conf.new
 config etc/avahi/avahi-autoipd.action.new
 config etc/dbus-1/system.d/avahi-dbus.conf.new
-
-# Fix permissions
- /bin/chown avahi.avahi /var/run/avahi-daemon
-
-systemctl enable avahi-daemon.service
-
-if [ -x bin/systemctl ] ; then
- /bin/systemctl --system daemon-reload >/dev/null 2>&1
-fi

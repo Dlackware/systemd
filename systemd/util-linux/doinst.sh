@@ -16,16 +16,16 @@ function free_group_id {
 }
 
 # Set up groups.
-if ! grep --quiet '^uuidd:' /etc/group ;then
+if ! grep --quiet '^uuidd:' etc/group ;then
   chroot . /usr/sbin/groupadd \
     -g $(free_group_id) \
     uuidd 2> /dev/null
 fi
 
 # Set up user: add it if it doesn't exist, update it if it already does.
-if OLD_ENTRY=$(grep --max-count=1 '^uuidd:' /etc/passwd) \
+if OLD_ENTRY=$(grep --max-count=1 '^uuidd:' etc/passwd) \
   || OLD_ENTRY=$(grep --max-count=1 \
-  ':/run/uuidd:[a-z/]*$' /etc/passwd)
+  ':/run/uuidd:[a-z/]*$' etc/passwd)
 then
   # Modify existing user
   OLD_USER=$(echo ${OLD_ENTRY} | cut --fields=1 --delimiter=':')
@@ -82,8 +82,8 @@ if [ -x /bin/systemctl ] ; then
 fi
 
 if [ -e etc/mtab ] ;then
-  rm -f /etc/mtab
-  ln -s /proc/self/mounts /etc/mtab
+  rm -f etc/mtab
+  ln -s proc/self/mounts etc/mtab
 fi
 
 config etc/pam.d/runuser-l.new
