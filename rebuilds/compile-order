@@ -1,8 +1,6 @@
 # these are the package to be rebuild/added as base for the gnome build
-#glib2
-#glib-networking
-#polkit
-#libdaemon
+polkit
+libdaemon
 avahi
 libinput
 wayland
