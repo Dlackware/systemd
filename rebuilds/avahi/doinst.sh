@@ -15,17 +15,13 @@ function free_group_id {
   echo ${FREE_GROUP_ID}
 }
 
-chroot . <<EOCR
 # Set up groups.
-if ! grep --quiet '^avahi:' etc/group ;then
-  /usr/sbin/groupadd \
-            -g $(free_group_id) \
-            avahi 2> /dev/null
+if ! grep --quiet '^avahi:' etc/group; then
+  chroot . /usr/sbin/groupadd -g $(free_group_id) avahi 2> /dev/null
 fi
-if ! grep --quiet '^avahi_autoipd:' etc/group ;then
-  /usr/sbin/groupadd \
-            -g $(free_group_id) \
-            avahi-autoipd 2> /dev/null
+
+if ! grep --quiet '^avahi_autoipd:' etc/group; then
+  chroot . /usr/sbin/groupadd -g $(free_group_id) avahi_autoipd 2> /dev/null
 fi
 
 # Set up user: add it if it doesn't exist, update it if it already does.
@@ -42,22 +38,20 @@ then
   else
     echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to " 1>&2
   fi
-  /usr/sbin/usermod \
-            -d '/etc/avahi' \
-            -u ${USER_ID} \
-            -s /bin/false \
-            -g avahi \
-            ${OLD_USER}
+  chroot . /usr/sbin/usermod -d '/etc/avahi' -u ${USER_ID} \
+    -s /bin/false \
+    -g avahi \
+    ${OLD_USER}
 else
   # Add new user
   echo -n "Creating unprivileged user " 1>&2
-  /usr/sbin/useradd \
-            -c 'Avahi daemon' \
-            -u $(free_user_id) \
-            -g avahi \
-            -s /bin/false \
-            -d '/etc/avahi' \
-            avahi 2> /dev/null
+  chroot . /usr/sbin/useradd \
+    -c 'Avahi daemon' \
+    -u $(free_user_id) \
+    -g avahi \
+    -s /bin/false \
+    -d '/etc/avahi' \
+    avahi 2> /dev/null
 fi
 
 # Set up user: add it if it doesn't exist, update it if it already does.
@@ -74,22 +68,22 @@ then
   else
     echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to" 1>&2
   fi
-  /usr/sbin/usermod \
-            -d '/var/lib/avahi_autoipd' \
-            -u ${USER_ID} \
-            -s /bin/false \
-            -g avahi_autoipd \
-            ${OLD_USER}
+  chroot . /usr/sbin/usermod \
+    -d '/var/lib/avahi_autoipd' \
+    -u ${USER_ID} \
+    -s /bin/false \
+    -g avahi_autoipd \
+    ${OLD_USER}
 else
   # Add new user
   echo -n "Creating unprivileged user" 1>&2
-  /usr/sbin/useradd \
-            -c 'avahi_autoipd' \
-            -u $(free_user_id) \
-            -g avahi_autoipd \
-            -s /bin/false \
-            -d '/var/lib/avahi_autoipd' \
-            avahi_autoipd 2> /dev/null
+  chroot . /usr/sbin/useradd \
+    -c 'avahi_autoipd' \
+    -u $(free_user_id) \
+    -g avahi_autoipd \
+    -s /bin/false \
+    -d '/var/lib/avahi_autoipd' \
+    avahi_autoipd 2> /dev/null
 fi
 
 if [ -s /etc/localtime ]; then
@@ -97,15 +91,12 @@ if [ -s /etc/localtime ]; then
 fi
 
 # Fix permissions
-/bin/chown avahi.avahi var/run/avahi-daemon
-
-systemctl enable avahi-daemon.service
+chroot . /bin/chown avahi:avahi var/run/avahi-daemon
 
 if [ -x bin/systemctl ] ; then
- /bin/systemctl --system daemon-reload >/dev/null 2>&1
+  chroot . /bin/systemctl enable avahi-daemon.service >/dev/null 2>&1
+  chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
-
-EOCR
 
 config() {
   NEW="$1"
