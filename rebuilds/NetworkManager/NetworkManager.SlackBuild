@@ -25,8 +25,8 @@
 # Modified 2011, 2012  by Eric Hameleers, Eindhoven, NL
 
 PKGNAM=NetworkManager
-VERSION=${VERSION:-1.2.0}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-1.2.2}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 TAR=$PKGNAM-$VERSION.tar.xz
 
@@ -91,7 +91,6 @@ sed -i -e '/^Alias=/aAlias=network.service' data/${PKGNAM}.service.in || exit 1
 
 patch -p1 -E --backup --verbose -i $CWD/02-dbus_access_network_manager.patch
 patch -p1 -E --backup --verbose -i $CWD/disable_set_hostname.patch
-#patch -p0 -E --backup --verbose -i $CWD/networkmanager-0.9.8.8-systemd209.patch
 
 #NOCONFIGURE=1 sh ./autogen.sh || exit $?
 
