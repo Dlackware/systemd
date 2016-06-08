@@ -95,7 +95,7 @@ CFLAGS="$SLKCFLAGS" \
   --mandir=/usr/man \
   --sysconfdir=/etc/ssh \
   --with-pam \
-  --libexecdir=/lib${LIBDIRSUFFIX}/security \
+  --libexecdir=/usr/lib${LIBDIRSUFFIX}/security \
   --with-md5-passwords \
   --with-default-path=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin \
   ${krb_flag} \
