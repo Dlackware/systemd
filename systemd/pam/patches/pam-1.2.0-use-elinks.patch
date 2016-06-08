@@ -9,7 +9,7 @@ diff -up Linux-PAM-1.2.0/configure.ac.links Linux-PAM-1.2.0/configure.ac
 +AC_PATH_PROG([BROWSER], [elinks])
  if test ! -z "$BROWSER"; then
 -     BROWSER="$BROWSER -T text/html -dump"
-+     BROWSER="$BROWSER -no-numbering -no-references -dump"
++     BROWSER="$BROWSER -no-references -dump"
  else
       enable_docu=no
  fi

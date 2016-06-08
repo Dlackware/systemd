@@ -1,5 +1,5 @@
 PKGNAM="pam"
-VERSION="1.2.1"
+VERSION="1.3.0"
 HOMEPAGE="http://www.linux-pam.org/"
-DOWNLOAD="http://linux-pam.org/library/Linux-PAM-1.2.1.tar.bz2"
-MD5SUM="9dc53067556d2dd567808fd509519dd6"
+DOWNLOAD="http://linux-pam.org/library/Linux-PAM-1.3.0.tar.bz2"
+MD5SUM="da4b2289b7cfb19583d54e9eaaef1c3a"

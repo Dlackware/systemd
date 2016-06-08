@@ -24,7 +24,7 @@
 
 SRCNAM=Linux-PAM
 PKGNAM=pam
-VERSION=${VERSION:-1.2.1}
+VERSION=${VERSION:-1.3.0}
 BUILD=${BUILD:-3}
 TAG=${TAG:-_dlack}
 
@@ -99,21 +99,20 @@ CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
   --prefix=/ \
-  --libdir=/lib${LIBDIRSUFFIX} \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
   --includedir=/usr/include/security \
   --datarootdir=/usr/share \
-  --localstatedir=/var/lib \
-  --enable-securedir=/lib${LIBDIRSUFFIX}/security \
+  --localstatedir=/var \
   --mandir=/usr/man \
-  --docdir=/usr/doc/$PKGNAM-$VERSION \
+  --without-xml-catalog \
   --enable-read-both-confs \
   --disable-prelude \
-  --disable-dependency-tracking \
-  --disable-audit \
-  --disable-nis \
   --disable-selinux \
   --build=$ARCH-slackware-linux || exit 1
+
+#   --docdir=/usr/doc/$PKGNAM-$VERSION \
+#   --enable-securedir=/lib${LIBDIRSUFFIX}/security \
 
 make $NUMJOBS || make || exit 1
 
