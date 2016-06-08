@@ -13,7 +13,7 @@
 
 PKGNAM=pam_krb5
 VERSION=2.4.11
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-3}
 TAG=${TAG:-_dlack}
 
 if [ -z "$ARCH" ]; then
@@ -69,8 +69,8 @@ CXXFLAGS="$SLKCFLAGS" \
 ./configure \
   --prefix=/usr \
   --sysconfdir=/etc \
-  --libdir=/lib${LIBDIRSUFFIX} \
-  --localstatedir=/var/lib \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --localstatedir=/var \
   --mandir=/usr/man \
   --with-os-distribution="Slackware" \
 || exit 1
