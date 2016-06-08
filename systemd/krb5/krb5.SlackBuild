@@ -22,14 +22,14 @@
 # http://web.mit.edu/kerberos/www/
 
 PKGNAM=krb5
-VERSION=${VERSION:-1.13.2}
+VERSION=${VERSION:-1.14.2}
 SVER=$(echo ${VERSION} | cut -d. -f1-2)
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:-" -j7 "}
 
-wget -c http://web.mit.edu/kerberos/dist/$PKGNAM/1.13/$PKGNAM-$VERSION-signed.tar
+wget -c http://web.mit.edu/kerberos/dist/$PKGNAM/1.14/$PKGNAM-$VERSION.tar.gz
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -66,16 +66,11 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-rm -f $TMP/$PKGNAM-$VERSION.tar.gz{,.asc}
-tar xvf $CWD/$PKGNAM-$VERSION-signed.tar -C $TMP
-tar xvf $TMP/$PKGNAM-$VERSION.tar.gz
+rm -f $TMP/$PKGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PKGNAM-$VERSION.tar.gz
 cd $PKGNAM-$VERSION
 
 DOCDIR=${PKG}/usr/doc/${PKGNAM}-${VERSION}
-
-#if [ -r ${CWD}/apply-patches.sh ]; then
-#  . ${CWD}/apply-patches.sh
-#fi
 
 cd src || exit 1
 
@@ -84,12 +79,9 @@ CXXFLAGS="$SLKCFLAGS" \
 ./configure \
   --prefix=/usr \
   --sysconfdir=/etc \
-  --libdir=/usr/lib$LIBDIRSUFFIX \
-  --localstatedir=/var/lib \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --localstatedir=/var \
   --mandir=/usr/man \
-  --with-system-et \
-  --with-system-ss \
-  --without-system-verto \
   --enable-dns-for-realm \
   --with-ldap \
 || exit 1
@@ -108,11 +100,6 @@ make install DESTDIR=${PKG} EXAMPLEDIR=/usr/doc/${PKGNAM}-${VERSION}/examples ||
   for i in `find . -type l` ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
   gzip -9 */*.?
 )
-
-mkdir -p $PKG/etc/rc.d
-cat $CWD/rc.krb5 > $PKG/etc/rc.d/rc.krb5.new
-
-chmod 700 $PKG/var/lib/krb5kdc
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
