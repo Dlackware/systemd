@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-229}
+VERSION=${VERSION:-230}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -178,7 +178,7 @@ CXXFLAGS="${SLKCFLAGS}" \
   --with-dbuspolicydir=/etc/dbus-1/system.d \
   --with-dbussessionservicedir=/usr/share/dbus-1/services \
   --with-dbussystemservicedir=/usr/share/dbus-1/system-services \
-  --with-pamlibdir=/lib${LIBDIRSUFFIX}/security \
+  --with-pamlibdir=/usr/lib${LIBDIRSUFFIX}/security \
   --with-pamconfdir=/etc/pam.d \
   --disable-silent-rules \
   --build=$ARCH-slackware-linux || exit 1
@@ -293,18 +293,6 @@ mkdir -p ${PKG}/etc/systemd/system/network.target.wants
 mkdir -p ${PKG}/lib/systemd/system/shutdown.target.wants
 mkdir -p ${PKG}/lib/systemd/system/syslog.target.wants
 
-# Temporary workaround for rhbz#1002806
-mkdir -p ${PKG}/lib/systemd/system/poweroff.target.wants
-mkdir -p ${PKG}/lib/systemd/system/rescue.target.wants
-mkdir -p ${PKG}/lib/systemd/system/multi-user.target.wants
-mkdir -p ${PKG}/lib/systemd/system/graphical.target.wants
-mkdir -p ${PKG}/lib/systemd/system/reboot.target.wants
-ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/poweroff.target.wants/
-ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/rescue.target.wants/
-ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/multi-user.target.wants/
-ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/graphical.target.wants/
-ln -s ../systemd-update-utmp-runlevel.service ${PKG}/lib/systemd/system/reboot.target.wants/
-
 # Make sure the user generators dir exists too
 mkdir -p ${PKG}/lib/systemd/system-generators
 mkdir -p ${PKG}/lib/systemd/user-generators
@@ -312,7 +300,7 @@ mkdir -p ${PKG}/lib/systemd/user-generators
 # Mask legacy stuff
 ln -sf rescue.service ${PKG}/lib/systemd/system/single.service
 
-for file in bootchart journald resolved timesyncd logind system user ;do
+for file in journald resolved timesyncd logind system user ;do
   mv ${PKG}/etc/systemd/${file}.conf ${PKG}/etc/systemd/${file}.conf.new || exit 1
 done
 
@@ -350,6 +338,7 @@ install -m0644 ${CWD}/config/udev.conf ${PKG}/etc/udev/udev.conf || exit 1
 
 # Install a standard google dns resolv
 install -m0644 $CWD/config/resolv.conf.eth0 ${PKG}/etc/resolv.conf.eth0 || exit 1
+install -m0644 $CWD/config/resolv.conf.eth0 ${PKG}/etc/resolv.conf.head || exit 1
 
 # Copy Slackware custom rules
 install -m0644 ${CWD}/config/rules.d/* ${PKG}/lib/udev/rules.d/ || exit 1
