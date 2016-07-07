@@ -26,8 +26,8 @@
 # Modified 2014 by Bart van der Hall for dlackware
 
 PKGNAM=gvfs
-VERSION=${VERSION:-1.26.3}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-1.28.2}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:--j6}
@@ -40,7 +40,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://download.gnome.org/sources/$PKGNAM/1.26/$PKGNAM-$VERSION.tar.xz
+wget -c http://download.gnome.org/sources/$PKGNAM/1.28/$PKGNAM-$VERSION.tar.xz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -76,7 +76,6 @@ find . \
 
 
 patch -p1 -E --backup --verbose -i ${CWD}/${PKGNAM}-archive-integration.patch
-# patch -p0 -E --backup --verbose -i $CWD/gvfs-1.8.3-systemd209.patch
 
 sed -i -e 's|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|g' configure.ac || exit 1
 sed -i -e '/LIBEXEC_DIR/s|\"/gvfs|\"gvfs|g' daemon/main.c || exit 1

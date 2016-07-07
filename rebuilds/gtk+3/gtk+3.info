@@ -1,5 +1,5 @@
 PKGNAM="gtk+3"
-VERSION="3.18.9"
+VERSION="3.20.6"
 HOMEPAGE="http://www.gtk.org/"
-DOWNLOAD="http://download.gnome.org/sources/gtk+/3.18/gtk+-3.18.9.tar.xz"
-MD5SUM="c7a5b21d28572bb1d6fc8803864618c0"
+DOWNLOAD="http://download.gnome.org/sources/gtk+/3.20/gtk+-3.20.6.tar.xz"
+MD5SUM="914e55ea053161f4a575c1c8dade7954"
