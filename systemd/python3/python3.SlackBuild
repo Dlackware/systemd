@@ -26,8 +26,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=python3
-VERSION=${VERSION:-3.5.1}
-DOCS_VERSION=${DOCS_VERSION:-3.5.1}
+VERSION=${VERSION:-3.5.2}
+DOCS_VERSION=${DOCS_VERSION:-3.5.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -40,9 +40,6 @@ if [ -z "$ARCH" ]; then
        *) ARCH=$( uname -m ) ;;
   esac
 fi
-
-wget -c https://python.org/ftp/python/${VERSION}/Python-${VERSION}.tar.xz \
-	https://docs.python.org/3/archives/python-${DOCS_VERSION}-docs-html.tar.bz2
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -69,7 +66,7 @@ LDVERSION=${PYVER}${ABIFLAGS}
 # Location for Python site-packages:
 PYLIBDIR=${PKG}/usr/lib${LIBDIRSUFFIX}/python${PYVER}
 SITEPK=${PYLIBDIR}/site-packages
-TOOLSDIR=../lib${LIBDIRSUFFIX}/python${PYVER}/site-packages
+TOOLSDIR=/usr/lib${LIBDIRSUFFIX}/python${PYVER}/site-packages
 
 set -eu
 
@@ -205,8 +202,8 @@ fi
 LD_LIBRARY_PATH="${dlack_SROOT}/build/optimized${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" ${dlack_SROOT}/build/optimized/python \
   Tools/scripts/pathfix.py -i "/usr/bin/python${PYVER}" ${dlack_SROOT}
 
-find ${PKG} | xargs file | grep -e "executable" -e "shared object" | grep ELF \
-  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+find ${PKG} -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 ( cd ${PKG}/usr/bin || exit 1
   rm -f python python-config
