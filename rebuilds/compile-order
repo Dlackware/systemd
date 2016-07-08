@@ -1,9 +1,12 @@
 # these are the package to be rebuild/added as base for the gnome build
+glib2
+glib-networking
 polkit
 libdaemon
 avahi
 libinput
 wayland
+wayland-protocols
 libwebp
 libbluray
 gst-plugins-bad
@@ -16,8 +19,10 @@ gvfs
 upower
 udisks2
 gnome-keyring
+json-glib
+gcab
 appstream-glib
-appdata-tools
+#appdata-tools
 gucharmap
 NetworkManager
 xorg-server

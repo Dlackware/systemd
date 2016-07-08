@@ -1,17 +1,16 @@
 #!/bin/sh
 
-# Slackware build script for appstream-glib
-
-# Copyright 2014 Bart van der Hall, Almere, NL
+# Copyright 2009-2011  Erik W. Hanson, Minneapolis, MN, USA
+# Copyright 2014-2015  Bart van der Hall, Almere, NL
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
 # permitted provided that the following conditions are met:
 #
 # 1. Redistributions of this script must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
+#    notice, this list of conditions and the following disclaimer.
 #
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
 # EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -22,23 +21,20 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PKGNAM=appstream-glib
-VERSION=${VERSION:-0.5.16}
+PKGNAM=json-glib
+VERSION=${VERSION:-1.2.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
-# Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
-    i?86) export ARCH=i486 ;;
-    arm*) export ARCH=arm ;;
-        *) export ARCH=$( uname -m ) ;;
+    i?86) ARCH=i486 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
   esac
 fi
 
-wget -c http://people.freedesktop.org/~hughsient/$PKGNAM/releases/$PKGNAM-$VERSION.tar.xz
-
-NUMJOBS=${NUMJOBS:-"-j4"}
+wget -c http://download.gnome.org/sources/$PKGNAM/1.2/$PKGNAM-$VERSION.tar.xz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -59,13 +55,13 @@ else
   LIBDIRSUFFIX=""
 fi
 
-set -e # Exit on most errors
+set -eu
 
-rm -rf $PKG
+rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
+tar xvf $CWD/$PKGNAM-$VERSION.tar.xz
 cd $PKGNAM-$VERSION
 chown -R root:root .
 find -L . \
@@ -74,34 +70,27 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
+CFLAGS="$SLKCFLAGS" \
 ./configure \
   --prefix=/usr \
-  --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
   --localstatedir=/var/lib \
-  --disable-silent-rules \
   --mandir=/usr/man \
-  --docdir=/usr/doc/$PKGNAM-$VERSION \
+  --disable-static \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
   --build=$ARCH-slackware-linux
 
-make $NUMJOBS || make || exit 1
-make install DESTDIR=$PKG || exit 1
+make
+make install-strip DESTDIR=$PKG
 
 mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
-cp -a \
-  COPYING NEWS \
-  $PKG/usr/doc/$PKGNAM-$VERSION
-
-# If there's a ChangeLog, installing at least part of the recent history
-# is useful, but don't let it get totally out of control:
-if [ -r ChangeLog ]; then
-  DOCSDIR=$(echo $PKG/usr/doc/${PKGNAM}-$VERSION)
-  cat ChangeLog | head -n 1000 > $DOCSDIR/ChangeLog
-  touch -r ChangeLog $DOCSDIR/ChangeLog
-fi
+cp -a ABOUT-NLS COPYING ChangeLog NEWS \
+      $PKG/usr/doc/$PKGNAM-$VERSION
+cat $CWD/$PKGNAM.SlackBuild > $PKG/usr/doc/$PKGNAM-$VERSION/$PKGNAM.SlackBuild
+ln -s /usr/share/gtk-doc/html/json-glib $PKG/usr/doc/$PKGNAM-$VERSION/html
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}

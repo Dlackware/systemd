@@ -23,8 +23,8 @@
 #   SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-PKGNAM=wayland
-VERSION=${VERSION:-1.10.0}
+PKGNAM=wayland-protocols
+VERSION=${VERSION:-1.4}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 

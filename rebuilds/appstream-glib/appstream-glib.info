@@ -1,5 +1,5 @@
 PKGNAM="appstream-glib"
-VERSION="0.3.4"
+VERSION="0.5.16"
 HOMEPAGE="http://people.freedesktop.org/~hughsient/appstream-glib/"
-DOWNLOAD="http://people.freedesktop.org/~hughsient/appstream-glib/releases/appstream-glib-0.3.4.tar.xz"
-MD5SUM="b3652e289d5fade9efbc07b9eabff488"
+DOWNLOAD="http://people.freedesktop.org/~hughsient/appstream-glib/releases/appstream-glib-0.5.16.tar.xz"
+MD5SUM="f02ef07ddd24d2b4e10dcd1d3f892d79"

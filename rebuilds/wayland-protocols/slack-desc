@@ -1,0 +1,12 @@
+wayland-protocols|-----handy-ruler------------------------------------------------------|
+wayland-protocols: wayland (Wayland Compositor Infrastructure)
+wayland-protocols:
+wayland-protocols: Wayland is a protocol for a compositor to talk to its clients as well
+wayland-protocols: as a C library implementation of that protocol. The compositor can be
+wayland-protocols: a standalone display server running on Linux kernel modesetting and
+wayland-protocols: evdev input devices, an X application, or a wayland client itself. The
+wayland-protocols: clients can be traditional applications, X servers (rootless or
+wayland-protocols: fullscreen) or other display servers.
+wayland-protocols:
+wayland-protocols: http://wayland.freedesktop.org/
+wayland-protocols:
