@@ -19,17 +19,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# http://web.mit.edu/kerberos/www/
-
 PKGNAM=krb5
-VERSION=${VERSION:-1.14.2}
+VERSION=${VERSION:-1.14.3}
 SVER=$(echo ${VERSION} | cut -d. -f1-2)
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:-" -j7 "}
-
-wget -c http://web.mit.edu/kerberos/dist/$PKGNAM/1.14/$PKGNAM-$VERSION.tar.gz
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then

@@ -12,7 +12,7 @@ krb5: krb5 is the MIT implementation of Kerberos, a secure network
 krb5: authentication protocol.  This build contains shared libraries to
 krb5: facilitate the use of both Kerberos v5 and the older v4 spec.
 krb5:
-krb5:
+krb5: Homepage: http://web.mit.edu/kerberos/www/
 krb5:
 krb5:
 krb5:
