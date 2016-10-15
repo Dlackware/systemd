@@ -9,6 +9,8 @@ wayland
 wayland-protocols
 libwebp
 libbluray
+gstreamer
+gst-plugins-good
 gst-plugins-bad
 gst-plugins-ugly
 gst-libav
