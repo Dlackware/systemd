@@ -1,4 +1,4 @@
-PKGNAM="gst-libav"
+PKGNAM="gst-plugins-good"
 VERSION="1.8.3"
 HOMEPAGE="http://gstreamer.freedesktop.org/modules/gst-plugins-good.html"
 DOWNLOAD="https://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-1.8.3.tar.xz"
