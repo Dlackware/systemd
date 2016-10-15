@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=lxml
-VERSION=${VERSION:-3.5.0}
+VERSION=${VERSION:-3.6.4}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -34,8 +34,6 @@ if [ -z "$ARCH" ]; then
        *) ARCH=$( uname -m ) ;;
   esac
 fi
-
-wget -c http://pypi.python.org/packages/source/l/$PKGNAM/$PKGNAM-$VERSION.tar.gz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
@@ -58,7 +56,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PKGNAM-$VERSION.tgz
 cd $PKGNAM-$VERSION
 chown -R root:root .
 find -L . \
