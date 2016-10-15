@@ -3,6 +3,8 @@
 # Slackware build script for libxkbcommon
 
 # Copyright 2013 Anton Sil'uev, Russia
+# Modified 2014 by Bart van der Hall for dlackware
+
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -21,11 +23,9 @@
 #  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# Modified 2014 by Bart van der Hall for dlackware
 
 PKGNAM=libxkbcommon
-VERSION=${VERSION:-0.5.0}
+VERSION=${VERSION:-0.6.1}
 BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
@@ -36,8 +36,6 @@ if [ -z "$ARCH" ]; then
        *) ARCH=$( uname -m ) ;;
   esac
 fi
-
-wget -c http://xkbcommon.org/download/$PKGNAM-$VERSION.tar.xz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}

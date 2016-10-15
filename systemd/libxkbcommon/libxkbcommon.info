@@ -1,5 +1,5 @@
 PKGNAM="libxkbcommon"
-VERSION="0.5.0"
+VERSION="0.6.1"
 HOMEPAGE="http://xkbcommon.org/"
-DOWNLOAD="http://xkbcommon.org/download/libxkbcommon-0.5.0.tar.xz"
-MD5SUM="2e1faeafcc609c30af3a561a91e84158"
+DOWNLOAD="http://xkbcommon.org/download/libxkbcommon-0.6.1.tar.xz"
+MD5SUM="67a8f322b5fa32352272e811bb90dd73"
