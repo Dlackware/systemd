@@ -41,12 +41,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://www.kernel.org/pub/linux/utils/${PKGNAM}/v2.27/${PKGNAM}-${VERSION}.tar.xz \
-	ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux/adjtimex_${ADJTIMEXVERS}.orig.tar.gz \
-	ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux/bsdstrings.tar.gz \
-	ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux/setserial-${SETSERIALVERS}.tar.gz \
-	ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux/ziptool-${ZIPTOOLVERS}.tar.xz
-
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
   LIBDIRSUFFIX=""
