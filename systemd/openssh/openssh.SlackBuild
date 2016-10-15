@@ -24,11 +24,10 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=openssh
-VERSION=${VERSION:-7.2p2}
+VERSION=${VERSION:-7.3p1}
 BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
-# Set initial variables:
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-$PKGNAM
@@ -42,10 +41,6 @@ if [ -z "$ARCH" ]; then
        *) export ARCH=$( uname -m ) ;;
   esac
 fi
-
-wget -c ftp://ftp.fsn.hu/pub/OpenBSD/OpenSSH/portable/${PKGNAM}-${VERSION}.tar.gz
-
-NUMJOBS=${NUMJOBS:--j6}
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
