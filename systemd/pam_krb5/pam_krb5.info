@@ -1,5 +1,5 @@
 PKGNAM="pam_krb5"
-VERSION="2.4.11"
+VERSION="2.4.13"
 HOMEPAGE="http://www.linux-pam.org/"
-DOWNLOAD="https://fedorahosted.org/releases/p/a/pam_krb5/pam_krb5-2.4.11.tar.gz"
-MD5SUM="8709736bc8a8c253bc4eeb4829888ca5"
+DOWNLOAD="https://fedorahosted.org/releases/p/a/pam_krb5/pam_krb5-2.4.13.tar.gz"
+MD5SUM="8c625201ce75454566453ca911644cdc"

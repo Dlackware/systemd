@@ -12,8 +12,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=pam_krb5
-VERSION=2.4.11
-BUILD=${BUILD:-3}
+VERSION=2.4.13
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 if [ -z "$ARCH" ]; then
@@ -23,8 +23,6 @@ if [ -z "$ARCH" ]; then
        *) export ARCH=$( uname -m ) ;;
   esac
 fi
-
-wget -c https://fedorahosted.org/releases/p/a/pam_krb5/${PKGNAM}-${VERSION}.tar.gz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
