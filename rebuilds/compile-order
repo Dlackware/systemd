@@ -18,6 +18,7 @@ gst-plugins-bad
 gst-plugins-ugly
 gst-libav
 shared-mime-info
+libcap
 gvfs
 upower
 udisks2

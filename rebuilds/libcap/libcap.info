@@ -1,0 +1,5 @@
+PKGNAM="libcap"
+VERSION="2.25"
+HOMEPAGE="https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/"
+DOWNLOAD="https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.25.tar.xz"
+MD5SUM="6666b839e5d46c2ad33fc8aa2ceb5f77"
