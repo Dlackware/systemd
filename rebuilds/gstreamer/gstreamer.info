@@ -1,0 +1,5 @@
+PKGNAM="gst-libav"
+VERSION="1.8.3"
+HOMEPAGE="https://gstreamer.freedesktop.org/"
+DOWNLOAD="https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.8.3.tar.xz"
+MD5SUM="e88dad542df9d986822e982105d2b530"
