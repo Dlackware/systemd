@@ -23,7 +23,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=dbus
-VERSION=${VERSION:-1.10.8}
+VERSION=${VERSION:-1.10.12}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -38,8 +38,6 @@ if [ -z "$ARCH" ]; then
        *) export ARCH=$( uname -m ) ;;
   esac
 fi
-
-wget -c http://${PKGNAM}.freedesktop.org/releases/${PKGNAM}/${PKGNAM}-${VERSION}.tar.gz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
