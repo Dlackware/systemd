@@ -22,11 +22,9 @@
 # -----------------------------------------------------------------------------
 
 PKGNAM=gst-libav
-VERSION=${VERSION:-1.6.4}
+VERSION=${VERSION:-1.8.3}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
-
-NUMJOBS=${NUMJOBS:--j7}
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -36,8 +34,6 @@ if [ -z "$ARCH" ]; then
        *) export ARCH=$( uname -m ) ;;
   esac
 fi
-
-wget -c http://gstreamer.freedesktop.org/src/$PKGNAM/$PKGNAM-$VERSION.tar.xz
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
