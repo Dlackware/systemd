@@ -46,8 +46,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c https://github.com/systemd/systemd/archive/v${VERSION}.tar.gz
-
 NUMJOBS=${NUMJOBS:--j7}
 
 CWD=$(pwd)
