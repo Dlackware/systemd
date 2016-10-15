@@ -9,6 +9,8 @@ wayland
 wayland-protocols
 libwebp
 libbluray
+mesa
+gtk+3
 gstreamer
 gst-plugins-base
 gst-plugins-good
@@ -16,8 +18,6 @@ gst-plugins-bad
 gst-plugins-ugly
 gst-libav
 shared-mime-info
-mesa
-gtk+3
 gvfs
 upower
 udisks2
