@@ -1,5 +1,5 @@
 PKGNAM="wayland"
-VERSION="1.10.0"
+VERSION="1.11.1"
 HOMEPAGE="http://wayland.freedesktop.org/"
-DOWNLOAD="http://wayland.freedesktop.org/releases/wayland-1.10.0.tar.xz"
-MD5SUM="e7751c38807c231afaba9d6b68f2a2b7"
+DOWNLOAD="http://wayland.freedesktop.org/releases/wayland-1.11.1.tar.xz"
+MD5SUM="82f227c65faec3df0335847626811303"
