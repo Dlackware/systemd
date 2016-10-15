@@ -3,8 +3,9 @@
 # Slackware build script for gvfs
 
 # Copyright 2009-2012  Robby Workman, Northport, Alabama, USA
-# All rights reserved.
 # Copyright 2014  Bart van der Hall, Almere, NL
+#
+# All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
 # permitted provided that the following conditions are met:
@@ -27,7 +28,7 @@
 
 PKGNAM=gvfs
 VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 if [ -z "$ARCH" ]; then
@@ -70,8 +71,6 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-
-patch -p1 -E --backup --verbose -i ${CWD}/${PKGNAM}-archive-integration.patch
 
 sed -i -e 's|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|g' configure.ac || exit 1
 sed -i -e '/LIBEXEC_DIR/s|\"/gvfs|\"gvfs|g' daemon/main.c || exit 1
