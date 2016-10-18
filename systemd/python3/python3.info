@@ -1,5 +1,5 @@
 PKGNAM="python3"
-VERSION="3.5.1"
+VERSION="3.5.2"
 HOMEPAGE="https://www.python.org/"
 DOWNLOAD="https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz \
           https://docs.python.org/3/archives/python-3.5.2-docs-html.tar.bz2"
