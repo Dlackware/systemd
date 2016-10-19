@@ -44,11 +44,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://prdownloads.sourceforge.net/$PKGNAM/$PKGNAM-$VERSION.tar.xz \
-        ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-18.tar.xz \
-        ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-ng-2.0.304.tar.xz \
-        ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/psmisc-22.21.tar.xz
-
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-$PKGNAM
@@ -80,7 +75,7 @@ rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z* || exit 1
 cd $PKGNAM-$VERSION || exit 1
 tar xvf $CWD/psmisc-$PSMISCVER.tar.xz || exit 1
 tar xvf $CWD/procinfo-ng-$PROCINFONGVER.tar.xz || exit 1
