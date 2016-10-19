@@ -2,9 +2,8 @@
 
 # Slackware build script for python3
 
-# Copyright 2012-2014 Audrius Kažukauskas <audrius@neutrino.lt>
-# Copyright 2014 Eugene Wissner, Dachau, Germany
-# Copyright 2014 Bart van der Hall, Almere, Netherlands
+# Copyright 2012-2015 Audrius Kažukauskas <audrius@neutrino.lt>
+# Copyright 2016 Eugene Wissner, Dachau, Germany
 #
 # All rights reserved.
 #
@@ -25,13 +24,11 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PKGNAM=python3
-VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
+PRGNAM=python3
+VERSION=${VERSION:-3.5.2}
 DOCS_VERSION=${DOCS_VERSION:-3.5.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
-
-NUMJOBS=${NUMJOBS:-" -j7 "}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -43,34 +40,31 @@ fi
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
-PKG=$TMP/package-$PKGNAM
-OUTPUT=${OUTPUT:-/var/cache/dlackware}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
 
+# Don't set any SLKCFLAGS here, or OPT="$SLKCFLAGS" before the ./configure.
+# Python gets the compile options right without any help.
 if [ "$ARCH" = "i486" ]; then
   LIBDIRSUFFIX=""
-  SLKCFLAGS="-O2 -march=${ARCH} -mtune=i686"
 elif [ "$ARCH" = "i686" ]; then
   LIBDIRSUFFIX=""
-  SLKCFLAGS="-O2 -march=${ARCH} -mtune=i686"
 elif [ "$ARCH" = "x86_64" ]; then
   LIBDIRSUFFIX="64"
-  SLKCFLAGS="-O2 -fPIC"
 else
   LIBDIRSUFFIX=""
-  SLKCFLAGS="-O2 -march=native -mtune=native -pipe"
 fi
 
-PYVER=${VERSION::3}
-ABIFLAGS=m
-LDVERSION=${PYVER}${ABIFLAGS}
-# Location for Python site-packages:
-PYLIBDIR=${PKG}/usr/lib${LIBDIRSUFFIX}/python${PYVER}
-SITEPK=${PYLIBDIR}/site-packages
-TOOLSDIR=/usr/lib${LIBDIRSUFFIX}/python${PYVER}/site-packages
+PYVER=$(cut -d. -f1,2 <<< "$VERSION")
 
 set -eu
 
-rm -rf $TMP
+# Location for Python site-packages.
+SITEPK=$PKG/usr/lib${LIBDIRSUFFIX}/python${PYVER}/site-packages
+# Same as above without $PKG.
+TOOLSDIR=/usr/lib${LIBDIRSUFFIX}/python${PYVER}/site-packages
+
+rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf Python-$VERSION
@@ -78,21 +72,13 @@ tar xvf $CWD/Python-$VERSION.tar.xz
 cd Python-$VERSION
 
 patch -p1 -i $CWD/patches/python3.readline.set_pre_input_hook.diff
-# We don't want a large libpython*.a:
+# We don't want a large libpython*.a.
 patch -p1 -i $CWD/patches/python3.no-static-library.diff
 
 if [ "$ARCH" = "x86_64" ]; then
-  # Install to lib64 instead of lib:
+  # Install to lib64 instead of lib.
   patch -p1 -i $CWD/patches/python3.x86_64.diff
 fi
-
-# Remove embedded copies of expat and zlib:
-rm -rf Modules/expat Modules/zlib || exit 1
-
-# Remove embedded copy of libffi:
-for SUBDIR in darwin libffi libffi_arm_wince libffi_msvc libffi_osx ; do
-  rm -rf Modules/_ctypes/${SUBDIR} || exit 1 ;
-done
 
 # Fix python3 path in cgi.py.
 sed -i '1s|^#.*/usr/local/bin/python|#!/usr/bin/python3|' Lib/cgi.py
@@ -106,191 +92,58 @@ find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
   -o -perm 511 \) -exec chmod 755 {} \; -o \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
- -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-dlack_SROOT="$(pwd)"
-
-export CPPFLAGS="$(pkg-config --cflags-only-I libtirpc)"
-
-mkdir -p build/optimized
-( cd build/optimized || exit 1
-
-OPT="${SLKCFLAGS} -D_GNU_SOURCE -fPIC -fwrapv" \
-${dlack_SROOT}/configure \
+./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
-  --sysconfdir=/etc \
-  --localstatedir=/var/lib \
-  --infodir=/usr/info \
   --mandir=/usr/man \
-  --docdir=/usr/doc/${PKGNAM}-${VERSION} \
-  --enable-shared \
+  --docdir=/usr/doc/$PRGNAM-$VERSION \
   --with-threads \
   --enable-ipv6 \
-  --without-valgrind \
-  --with-computed-gotos=yes \
+  --enable-shared \
   --with-system-expat \
   --with-system-ffi \
-  --with-dbmliborder=gdbm:ndbm:bdb \
-  --without-dtrace \
-  --build=$ARCH-slackware-linux || exit $?
+  --build=$ARCH-slackware-linux
 
-make ${NUMJOBS} || make || exit $?
-make install DESTDIR=${PKG} || exit $?
-
-) || exit $?
+make
+make install DESTDIR=$PKG
 
 # Restore original ensurepip behaviour.
 sed -i 's|\("install",\) "--ignore-installed",|\1|' \
   $PKG/usr/lib${LIBDIRSUFFIX}/python${PYVER}/ensurepip/__init__.py
 
-DirHoldingGdbPy=${PKG}/usr/share/gdb/auto-load/usr/lib${LIBDIRSUFFIX}
-PathOfGdbPy=${DirHoldingGdbPy}/libpython${LDVERSION}.so.1.0.debug-gdb.py
+# Remove to avoid overwriting a copy from Python2.
+rm -f $PKG/usr/bin/2to3
 
-mkdir -p ${DirHoldingGdbPy}
-cp Tools/gdb/libpython.py ${PathOfGdbPy} || exit 1
+# We'll install the python-tools under site-packages.
+mkdir -p $SITEPK
+cp -a Tools/* $SITEPK
 
-mkdir -p ${SITEPK}/__pycache__
+# Remove DOS batch/exe files.
+find $PKG \( -name '*.exe' -o -name '*.bat' \) -exec rm -f '{}' \;
 
-mv ${PKG}/usr/bin/2to3 ${PKG}/usr/bin/${PKGNAM}-2to3 || exit 1
+# Fix permissions on dynamic libraries.
+find $PKG -type f -perm 555 -exec chmod 755 '{}' \;
 
-# Junk, no point in putting in -test sub-pkg
-rm -f ${PYLIBDIR}/idlelib/testcode.py*
+# Install docs.
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a README LICENSE Misc $PKG/usr/doc/$PRGNAM-$VERSION
+mv $SITEPK/README $PKG/usr/doc/$PRGNAM-$VERSION/README.python-tools
+( cd $PKG/usr/doc/$PRGNAM-$VERSION ; ln -sf $TOOLSDIR Tools )
 
-rm -f ${PYLIBDIR}/email/test/data/audiotest.au \
-  ${PYLIBDIR}/test/audiotest.au
+tar xf $CWD/python-$DOCS_VERSION-docs-html.tar.bz2
+mv python-$DOCS_VERSION-docs-html $PKG/usr/doc/$PRGNAM-$VERSION/html
+chown -R root:root $PKG/usr/doc/$PRGNAM-$VERSION/html
 
-# Remove SLKCFLAGS from modules build Makefile.
-# This fix some possible problems.
-sed \
-  -e "/^OPT=/s|${SLKCFLAGS}||g" \
-  -e "/CPPFLAGS=/s|$(pkg-config --cflags-only-I libtirpc)||g" \
-  -i ${PYLIBDIR}/config-${LDVERSION}/Makefile || exit 1
-
-unset MARCH
-case "${ARCH}" in
-  i[3-6]86|s390) MARCH=32
-             ;;
-    x86_64) MARCH=64
-             ;;
-esac
-
-PyIncludeDirs=python${LDVERSION}
-
-if [ -n "${MARCH}" ] ;then
-  mv ${PKG}/usr/include/${PyIncludeDirs}/pyconfig.h \
-    ${PKG}/usr/include/${PyIncludeDirs}/pyconfig-${MARCH}.h || exit 1
-
-cat > ${PKG}/usr/include/${PyIncludeDirs}/pyconfig.h << EOF
-#include <bits/wordsize.h>
-
-#if __WORDSIZE == 32
-#include "pyconfig-32.h"
-#elif __WORDSIZE == 64
-#include "pyconfig-64.h"
-#else
-#error "Unknown word size"
-#endif
-EOF
-
-sed -i -e "s/'pyconfig.h'/'pyconfig-${MARCH}.h'/" \
-  ${PYLIBDIR}/distutils/sysconfig.py \
-  ${PYLIBDIR}/sysconfig.py || exit 1
-
-fi
-
-LD_LIBRARY_PATH="${dlack_SROOT}/build/optimized${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" ${dlack_SROOT}/build/optimized/python \
-  Tools/scripts/pathfix.py -i "/usr/bin/python${PYVER}" ${dlack_SROOT}
-
-find ${PKG} -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-( cd ${PKG}/usr/bin || exit 1
-  rm -f python python-config
-  ln -sf python${LDVERSION} python${PYVER}
-  ln -sf python${LDVERSION} ${PKGNAM}
-  #ln -sf python${SVER}-config python-config
-)
-
-# We'll install the python-tools under site-packages:
-mkdir -p ${SITEPK}
-( cd Tools ; cp -a * ${SITEPK} )
-
-rm -f ${SITEPK}/pynche/pynche.pyw
-
-mkdir -p ${SITEPK}/Doc
-cp -ar Doc/tools ${SITEPK}/Doc/ || exit 1
-
-find ${PKG} -name \*.py \
-  \( \( \! -perm /u+x,g+x,o+x -exec sed -e '/^#!/Q 0' -e 'Q 1' {} \; \
-  -print -exec sed -i '1d' {} \; \) -o \( \
-  -perm /u+x,g+x,o+x ! -exec grep -m 1 -q '^#!' {} \; \
-  -exec chmod a-x {} \; \) \)
-
-# .xpm and .xbm files should not be executable:
-find ${PKG} \
-  \( -name \*.xbm -o -name \*.xpm -o -name \*.xpm.1 \) \
-  -exec chmod a-x {} \;
-
-# Remove executable flag from files that shouldn't have it:
-chmod a-x \
-  ${PYLIBDIR}/distutils/tests/Setup.sample
-#  ${PYLIBDIR}/Tools/README
-
-rm -f ${PYLIBDIR}/LICENSE.txt
-
-find ${PKG}/ -name '*.py' -exec sed -i 's/\r//' {} ';'
-
-find ${PKG} \
-  -perm 555 -exec chmod 755 {} \;
-
-ldd ${PYLIBDIR}/lib-dynload/_curses*.so \
-  | grep curses \
-  | grep libncurses.so && touch cursesw.tmp
-
-if [ -f cursesw.tmp ] ;then
-  echo "_curses.so linked against libncurses.so" ; exit 1
-fi
-
-# Add a documentation directory:
-mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
-cp -a README Misc $PKG/usr/doc/$PKGNAM-$VERSION
-( cd $PKG/usr/doc/$PKGNAM-$VERSION
-  ln -sf $TOOLSDIR Tools
- )
-tar xf $CWD/python-$DOCS_VERSION-docs-html.tar.bz2
-mv python-$DOCS_VERSION-docs-html $PKG/usr/doc/$PKGNAM-$VERSION/html
-chown -R root:root $PKG/usr/doc/$PKGNAM-$VERSION
-
-
-find $PKG/usr/doc/$PKGNAM-$VERSION/ -type d -print0 | xargs -0 chmod 0755
-find $PKG/usr/doc/$PKGNAM-$VERSION/ -type f -print0 | xargs -0 chmod 0644
-
-find ${PKG} \( -name '*~' -o -name '*.orig' -o -name '*.lib64' -o -name '*.bat' \) -exec rm -f {} ';'
-
-# Compress and link manpages, if any:
-if [ -d ${PKG}/usr/share/man ]; then
-  mv ${PKG}/usr/share/man ${PKG}/usr/man
-  rmdir ${PKG}/usr/share
-fi
-if [ -d ${PKG}/usr/man ]; then
-  ( cd ${PKG}/usr/man
-    for manpagedir in $(find . -type d -name "man*") ; do
-      ( cd ${manpagedir}
-        for eachpage in $( find . -type l -maxdepth 1) ; do
-          ln -s $( readlink ${eachpage} ).gz ${eachpage}.gz
-          rm -f ${eachpage}
-        done
-        gzip -9 *.?
-        # Prevent errors
-        rm -f *.gz.gz
-      )
-    done
-  )
-fi
+find $PKG/usr/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
