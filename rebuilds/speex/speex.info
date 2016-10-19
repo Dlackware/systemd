@@ -1,4 +1,4 @@
-PRGNAM="speex"
+PKGNAM="speex"
 VERSION="1.2rc2"
 HOMEPAGE="http://www.speex.org"
 DOWNLOAD="http://downloads.us.xiph.org/releases/speex/speex-1.2rc2.tar.gz"

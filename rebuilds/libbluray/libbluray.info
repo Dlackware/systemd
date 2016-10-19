@@ -1,4 +1,4 @@
-PRGNAM="libbluray"
+PKGNAM="libbluray"
 VERSION="0.9.3"
 HOMEPAGE="http://www.videolan.org/developers/libbluray.html"
 DOWNLOAD="ftp://ftp.videolan.org/pub/videolan/libbluray/0.9.3/libbluray-0.9.3.tar.bz2"

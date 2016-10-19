@@ -1,4 +1,4 @@
-PRGNAM="lxml"
+PKGNAM="lxml"
 VERSION="3.6.4"
 HOMEPAGE="http://lxml.de/"
 DOWNLOAD="http://lxml.de/files/lxml-3.6.4.tgz"
