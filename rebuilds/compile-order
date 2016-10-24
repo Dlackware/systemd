@@ -30,3 +30,4 @@ appstream-glib
 gucharmap
 NetworkManager
 xorg-server
+systemd-service-files
