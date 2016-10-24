@@ -1,0 +1,5 @@
+PKGNAM="samba"
+VERSION="4.5.0"
+HOMEPAGE="http://www.samba.org/"
+DOWNLOAD="https://download.samba.org/pub/samba/stable/samba-4.5.0.tar.gz"
+MD5SUM="723c483d6a4ebebaa3bfd5099dcff5af"
