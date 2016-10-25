@@ -4,6 +4,7 @@ glib-networking
 polkit
 libdaemon
 avahi
+libwacom
 libinput
 wayland
 wayland-protocols
