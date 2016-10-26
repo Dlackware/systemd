@@ -28,7 +28,7 @@ Alias=mysqld.service
 ## Core requirements
 ##
 
-Type=process
+Type=simple
 
 # Setting this to true can break replication and the Type=notify settings
 # See also bind-address mysqld option.
@@ -58,8 +58,9 @@ ProtectHome=true
 # Execute pre and post scripts as root, otherwise it does it as User=
 PermissionsStartOnly=true
 
-# Needed to create system tables etc.
-# ExecStartPre=/usr/bin/mysql_install_db -u mysql
+# Create the directory before start
+ExecStartPre=/bin/mkdir -p /var/run/mysql
+ExecStartPre=/bin/chown mysql /var/run/mysql
 
 PIDFile=/var/run/mysql/mysql.pid
 
