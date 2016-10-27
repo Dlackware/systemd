@@ -31,4 +31,5 @@ appstream-glib
 gucharmap
 NetworkManager
 xorg-server
+xorg-server-xwayland
 systemd-service-files
