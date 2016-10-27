@@ -7,7 +7,6 @@ eudev%systemd
 #systemd
 dbus
 util-linux
-samba
 openssh
 procps-ng
 # !reboot
