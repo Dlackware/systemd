@@ -23,13 +23,13 @@
 #  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# Modified 2014 by Bart van der Hall for dlackware
 
 PKGNAM=gvfs
 VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
+
+NUMJOBS=${NUMJOBS:--j7}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -94,7 +94,7 @@ CFLAGS="$SLKCFLAGS" \
   --enable-libsystemd-login \
   --build=$ARCH-slackware-linux || exit 1
 
-make || exit 1
+make $NUMJOBS || exit 1
 make install DESTDIR=$PKG || exit 1
 
 # Don't set AutoMount to true for network volumes.  Doing so leads to long
