@@ -21,9 +21,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-VERSION=${VERSION:-2.50.1}
+PKGNAM=glib2
+VERSION=${VERSION:-$(echo glib-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
+
+NUMJOBS=${NUMJOBS:--j4}
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -37,7 +40,7 @@ fi
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
-PKG=$TMP/package-glib2
+PKG=$TMP/package-${PKGNAM}
 OUTPUT=${OUTPUT:-/var/cache/dlackware}
 
 if [ "$ARCH" = "i486" ]; then
@@ -159,5 +162,4 @@ cat $CWD/slack-desc > $PKG/install/slack-desc
 cat $CWD/doinst.sh | sed "s,@LIBDIR@,/usr/lib${LIBDIRSUFFIX}," > $PKG/install/doinst.sh
 
 cd $PKG
-/sbin/makepkg -l y -c n --prepend $OUTPUT/glib2-$VERSION-$ARCH-$BUILD$TAG.txz
-
+/sbin/makepkg -l y -c n --prepend $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
