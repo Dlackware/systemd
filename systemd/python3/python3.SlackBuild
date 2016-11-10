@@ -41,7 +41,7 @@ fi
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-$PRGNAM
-OUTPUT=${OUTPUT:-/tmp}
+OUTPUT=${OUTPUT:-/var/cache/dlackware}
 
 # Don't set any SLKCFLAGS here, or OPT="$SLKCFLAGS" before the ./configure.
 # Python gets the compile options right without any help.
