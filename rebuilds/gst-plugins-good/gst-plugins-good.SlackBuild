@@ -84,6 +84,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --localstatedir=/var \
   --mandir=/usr/man \
   --disable-static \
+  --disable-libcaca \
   --disable-debug \
   --build=$ARCH-slackware-linux || exit 1
 
