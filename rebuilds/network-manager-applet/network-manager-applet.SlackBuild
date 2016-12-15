@@ -23,8 +23,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=network-manager-applet
-VERSION=${VERSION:-1.0.10}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-1.2.6}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 # Automatically determine the architecture we're building on:
@@ -36,7 +36,7 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-wget -c http://download.gnome.org/sources/$PKGNAM/1.0/$PKGNAM-$VERSION.tar.xz
+wget -c http://download.gnome.org/sources/$PKGNAM/1.2/$PKGNAM-$VERSION.tar.xz
 
 NUMJOBS=${NUMJOBS:-"-j4"}
 
