@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-231}
+VERSION=${VERSION:-232}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -190,8 +190,8 @@ make install DESTDIR=$PKG \
 rm -rf ${PKG}/etc/init.d
 rm -rf ${PKG}/etc/rc.d/init.d
 
-mv ${PKG}/usr/lib${LIBDIRSUFFIX}/libnss_myhostname.so.* \
-  ${PKG}/lib${LIBDIRSUFFIX}/ || exit 1
+#mv ${PKG}/usr/lib${LIBDIRSUFFIX}/libnss_myhostname.so.* \
+#  ${PKG}/lib${LIBDIRSUFFIX}/ || exit 1
 
 # Good to have on path
 mkdir -p ${PKG}/sbin

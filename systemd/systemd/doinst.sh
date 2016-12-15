@@ -31,7 +31,6 @@ config etc/pam.d/systemd-user.new
 config etc/rc.d/rc.local_shutdown.new
 config etc/rc.d/rc.udev.new
 config etc/rc.d/rc.Msystemd.new
-config etc/systemd/bootchart.conf.new
 config etc/systemd/journald.conf.new
 config etc/systemd/logind.conf.new
 config etc/systemd/resolved.conf.new
