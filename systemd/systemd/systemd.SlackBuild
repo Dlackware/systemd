@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-232}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init

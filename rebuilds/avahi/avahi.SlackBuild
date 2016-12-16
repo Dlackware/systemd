@@ -24,7 +24,7 @@
 
 PKGNAM=avahi
 VERSION=${VERSION:-0.6.32}
-BUILD=${BUILD:-3}
+BUILD=${BUILD:-4}
 TAG=${TAG:-_dlack}
 
 # Automatically determine the architecture we're building on:
@@ -155,6 +155,24 @@ desktop-file-install --delete-original --vendor="" \
   --remove-category="Application" \
   --add-category="GTK" \
   ${PKG}/usr/share/applications/*.desktop || exit 1
+
+mv $PKG/usr/share/man/* $PKG/usr/man
+rm -rf $PKG/usr/share/man
+
+# Compress and link manpages, if any:
+if [ -d $PKG/usr/man ]; then
+  ( cd $PKG/usr/man
+    for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd $manpagedir
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink $eachpage ).gz $eachpage.gz
+          rm $eachpage
+        done
+        gzip -9 *.?
+      )
+    done
+  )
+fi
 
 find $PKG | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

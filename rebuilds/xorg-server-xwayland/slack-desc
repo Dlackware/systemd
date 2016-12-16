@@ -12,8 +12,8 @@ xorg-server-xwayland: Xwayland is an X server client package that provides an X 
 xorg-server-xwayland: running on top of wayland, using wayland input devices for input and
 xorg-server-xwayland: forwarding either the root window or individual top-level windows as
 xorg-server-xwayland: wayland surfaces. 
-xorg-server-xwayland:  
-xorg-server-xwayland:  
-xorg-server-xwayland:  
+xorg-server-xwayland:
+xorg-server-xwayland:
+xorg-server-xwayland:
 xorg-server-xwayland:
 xorg-server-xwayland:

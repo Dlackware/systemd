@@ -10,7 +10,7 @@ libdaemon: libdaemon (Library for writing daemons)
 libdaemon:
 libdaemon: libdaemon is a lightweight C library that eases the writing of
 libdaemon: UNIX daemons. It consists of the following parts:
-libdaemon: 
+libdaemon:
 libdaemon: * A wrapper around fork()
 libdaemon: * A wrapper around syslog()
 libdaemon: * An API for writing PID files and more...

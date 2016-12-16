@@ -1,3 +1,10 @@
+# Figure out our root directory
+ROOTDIR=$(pwd)
+unset CHROOT
+if test "${ROOTDIR}" != "/"; then
+  CHROOT="chroot ${ROOTDIR} "
+  ROOTDIR="${ROOTDIR}/"
+fi
 
 config() {
   NEW="$1"
@@ -36,7 +43,7 @@ config etc/NetworkManager/NetworkManager.conf.new
 # /bin/systemctl enable NetworkManager >/dev/null 2>&1
 #fi
 
-if [ -x bin/systemctl ] ; then
- /bin/systemctl --system daemon-reload >/dev/null 2>&1
+if [ -x ${CHROOT} /bin/systemctl ] ; then
+ ${CHROOT} /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
 
