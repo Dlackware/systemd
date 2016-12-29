@@ -1,5 +1,5 @@
 PKGNAM="libinput"
-VERSION="1.5.0"
+VERSION="1.5.3"
 HOMEPAGE="http://www.freedesktop.org/software/Wiki/libinput/"
-DOWNLOAD="http://www.freedesktop.org/software/libinput/libinput-1.5.0.tar.xz"
-MD5SUM="26030dae25f1ac584b0e428c90473339"
+DOWNLOAD="http://www.freedesktop.org/software/libinput/libinput-1.5.3.tar.xz"
+MD5SUM="5df5e7f1a693bf74bbab0c804d1b710b"

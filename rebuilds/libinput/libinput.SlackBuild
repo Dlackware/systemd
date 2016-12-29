@@ -24,7 +24,7 @@
 
 PKGNAM=libinput
 VERSION=${VERSION:-$(echo $PKGNAM-*.tar.xz | cut -d - -f 2 | rev | cut -f 3- -d . | rev)}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 if [ -z "$ARCH" ]; then
@@ -76,6 +76,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
   --localstatedir=/var/lib \
+  --with-udev-dir=/lib/udev \
   --disable-silent-rules \
   --disable-dependency-tracking \
   --disable-static \
