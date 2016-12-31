@@ -4,6 +4,4 @@ HOMEPAGE="http://www.linux-nis.org/nis/yp-tools/"
 DOWNLOAD="http://www.linux-nis.org/download/yp-tools/yp-tools-2.14.tar.bz2 \
           http://www.linux-nis.org/download/ypbind-mt/ypbind-mt-1.38.tar.bz2 \
           http://www.linux-nis.org/download/ypserv/ypserv-2.32.1.tar.bz2"
-MD5SUM="ba1f121c17e3ad65368be173b977cd13 \
-        \
-	"
+MD5SUM="ba1f121c17e3ad65368be173b977cd13"
