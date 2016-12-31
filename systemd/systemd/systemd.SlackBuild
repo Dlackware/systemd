@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-232}
-BUILD=${BUILD:-3}
+BUILD=${BUILD:-4}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -364,8 +364,8 @@ install -pm0644 ${CWD}/config/scripts/20-eth-dhcp.network ${PKG}/lib/systemd/net
 
 chmod 755 ${PKG}/lib/udev/*
 
-cp -R /lib${LIBDIRSUFFIX}/libudev.la $PKG/usr/lib${LIBDIRSUFFIX}/libudev.la
-cp -R /lib${LIBDIRSUFFIX}/libsystemd.la $PKG/usr/lib${LIBDIRSUFFIX}/libsystemd.la
+cp -R $PKG/lib${LIBDIRSUFFIX}/libudev.la $PKG/usr/lib${LIBDIRSUFFIX}/libudev.la
+cp -R $PKG/lib${LIBDIRSUFFIX}/libsystemd.la $PKG/usr/lib${LIBDIRSUFFIX}/libsystemd.la
 
 
 ################################# End of udev ##################################
