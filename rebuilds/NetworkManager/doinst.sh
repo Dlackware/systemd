@@ -43,7 +43,7 @@ config etc/NetworkManager/NetworkManager.conf.new
 # /bin/systemctl enable NetworkManager >/dev/null 2>&1
 #fi
 
-if [ -x ${CHROOT} /bin/systemctl ] ; then
+if [ -x bin/systemctl ] ; then
  ${CHROOT} /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
 

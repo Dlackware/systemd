@@ -1,4 +1,13 @@
 #!/bin/sh
+# Figure out our root directory
+ROOTDIR=$(pwd)
+unset CHROOT
+if test "${ROOTDIR}" != "/"; then
+  CHROOT="chroot ${ROOTDIR} "
+  ROOTDIR="${ROOTDIR}/"
+fi
+
+
 if [ -x /usr/bin/update-mime-database ]; then
   /usr/bin/update-mime-database /usr/share/mime 1>/dev/null 2>/dev/null
   cat /etc/passwd | while read passwdline ; do
@@ -18,11 +27,7 @@ if [ -x /usr/bin/update-mime-database ]; then
   done
 fi
 
-
-
-
-
-if [ -x bin/systemctl ] ; then
-  /bin/systemctl enable update-mime-database.service &&
-  /bin/systemctl --system daemon-reload >/dev/null 2>&1
+if [ -x bin/systemctl ]; then
+   ${CHROOT} . /bin/systemctl --system daemon-reload >/dev/null 2>&1
+   ${CHROOT} . /bin/systemctl enable update-mime-database.service >/dev/null 2>&1
 fi

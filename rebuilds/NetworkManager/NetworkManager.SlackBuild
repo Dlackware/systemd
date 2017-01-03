@@ -26,7 +26,7 @@
 
 PKGNAM=NetworkManager
 VERSION=${VERSION:-1.2.6}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-4}
 TAG=${TAG:-_dlack}
 TAR=$PKGNAM-$VERSION.tar.xz
 
