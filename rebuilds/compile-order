@@ -4,8 +4,6 @@ glib-networking
 polkit
 libdaemon
 avahi
-libwacom
-libinput
 wayland
 wayland-protocols
 libwebp
@@ -19,7 +17,6 @@ gst-plugins-bad
 gst-plugins-ugly
 gst-libav
 shared-mime-info
-libcap
 gvfs
 upower
 udisks2
@@ -27,7 +24,6 @@ gnome-keyring
 json-glib
 gcab
 appstream-glib
-#appdata-tools
 gucharmap
 NetworkManager
 xorg-server
