@@ -341,26 +341,26 @@ enableservice () {
 # Try to read default runlevel from the old inittab if it exists
 runlevel=$(${CHROOT} /bin/awk -F':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
 if [ -z "${runlevel}" ]; then
-  target="/lib/systemd/system/graphical.target"
+  target="/usr/lib/systemd/system/graphical.target"
 else
-  target="/lib/systemd/system/runlevel${runlevel}.target"
+  target="/usr/lib/systemd/system/runlevel${runlevel}.target"
 fi
 
 # And symlink what we found to the new-style default.target
 ${CHROOT} /bin/ln -sf "${target}" /etc/systemd/system/default.target
 
-if [ -r lib/systemd/systemd ]; then
-  mv -f lib/systemd/systemd lib/systemd/systemd.old
+if [ -r usr/lib/systemd/systemd ]; then
+  mv -f usr/lib/systemd/systemd usr/lib/systemd/systemd.old
 fi
 
-mv -f lib/systemd/systemd.new lib/systemd/systemd
+mv -f usr/lib/systemd/systemd.new usr/lib/systemd/systemd
 
-if [ -f lib/systemd/systemd.old ]; then
-  rm -f lib/systemd/systemd.old
+if [ -f usr/lib/systemd/systemd.old ]; then
+  rm -f usr/lib/systemd/systemd.old
 fi
 
 if [ ! -r etc/systemd/system/syslog.service ] ;then
-  ${CHROOT} /bin/ln -s /lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service >/dev/null 2>&1 || :
+  ${CHROOT} /bin/ln -s /usr/lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service >/dev/null 2>&1 || :
 fi
 
 enableservice getty@tty1.service || :
@@ -369,7 +369,7 @@ enableservice remote-fs.target || :
 #enableservice systemd-readahead-collect.service || :
 
 #${CHROOT} /bin/systemd-machine-id-setup > /dev/null 2>&1 || :
-${CHROOT} /lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
+${CHROOT} /usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 ${CHROOT} /bin/systemctl daemon-reexec > /dev/null 2>&1 || :
 sleep 1
 

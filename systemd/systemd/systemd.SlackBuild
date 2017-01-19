@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-232}
-BUILD=${BUILD:-4}
+BUILD=${BUILD:-6}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -137,7 +137,7 @@ CXXFLAGS="${SLKCFLAGS}" \
 ./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
-  --libexecdir=/lib \
+  --libexecdir=/usr/libexec \
   --with-rootprefix= \
   --with-rootlibdir=/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
@@ -189,9 +189,6 @@ make install DESTDIR=$PKG \
 
 rm -rf ${PKG}/etc/init.d
 rm -rf ${PKG}/etc/rc.d/init.d
-
-#mv ${PKG}/usr/lib${LIBDIRSUFFIX}/libnss_myhostname.so.* \
-#  ${PKG}/lib${LIBDIRSUFFIX}/ || exit 1
 
 # Good to have on path
 mkdir -p ${PKG}/sbin
