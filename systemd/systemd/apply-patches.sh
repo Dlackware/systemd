@@ -31,6 +31,9 @@ patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/udev-rootlibdir.patch
 # From Slackware
 patch -p0 -E --backup --verbose -i ${SBO_PATCHDIR}/60-cdrom_id.rules.diff
 
+patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/Don-t-enable-audit-by-default.patch
+
+
 # Set to YES if autogen is needed
 SBO_AUTOGEN=YES
 

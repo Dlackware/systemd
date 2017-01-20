@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-232}
-BUILD=${BUILD:-7}
+BUILD=${BUILD:-8}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -94,6 +94,19 @@ fi
   done
 )
 
+find src/ -name '*-name.gperf' -print -delete
+find src/ \( -name '*-to-name.h' -o -name '*-from-name.h' \) -print -delete
+
+sed -i \
+  -e 's|@RC_LOCAL_SCRIPT_PATH_START@|/etc/rc.d/rc.local|g' \
+  -e 's|@RC_LOCAL_SCRIPT_PATH_STOP@|/etc/rc.d/rc.local_shutdown|g' \
+  -e '/^ConditionFileIsExecutable=/aConditionFileIsExecutable=/etc/rc.d/rc.local_shutdown' \
+  -e '/^After=/s|$| local-fs.target|g' \
+  -e '/^ExecStart/s| start||g' \
+  -e 's|^Type=.*$|ExecStop=/etc/rc.d/rc.local_shutdown|g' \
+units/rc-local.service.in units/halt-local.service.in || exit 1
+
+
 sed -i -e '/^exec_prefix=/s|=.*$|=/|g' \
   src/libudev/libudev.pc.in || exit 1
 
@@ -106,6 +119,11 @@ sed -i -e '/udevadm/s|@rootbindir@|/sbin|g' \
 sed -i -e 's|/etc/hostname|/etc/HOSTNAME|g' \
   src/hostname/hostnamed.c src/core/hostname-setup.c \
   man/{hostname,machine-info}.xml man/hostnamectl.xml || exit 1
+
+# This should be multilib aware...
+sed -i -e "/locale/s|/lib/|/lib${LIBDIRSUFFIX}/|g" \
+src/locale/localectl.c || exit 1
+
 
 mkdir -p ${PKG}/lib/udev/rules.d
 mkdir -p ${PKG}/run
@@ -156,6 +174,8 @@ CXXFLAGS="${SLKCFLAGS}" \
   --disable-audit \
   --disable-selinux \
   --enable-kdbus \
+  --with-sysvinit-path=/etc/init.d \
+  --with-sysvrcnd-path=/etc/rc.d \
   --with-rc-local-script-path-start=/etc/rc.local \
   --with-rc-local-script-path-stop=/etc/rc.d/rc.local_shutdown \
   --with-telinit=/sbin/telinit \
@@ -195,11 +215,11 @@ find $PKG | xargs file | grep -e "executable" -e "shared object" \
 # rc.local and rc.local_shutdown
 install -pm0644 units/rc-local.service.in \
   ${PKG}/lib/systemd/system/rc-local.service || exit 1
-install -pm0644 units/halt-local.service.in \
-  ${PKG}/lib/systemd/system/halt-local.service || exit 1
-
 ln -s ../rc-local.service \
   ${PKG}/lib/systemd/system/multi-user.target.wants/rc-local.service || exit 1
+
+install -pm0644 units/halt-local.service.in \
+  ${PKG}/lib/systemd/system/halt-local.service || exit 1
 ln -s ../halt-local.service \
   ${PKG}/lib/systemd/system/multi-user.target.wants/halt-local.service || exit 1
 
