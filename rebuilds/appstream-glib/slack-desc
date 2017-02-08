@@ -8,10 +8,10 @@
               |-----handy-ruler------------------------------------------------------|
 appstream-glib: appstream-glib (Appstream metadata library)
 appstream-glib:
-appstream-glib: This library provides objects and helper methods
-appstream-glib: to help reading and writing AppStream metadata.
+appstream-glib: This library provides objects and helper methods to help reading and
+appstream-glib: writing AppStream metadata.
 appstream-glib:
-appstream-glib:
+appstream-glib: Homepage: https://people.freedesktop.org/~hughsient/appstream-glib/
 appstream-glib:
 appstream-glib:
 appstream-glib:
