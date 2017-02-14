@@ -1,7 +1,7 @@
 PKGNAM="python3"
-VERSION="3.5.2"
+VERSION="3.5.3"
 HOMEPAGE="https://www.python.org/"
-DOWNLOAD="https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz \
-          https://docs.python.org/3.5/archives/python-3.5.2-docs-html.tar.bz2"
-MD5SUM="8906efbacfcdc7c3c9198aeefafd159e \
-        2527b72bf39a6c6bb3378662e935546e"
+DOWNLOAD="https://www.python.org/ftp/python/3.5.3/Python-3.5.3.tar.xz \
+          https://docs.python.org/3.5/archives/python-3.5.3-docs-html.tar.bz2"
+MD5SUM="57d1f8bfbabf4f2500273fb0706e6f21 \
+        61974bc364604cba5cd643b434aa18cf"
