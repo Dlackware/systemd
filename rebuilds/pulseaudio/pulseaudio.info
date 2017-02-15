@@ -1,5 +1,0 @@
-PKGNAM="pulseaudio"
-VERSION="7.1"
-HOMEPAGE="http://www.freedesktop.org/wiki/Software/PulseAudio/"
-DOWNLOAD="http://freedesktop.org/software/pulseaudio/releases/pulseaudio-7.1.tar.gz"
-MD5SUM="859bd29aa7eb39427b06e41474c2eb5c"

@@ -1,5 +1,0 @@
-PKGNAM="gst-plugins-ugly"
-VERSION="1.8.3"
-HOMEPAGE="http://gstreamer.freedesktop.org/modules/gst-plugins-ugly.html"
-DOWNLOAD="http://gstreamer.freedesktop.org/src/gst-plugins-ugly/gst-plugins-ugly-1.8.3.tar.xz"
-MD5SUM="4fc66c77253b0ad5ce224bda654b2e7d"

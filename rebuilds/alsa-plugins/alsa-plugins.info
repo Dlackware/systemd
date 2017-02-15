@@ -1,5 +1,0 @@
-PKGNAM="alsa-plugins"
-VERSION="1.1.1"
-HOMEPAGE="http://www.alsa-project.org"
-DOWNLOAD="ftp://ftp.alsa-project.org/pub/plugins/alsa-plugins-1.1.1.tar.bz2"
-MD5SUM="69f9f3e2de3c97fc71d496e91e271fe5"

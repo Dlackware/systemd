@@ -1,5 +1,0 @@
-PKGNAM="bluez"
-VERSION="5.42"
-HOMEPAGE="http://www.bluez.org"
-DOWNLOAD="http://www.kernel.org/pub/linux/bluetooth/bluez-5.42.tar.xz"
-MD5SUM="cc8c53133d5be0d6c126e00cf2529028"
