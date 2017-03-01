@@ -1,4 +1,5 @@
 PKGNAM="python3"
+SRCNAM="Python"
 VERSION="3.5.3"
 HOMEPAGE="https://www.python.org/"
 DOWNLOAD="https://www.python.org/ftp/python/3.5.3/Python-3.5.3.tar.xz \
