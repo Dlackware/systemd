@@ -1,6 +1,5 @@
 PKGNAM="systemd"
-SRCNAM="v"
 VERSION="233"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/systemd/"
-DOWNLOAD="https://github.com/systemd/systemd/archive/v233.tar.gz"
+DOWNLOAD="https://github.com/systemd/systemd/archive/v233/systemd-233.tar.gz"
 MD5SUM="11d3ff48f3361b8bdcfcdc076a31b537"
