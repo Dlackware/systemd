@@ -1,5 +1,5 @@
 PKGNAM="lxml"
 VERSION="3.6.4"
 HOMEPAGE="http://lxml.de/"
-DOWNLOAD="https://pypi.python.org/packages/4f/3f/cf6daac551fc36cddafa1a71ed48ea5fd642e5feabd3a0d83b8c3dfd0cb4/lxml-3.6.4.tar.gz
-MD5SUM="6dd7314233029d9dab0156e7b1c7830"
+DOWNLOAD="https://pypi.python.org/packages/4f/3f/cf6daac551fc36cddafa1a71ed48ea5fd642e5feabd3a0d83b8c3dfd0cb4/lxml-3.6.4.tar.gz"
+MD5SUM="6dd7314233029d9dab0156e7b1c7830b"
