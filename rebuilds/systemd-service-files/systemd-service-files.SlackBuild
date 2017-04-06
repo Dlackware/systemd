@@ -19,7 +19,7 @@
 
 PKGNAM=systemd-service-files
 VERSION=${VERSION:-3.22.0}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-3}
 TAG=${TAG:-_dlack}
 
 ARCH=noarch
