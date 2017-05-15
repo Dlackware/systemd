@@ -25,8 +25,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=libxkbcommon
-VERSION=${VERSION:-0.6.1}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-0.7.1}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 if [ -z "$ARCH" ]; then
