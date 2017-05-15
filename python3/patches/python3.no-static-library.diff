@@ -10,25 +10,6 @@ diff -uar Python-3.5.1.orig/Makefile.pre.in Python-3.5.1/Makefile.pre.in
  	$(LINKCC) $(PY_LDFLAGS) $(LINKFORSHARED) -o $@ Programs/python.o $(BLDLIBRARY) $(LIBS) $(MODLIBS) $(SYSLIBS) $(LDLAST)
  
  platform: $(BUILDPYTHON) pybuilddir.txt
-@@ -599,18 +599,6 @@
- 		_TCLTK_INCLUDES='$(TCLTK_INCLUDES)' _TCLTK_LIBS='$(TCLTK_LIBS)' \
- 		$(PYTHON_FOR_BUILD) $(srcdir)/setup.py $$quiet build
- 
--# Build static library
--# avoid long command lines, same as LIBRARY_OBJS
--$(LIBRARY): $(LIBRARY_OBJS)
--	-rm -f $@
--	$(AR) $(ARFLAGS) $@ Modules/getbuildinfo.o
--	$(AR) $(ARFLAGS) $@ $(PARSER_OBJS)
--	$(AR) $(ARFLAGS) $@ $(OBJECT_OBJS)
--	$(AR) $(ARFLAGS) $@ $(PYTHON_OBJS) Python/frozen.o
--	$(AR) $(ARFLAGS) $@ $(MODULE_OBJS) $(SIGNAL_OBJS)
--	$(AR) $(ARFLAGS) $@ $(MODOBJS)
--	$(RANLIB) $@
--
- libpython$(LDVERSION).so: $(LIBRARY_OBJS)
- 	if test $(INSTSONAME) != $(LDLIBRARY); then \
- 		$(BLDSHARED) -Wl,-h$(INSTSONAME) -o $(INSTSONAME) $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
 @@ -700,7 +688,7 @@
  		echo "-----------------------------------------------"; \
  	fi

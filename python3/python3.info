@@ -1,8 +1,8 @@
 PKGNAM="python3"
 SRCNAM="Python"
-VERSION="3.5.3"
+VERSION="3.6.1"
 HOMEPAGE="https://www.python.org/"
-DOWNLOAD="https://www.python.org/ftp/python/3.5.3/Python-3.5.3.tar.xz \
-          https://docs.python.org/3.5/archives/python-3.5.3-docs-html.tar.bz2"
+DOWNLOAD="https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz \
+          https://docs.python.org/3.6/archives/python-3.6.1-docs-html.tar.bz2"
 MD5SUM="57d1f8bfbabf4f2500273fb0706e6f21 \
         61974bc364604cba5cd643b434aa18cf"

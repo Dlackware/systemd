@@ -33,18 +33,6 @@ diff -uar Python-3.5.1.orig/Lib/distutils/sysconfig.py Python-3.5.1/Lib/distutil
          if standard_lib:
              return libpython
          else:
-diff -uar Python-3.5.1.orig/Lib/site.py Python-3.5.1/Lib/site.py
---- Python-3.5.1.orig/Lib/site.py	2015-12-07 03:39:08.000000000 +0200
-+++ Python-3.5.1/Lib/site.py	2015-12-14 21:27:46.083400395 +0200
-@@ -303,7 +303,7 @@
-         seen.add(prefix)
- 
-         if os.sep == '/':
--            sitepackages.append(os.path.join(prefix, "lib",
-+            sitepackages.append(os.path.join(prefix, "lib64",
-                                         "python" + sys.version[:3],
-                                         "site-packages"))
-         else:
 diff -uar Python-3.5.1.orig/Lib/sysconfig.py Python-3.5.1/Lib/sysconfig.py
 --- Python-3.5.1.orig/Lib/sysconfig.py	2015-12-07 03:39:08.000000000 +0200
 +++ Python-3.5.1/Lib/sysconfig.py	2015-12-14 21:27:46.084400429 +0200
@@ -135,18 +123,6 @@ diff -uar Python-3.5.1.orig/Modules/getpath.c Python-3.5.1/Modules/getpath.c
      }
      /* If we found EXEC_PREFIX do *not* reduce it!  (Yet.) */
  
-diff -uar Python-3.5.1.orig/configure Python-3.5.1/configure
---- Python-3.5.1.orig/configure	2015-12-07 03:39:11.000000000 +0200
-+++ Python-3.5.1/configure	2015-12-14 21:27:46.089400598 +0200
-@@ -14464,7 +14464,7 @@
- $as_echo "$LDVERSION" >&6; }
- 
- 
--LIBPL='$(prefix)'"/lib/python${VERSION}/config-${LDVERSION}"
-+LIBPL='$(prefix)'"/lib64/python${VERSION}/config-${LDVERSION}"
- 
- 
- # Check whether right shifting a negative integer extends the sign bit
 diff -uar Python-3.5.1.orig/setup.py Python-3.5.1/setup.py
 --- Python-3.5.1.orig/setup.py	2015-12-07 03:39:11.000000000 +0200
 +++ Python-3.5.1/setup.py	2015-12-14 21:27:46.090400632 +0200
