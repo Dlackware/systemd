@@ -1,5 +1,5 @@
 PKGNAM="openssh"
-VERSION="7.4p1"
+VERSION="7.5p1"
 HOMEPAGE="http://www.openssh.com/"
-DOWNLOAD="ftp://ftp.fsn.hu/pub/OpenBSD/OpenSSH/portable/openssh-7.4p1.tar.gz"
-MD5SUM="b2db2a83caf66a208bb78d6d287cdaa3"
+DOWNLOAD="ftp://ftp.fsn.hu/pub/OpenBSD/OpenSSH/portable/openssh-7.5p1.tar.gz"
+MD5SUM="652fdc7d8392f112bef11cacf7e69e23"
