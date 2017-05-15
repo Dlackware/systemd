@@ -23,8 +23,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=lxml
-VERSION=${VERSION:-3.6.4}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-3.7.2}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 if [ -z "$ARCH" ]; then
@@ -56,7 +56,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PKGNAM-$VERSION.tgz
 cd $PKGNAM-$VERSION
 chown -R root:root .
 find -L . \
