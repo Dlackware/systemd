@@ -25,8 +25,9 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=python3
-VERSION=${VERSION:-$(echo Python-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-DOCS_VERSION=${DOCS_VERSION:-3.6.1}
+SRCNAM=Python
+VERSION=${VERSION:-3.6.1}
+BRANCH_VERSION=$(echo $VERSION | cut -f 1,2 -d . )
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -55,23 +56,22 @@ else
   LIBDIRSUFFIX=""
 fi
 
-PYVER=$(cut -d. -f1,2 <<< "$VERSION")
-
 set -eu
 
 # Location for Python site-packages.
-SITEPK=$PKG/usr/lib${LIBDIRSUFFIX}/python${PYVER}/site-packages
+SITEPK=$PKG/usr/lib${LIBDIRSUFFIX}/python${BRANCH_VERSION}/site-packages
 # Same as above without $PKG.
-TOOLSDIR=/usr/lib${LIBDIRSUFFIX}/python${PYVER}/site-packages
+TOOLSDIR=/usr/lib${LIBDIRSUFFIX}/python${BRANCH_VERSION}/site-packages
 
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf Python-$VERSION
-tar xvf $CWD/Python-$VERSION.tar.xz
-cd Python-$VERSION
+rm -rf $SRCNAM-$VERSION
+tar xvf $CWD/$SRCNAM-$VERSION.tar.xz
+cd $SRCNAM-$VERSION
 
 patch -p1 -i $CWD/patches/python3.readline.set_pre_input_hook.diff
+patch -p1 -i $CWD/patches/python3.readonly.diff
 # We don't want a large libpython*.a.
 patch -p1 -i $CWD/patches/python3.no-static-library.diff
 
@@ -87,6 +87,13 @@ sed -i '1s|^#.*/usr/local/bin/python|#!/usr/bin/python3|' Lib/cgi.py
 # install pip anyway.
 sed -i 's|\("install",\)|\1 "--ignore-installed",|' Lib/ensurepip/__init__.py
 
+# Ensure that we are using the system copy of various libraries (expat, zlib, libffi, and libmpdec),
+# rather than copies shipped in the tarball
+rm -r Modules/expat
+rm -r Modules/zlib
+rm -r Modules/_ctypes/{darwin,libffi}*
+rm -r Modules/_decimal/libmpdec
+
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -99,19 +106,27 @@ find -L . \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --mandir=/usr/man \
   --docdir=/usr/doc/$PRGNAM-$VERSION \
-  --with-threads \
-  --enable-ipv6 \
   --enable-shared \
+  --with-threads \
+  --with-computed-gotos \
+  --enable-optimizations \
+  --enable-ipv6 \
   --with-system-expat \
   --with-system-ffi \
+  --with-system-libmpdec \
+  --enable-loadable-sqlite-extensions \
+  --with-ensurepip=yes \
   --build=$ARCH-slackware-linux
+
+# Hack to avoid building again
+sed -i 's/^all:.*$/all: build_all/' Makefile
 
 make
 make install DESTDIR=$PKG
 
 # Restore original ensurepip behaviour.
-sed -i 's|\("install",\) "--ignore-installed",|\1|' \
-  $PKG/usr/lib${LIBDIRSUFFIX}/python${PYVER}/ensurepip/__init__.py
+sed -i 's| "--ignore-installed",||' \
+  $PKG/usr/lib${LIBDIRSUFFIX}/python${BRANCH_VERSION}/ensurepip/__init__.py
 
 # Remove to avoid overwriting a copy from Python2.
 rm -f $PKG/usr/bin/2to3
@@ -128,13 +143,14 @@ find $PKG -type f -perm 555 -exec chmod 755 '{}' \;
 
 # Install docs.
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a LICENSE Misc $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a README.rst LICENSE Misc $PKG/usr/doc/$PRGNAM-$VERSION
 mv $SITEPK/README $PKG/usr/doc/$PRGNAM-$VERSION/README.python-tools
 ( cd $PKG/usr/doc/$PRGNAM-$VERSION ; ln -sf $TOOLSDIR Tools )
-
-tar xf $CWD/python-$DOCS_VERSION-docs-html.tar.bz2
-mv python-$DOCS_VERSION-docs-html $PKG/usr/doc/$PRGNAM-$VERSION/html
-chown -R root:root $PKG/usr/doc/$PRGNAM-$VERSION/html
+if [ -e "$CWD/python-$VERSION-docs-html.tar.bz2" ]; then
+  tar xf $CWD/python-$VERSION-docs-html.tar.bz2
+  mv python-$VERSION-docs-html $PKG/usr/doc/$PRGNAM-$VERSION/html
+  chown -R root:root $PKG/usr/doc/$PRGNAM-$VERSION/html
+fi
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
