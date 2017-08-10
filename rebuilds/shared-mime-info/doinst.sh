@@ -1,4 +1,5 @@
 #!/bin/sh
+
 if [ -x /usr/bin/update-mime-database ]; then
   /usr/bin/update-mime-database /usr/share/mime 1>/dev/null 2>/dev/null
   cat /etc/passwd | while read passwdline ; do
@@ -17,10 +18,6 @@ if [ -x /usr/bin/update-mime-database ]; then
     fi
   done
 fi
-
-
-
-
 
 if [ -x bin/systemctl ] ; then
   /bin/systemctl enable update-mime-database.service &&
