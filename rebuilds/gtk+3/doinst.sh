@@ -9,11 +9,8 @@ if [ -x usr/bin/glib-compile-schemas ] ;then
   chroot . /usr/bin/glib-compile-schemas --allow-any-name /usr/share/glib-2.0/schemas &> /dev/null
 fi
 
-chroot . systemctl enable update-gtk-immodules-2.service
 chroot . systemctl enable update-gtk-immodules-3.service
 
 if [ -x bin/systemctl ] ; then
   chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
-
-
