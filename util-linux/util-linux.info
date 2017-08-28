@@ -1,7 +1,7 @@
 PKGNAM="util-linux"
-VERSION="2.29.2"
+VERSION="2.30.1"
 HOMEPAGE="http://kernel.org/~kzak/util-linux/"
-DOWNLOAD="http://www.kernel.org/pub/linux/utils/util-linux/v2.29/util-linux-2.29.2.tar.xz \
+DOWNLOAD="http://www.kernel.org/pub/linux/utils/util-linux/v2.30/util-linux-2.30.1.tar.xz \
           ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux/adjtimex_1.29.orig.tar.gz \
           ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux/bsdstrings.tar.gz \
           ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/util-linux/setserial-2.17.tar.gz \
