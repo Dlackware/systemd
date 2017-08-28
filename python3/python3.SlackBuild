@@ -26,7 +26,7 @@
 
 PRGNAM=python3
 SRCNAM=Python
-VERSION=${VERSION:-3.6.1}
+VERSION=${VERSION:-3.6.2}
 BRANCH_VERSION=$(echo $VERSION | cut -f 1,2 -d . )
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
@@ -71,7 +71,7 @@ tar xvf $CWD/$SRCNAM-$VERSION.tar.xz
 cd $SRCNAM-$VERSION
 
 patch -p1 -i $CWD/patches/python3.readline.set_pre_input_hook.diff
-patch -p1 -i $CWD/patches/python3.readonly.diff
+#patch -p1 -i $CWD/patches/python3.readonly.diff
 # We don't want a large libpython*.a.
 patch -p1 -i $CWD/patches/python3.no-static-library.diff
 
@@ -87,13 +87,6 @@ sed -i '1s|^#.*/usr/local/bin/python|#!/usr/bin/python3|' Lib/cgi.py
 # install pip anyway.
 sed -i 's|\("install",\)|\1 "--ignore-installed",|' Lib/ensurepip/__init__.py
 
-# Ensure that we are using the system copy of various libraries (expat, zlib, libffi, and libmpdec),
-# rather than copies shipped in the tarball
-rm -r Modules/expat
-rm -r Modules/zlib
-rm -r Modules/_ctypes/{darwin,libffi}*
-rm -r Modules/_decimal/libmpdec
-
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -108,18 +101,10 @@ find -L . \
   --docdir=/usr/doc/$PRGNAM-$VERSION \
   --enable-shared \
   --with-threads \
-  --with-computed-gotos \
-  --enable-optimizations \
   --enable-ipv6 \
   --with-system-expat \
   --with-system-ffi \
-  --with-system-libmpdec \
-  --enable-loadable-sqlite-extensions \
-  --with-ensurepip=yes \
   --build=$ARCH-slackware-linux
-
-# Hack to avoid building again
-sed -i 's/^all:.*$/all: build_all/' Makefile
 
 make
 make install DESTDIR=$PKG
