@@ -1,8 +1,0 @@
-PKGNAM="python3"
-SRCNAM="Python"
-VERSION="3.6.2"
-HOMEPAGE="https://www.python.org/"
-DOWNLOAD="https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz \
-          https://www.python.org/ftp/python/doc/3.6.2/python-3.6.2-docs-html.tar.bz2"
-MD5SUM="2c68846471994897278364fc18730dd9 \
-        9ad03052da4d7147400af8385af7f29f"
