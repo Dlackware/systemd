@@ -1,5 +1,5 @@
 PKGNAM="gtk+3"
-VERSION="3.22.21"
+VERSION="3.22.22"
 HOMEPAGE="https://www.gtk.org/"
-DOWNLOAD="https://download.gnome.org/sources/gtk+/3.22/gtk+-3.22.21.tar.xz"
-MD5SUM="622c0ae9a271bf55855a0d2d937d6d16"
+DOWNLOAD="https://download.gnome.org/sources/gtk+/3.22/gtk+-3.22.22.tar.xz"
+MD5SUM="ea8d2cd5731be7266ffa99a8b8282e1d"
