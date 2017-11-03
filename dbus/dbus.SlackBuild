@@ -23,7 +23,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=dbus
-VERSION=${VERSION:-1.10.22}
+VERSION=${VERSION:-1.10.24}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -72,7 +72,7 @@ find . \
  -exec chmod 644 {} \;
 
 patch -p1 --verbose <$CWD/dbus-1.6.x-allow_root_globally.diff || exit 1
-patch -p1 --verbose <$CWD/dbus.expat222fix.diff || exit 1
+#patch -p1 --verbose <$CWD/dbus.expat222fix.diff || exit 1
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
