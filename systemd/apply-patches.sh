@@ -35,6 +35,6 @@ patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/Don-t-enable-audit-by-default
 
 
 # Set to YES if autogen is needed
-SBO_AUTOGEN=YES
+SBO_AUTOGEN=NO
 
 set +e +o pipefail

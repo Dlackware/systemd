@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-234}
+VERSION=${VERSION:-235}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -51,6 +51,7 @@ NUMJOBS=${NUMJOBS:--j7}
 CWD=$(pwd)
 TMP=${TMP:-/tmp/dlackware}
 PKG=$TMP/package-$PKGNAM
+BUILDDIR=$TMP/$PKGNAM-$VERSION/build-$PKGNAM
 OUTPUT=${OUTPUT:-/var/cache/dlackware}
 
 if [ "$ARCH" = "i586" ]; then
@@ -137,62 +138,69 @@ fi
 
 export PYTHON=python3
 
-intltoolize
+mkdir -p build
+cd build
 
-CFLAGS="${SLKCFLAGS} -fno-lto"
-CXXFLAGS="${SLKCFLAGS}" \
-./configure \
-  --prefix=/usr \
+meson --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
-  --libexecdir=/lib \
-  --with-rootprefix= \
-  --with-rootlibdir=/lib${LIBDIRSUFFIX} \
+  --buildtype=release \
   --sysconfdir=/etc \
   --localstatedir=/var \
   --infodir=/usr/info \
   --mandir=/usr/man \
-  --docdir=/usr/doc/${PKGNAM}-${VERSION} \
-  --disable-dependency-tracking \
-  --enable-kmod \
-  --enable-xz \
-  --enable-networkd \
-  --enable-resolved \
-  --enable-vconsole \
-  --enable-tmpfiles \
-  --enable-rfkill \
-  --enable-localed \
-  --enable-polkit \
-  --enable-ldconfig \
-  --enable-logind \
-  --disable-microhttpd \
-  --disable-libcryptsetup \
-  --disable-firstboot \
-  --disable-apparmor \
-  --enable-timedated \
-  --enable-timesyncd \
-  --enable-split-usr \
-  --enable-pam \
-  --disable-audit \
-  --disable-selinux \
-  --enable-kdbus \
-  --with-sysvinit-path=/etc/init.d \
-  --with-sysvrcnd-path=/etc/rc.d \
-  --with-rc-local-script-path-start=/etc/rc.local \
-  --with-rc-local-script-path-stop=/etc/rc.d/rc.local_shutdown \
-  --with-telinit=/sbin/telinit \
-  --with-dbuspolicydir=/etc/dbus-1/system.d \
-  --with-dbussessionservicedir=/usr/share/dbus-1/services \
-  --with-dbussystemservicedir=/usr/share/dbus-1/system-services \
-  --with-pamlibdir=/usr/lib${LIBDIRSUFFIX}/security \
-  --with-pamconfdir=/etc/pam.d \
-  --disable-silent-rules \
-  --build=$ARCH-slackware-linux || exit 1
+  -Drootprefix=/ \
+  -Drootlibdir=/lib${LIBDIRSUFFIX} \
+  -Ddisable-dependency-tracking=true \
+  -Dkmod=true \
+  -Dxz=true \
+  -Dnetworkd=true \
+  -Dresolved=true \
+  -Dvconsole=true \
+  -Dtmpfiles=true \
+  -Drfkill=true \
+  -Dlocaled=true \
+  -Dpolkit=true \
+  -Dldconfig=true \
+  -Dlogind=true \
+  -Dmicrohttpd=false \
+  -Dlibcryptsetup=false \
+  -Dfirstboot=false \
+  -Dapparmor=false \
+  -Dtimedated=true \
+  -Dtimesyncd=true \
+  -Dsplit-usr=true \
+  -Dpam=true \
+  -Daudit=false \
+  -Dselinux=false \
+  -Dkdbus=true \
+  -Drpmmacrosdir=no \
+  -Dsysvinit-path=/etc/init.d \
+  -Dsysvrcnd-path=/etc/rc.d \
+  -Drc-local-script-path-start=/etc/rc.local \
+  -Drc-local-script-path-stop=/etc/rc.d/rc.local_shutdown \
+  -Dtelinit=/sbin/telinit \
+  -Ddbuspolicydir=/etc/dbus-1/system.d \
+  -Ddbussessionservicedir=/usr/share/dbus-1/services \
+  -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
+  -Dpamlibdir=/usr/lib${LIBDIRSUFFIX}/security \
+  -Dpamconfdir=/etc/pam.d \
+  -Ddisable-silent-rules=true || exit 1
+#  --build=$ARCH-slackware-linux || exit 1
 
-make $NUMJOBS || make || exit 1
-make install DESTDIR=$PKG \
-  pkgconfigdatadir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
-  sharepkgconfigdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
-  || exit 1
+ninja
+DESTDIR=$PKG ninja install
+
+cd ..
+
+#ninja -v -C builddir/
+#DESTDIR=${PKG} ninja -C builddir/ install
+
+#cd ${BUILDDIR}
+#make $NUMJOBS || make || exit 1
+#make install DESTDIR=$PKG \
+#  pkgconfigdatadir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
+#  sharepkgconfigdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
+#  || exit 1
 
 rm -rf ${PKG}/etc/init.d
 rm -rf ${PKG}/etc/rc.d/init.d
