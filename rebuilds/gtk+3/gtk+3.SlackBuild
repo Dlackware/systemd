@@ -79,9 +79,6 @@ autoreconf -vif
 # Our host is $ARCH-slackware-linux not $ARCH-slackware-linux-gnu:
 sed -i -e 's#linux|linux-gnu|#linux|linux|#' config.sub
 
-# Temporary for >= 3.22.25.
-patch -p1 < $CWD/revert-f2adaba.patch || exit 1
-
 CFLAGS="$SLKCFLAGS" \
 ./configure \
   --prefix=/usr \
