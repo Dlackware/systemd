@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-235}
+VERSION=${VERSION:-237}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -132,10 +132,6 @@ mkdir -p ${PKG}/run
 
 find . -name "*.[1-8]" -exec touch '{}' ';'
 
-if [ "${SBO_AUTOGEN}" = "YES" ] ;then
-  autoreconf -ivf || exit $?
-fi
-
 export PYTHON=python3
 
 mkdir -p build
@@ -151,6 +147,7 @@ meson --prefix=/usr \
   -Drootprefix=/ \
   -Drootlibdir=/lib${LIBDIRSUFFIX} \
   -Ddisable-dependency-tracking=true \
+  -Dlink-udev-shared=true \
   -Dkmod=true \
   -Dxz=true \
   -Dnetworkd=true \
@@ -184,6 +181,7 @@ meson --prefix=/usr \
   -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
   -Dpamlibdir=/usr/lib${LIBDIRSUFFIX}/security \
   -Dpamconfdir=/etc/pam.d \
+  -Dpkgconfiglibdir=/usr//lib${LIBDIRSUFFIX}/pkgconfig \
   -Ddisable-silent-rules=true || exit 1
 #  --build=$ARCH-slackware-linux || exit 1
 
