@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-237}
+VERSION=${VERSION:-238}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -146,12 +146,10 @@ meson --prefix=/usr \
   --mandir=/usr/man \
   -Drootprefix=/ \
   -Drootlibdir=/lib${LIBDIRSUFFIX} \
-  -Ddisable-dependency-tracking=true \
   -Dlink-udev-shared=true \
   -Dkmod=true \
   -Dxz=true \
   -Dnetworkd=true \
-  -Dresolved=true \
   -Dvconsole=true \
   -Dtmpfiles=true \
   -Drfkill=true \
@@ -162,31 +160,34 @@ meson --prefix=/usr \
   -Dmicrohttpd=false \
   -Dlibcryptsetup=false \
   -Dfirstboot=false \
+  -Dusers-gid=100 \
   -Dapparmor=false \
   -Dtimedated=true \
   -Dtimesyncd=true \
   -Dsplit-usr=true \
+  -Dsystem-uid-max=99 \
+  -Dsystem-gid-max=99 \
   -Dpam=true \
   -Daudit=false \
   -Dselinux=false \
-  -Dkdbus=true \
   -Drpmmacrosdir=no \
   -Dsysvinit-path=/etc/init.d \
   -Dsysvrcnd-path=/etc/rc.d \
-  -Drc-local-script-path-start=/etc/rc.local \
-  -Drc-local-script-path-stop=/etc/rc.d/rc.local_shutdown \
-  -Dtelinit=/sbin/telinit \
+  -Drc-local=/etc/rc.d/rc.local \
+  -Dhalt-local=/etc/rc.d/rc.local_shutdown \
+  -Dtelinit-path=/sbin/telinit \
   -Ddbuspolicydir=/etc/dbus-1/system.d \
-  -Ddbussessionservicedir=/usr/share/dbus-1/services \
+  -Ddbussessionservicedir=/usr/share/dbus-1/session.d \
   -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
+  -Dpkgconfigdatadir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
+  -Dpkgconfiglibdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
   -Dpamlibdir=/usr/lib${LIBDIRSUFFIX}/security \
   -Dpamconfdir=/etc/pam.d \
-  -Dpkgconfiglibdir=/usr//lib${LIBDIRSUFFIX}/pkgconfig \
-  -Ddisable-silent-rules=true || exit 1
+  -Dpkgconfiglibdir=/usr//lib${LIBDIRSUFFIX}/pkgconfig || exit 1
 #  --build=$ARCH-slackware-linux || exit 1
 
-ninja
-DESTDIR=$PKG ninja install
+ninja || exit 1
+DESTDIR=$PKG ninja install || exit 1
 
 cd ..
 
@@ -211,7 +212,7 @@ mkdir -p ${PKG}/sbin
 ) || exit 1
 
 mv ${PKG}/bin/udevadm ${PKG}/sbin/ || exit 1
-ln -s ../sbin/udevadm ${PKG}/bin/udevadm
+ln -s ../sbin/udevadm ${PKG}/bin/udevadm || exit 1
 
 ln -s ../systemd/systemd-udevd ${PKG}/lib/udev/udevd || exit 1
 
@@ -236,14 +237,14 @@ mv ${PKG}/lib/systemd/systemd ${PKG}/lib/systemd/systemd.new || exit 1
 chmod 0755 ${PKG}/lib/systemd/systemd.new
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd || exit 1
 
-mkdir -p ${PKG}/sbin
-  ln -s ../lib/systemd/systemd ${PKG}/sbin/init
-  ln -s ../bin/systemctl ${PKG}/sbin/reboot
-  ln -s ../bin/systemctl ${PKG}/sbin/halt
-  ln -s ../bin/systemctl ${PKG}/sbin/poweroff
-  ln -s ../bin/systemctl ${PKG}/sbin/shutdown
-  ln -s ../bin/systemctl ${PKG}/sbin/telinit
-  ln -s ../bin/systemctl ${PKG}/sbin/runlevel
+#mkdir -p ${PKG}/sbin
+#  ln -s ../lib/systemd/systemd ${PKG}/sbin/init
+#  ln -s ../bin/systemctl ${PKG}/sbin/reboot
+#  ln -s ../bin/systemctl ${PKG}/sbin/halt
+#  ln -s ../bin/systemctl ${PKG}/sbin/poweroff
+#  ln -s ../bin/systemctl ${PKG}/sbin/shutdown
+#  ln -s ../bin/systemctl ${PKG}/sbin/telinit
+#  ln -s ../bin/systemctl ${PKG}/sbin/runlevel
 
 install -pm0644 ${CWD}/config/services/var-lock.mount ${PKG}/lib/systemd/system/ || exit 1
 install -pm0644 ${CWD}/config/services/var-run.mount ${PKG}/lib/systemd/system/ || exit 1
@@ -374,8 +375,10 @@ install -pm0644 ${CWD}/config/scripts/20-eth-dhcp.network ${PKG}/lib/systemd/net
 
 chmod 755 ${PKG}/lib/udev/*
 
-cp -R $PKG/lib${LIBDIRSUFFIX}/libudev.la $PKG/usr/lib${LIBDIRSUFFIX}/libudev.la
-cp -R $PKG/lib${LIBDIRSUFFIX}/libsystemd.la $PKG/usr/lib${LIBDIRSUFFIX}/libsystemd.la
+cp -R /usr/lib${LIBDIRSUFFIX}/libudev.la $PKG/usr/lib${LIBDIRSUFFIX}/libudev.la
+ln -s /lib${LIBDIRSUFFIX}/libudev.so $PKG/usr/lib${LIBDIRSUFFIX}/libudev.so
+cp -R /usr/lib${LIBDIRSUFFIX}/libsystemd.la $PKG/usr/lib${LIBDIRSUFFIX}/libsystemd.la
+ln -s /lib${LIBDIRSUFFIX}/libsystemd.so $PKG/usr/lib${LIBDIRSUFFIX}/libsystemd.so
 
 
 ################################# End of udev ##################################
