@@ -23,7 +23,7 @@
 # Slackware build script for util-linux
 
 PKGNAM=util-linux
-VERSION=${VERSION:-2.31.1}
+VERSION=${VERSION:-2.32}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
