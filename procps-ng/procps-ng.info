@@ -1,7 +1,7 @@
 PKGNAM="procps-ng"
-VERSION="3.3.12"
+VERSION="3.3.14"
 HOMEPAGE="https://sourceforge.net/projects/procps-ng/"
-DOWNLOAD="http://prdownloads.sourceforge.net/procps-ng/procps-ng-3.3.12.tar.xz \
+DOWNLOAD="http://prdownloads.sourceforge.net/procps-ng/procps-ng-3.3.14.tar.xz \
           ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-18.tar.xz \
           ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-ng-2.0.304.tar.xz \
           ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/psmisc-22.21.tar.xz"
