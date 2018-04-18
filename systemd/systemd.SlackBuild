@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-235}
+VERSION=${VERSION:-238}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -132,10 +132,6 @@ mkdir -p ${PKG}/run
 
 find . -name "*.[1-8]" -exec touch '{}' ';'
 
-if [ "${SBO_AUTOGEN}" = "YES" ] ;then
-  autoreconf -ivf || exit $?
-fi
-
 export PYTHON=python3
 
 mkdir -p build
@@ -150,11 +146,10 @@ meson --prefix=/usr \
   --mandir=/usr/man \
   -Drootprefix=/ \
   -Drootlibdir=/lib${LIBDIRSUFFIX} \
-  -Ddisable-dependency-tracking=true \
+  -Dlink-udev-shared=true \
   -Dkmod=true \
   -Dxz=true \
   -Dnetworkd=true \
-  -Dresolved=true \
   -Dvconsole=true \
   -Dtmpfiles=true \
   -Drfkill=true \
@@ -165,42 +160,39 @@ meson --prefix=/usr \
   -Dmicrohttpd=false \
   -Dlibcryptsetup=false \
   -Dfirstboot=false \
+  -Dusers-gid=100 \
   -Dapparmor=false \
   -Dtimedated=true \
   -Dtimesyncd=true \
   -Dsplit-usr=true \
+  -Dsystem-uid-max=99 \
+  -Dsystem-gid-max=99 \
   -Dpam=true \
   -Daudit=false \
   -Dselinux=false \
-  -Dkdbus=true \
   -Drpmmacrosdir=no \
   -Dsysvinit-path=/etc/init.d \
   -Dsysvrcnd-path=/etc/rc.d \
-  -Drc-local-script-path-start=/etc/rc.local \
-  -Drc-local-script-path-stop=/etc/rc.d/rc.local_shutdown \
-  -Dtelinit=/sbin/telinit \
+  -Drc-local=/etc/rc.d/rc.local \
+  -Dhalt-local=/etc/rc.d/rc.local_shutdown \
+  -Dtelinit-path=/sbin/telinit \
   -Ddbuspolicydir=/etc/dbus-1/system.d \
-  -Ddbussessionservicedir=/usr/share/dbus-1/services \
+  -Ddbussessionservicedir=/usr/share/dbus-1/session.d \
   -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
+  -Dpkgconfigdatadir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
+  -Dpkgconfiglibdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
   -Dpamlibdir=/usr/lib${LIBDIRSUFFIX}/security \
   -Dpamconfdir=/etc/pam.d \
-  -Ddisable-silent-rules=true || exit 1
+  -Dpkgconfiglibdir=/usr//lib${LIBDIRSUFFIX}/pkgconfig || exit 1
 #  --build=$ARCH-slackware-linux || exit 1
 
-ninja
-DESTDIR=$PKG ninja install
+ninja || exit 1
+DESTDIR=$PKG ninja install || exit 1
 
 cd ..
 
 #ninja -v -C builddir/
 #DESTDIR=${PKG} ninja -C builddir/ install
-
-#cd ${BUILDDIR}
-#make $NUMJOBS || make || exit 1
-#make install DESTDIR=$PKG \
-#  pkgconfigdatadir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
-#  sharepkgconfigdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
-#  || exit 1
 
 rm -rf ${PKG}/etc/init.d
 rm -rf ${PKG}/etc/rc.d/init.d
@@ -222,6 +214,8 @@ find $PKG | xargs file | grep -e "executable" -e "shared object" \
 
 ################################### systemd ####################################
 # rc.local and rc.local_shutdown
+################################################################################
+
 install -pm0644 units/rc-local.service.in \
   ${PKG}/lib/systemd/system/rc-local.service || exit 1
 ln -s ../rc-local.service \
@@ -305,6 +299,10 @@ mkdir -p ${PKG}/lib/systemd/system/syslog.target.wants
 # Make sure the user generators dir exists too
 mkdir -p ${PKG}/lib/systemd/system-generators
 mkdir -p ${PKG}/lib/systemd/user-generators
+
+# Removing executable from config files
+chmod -x ${PKG}/lib/systemd/system/*.target
+chmod -x ${PKG}/usr/lib/systemd/user/*.target
 
 # Mask legacy stuff
 ln -sf rescue.service ${PKG}/lib/systemd/system/single.service

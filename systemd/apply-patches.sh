@@ -24,15 +24,12 @@ ApplyPatch() {
 }
 
 # patch -p0 -E --backup --verbose -i ${SBO_PATCHDIR}/${NAME}.patch
-#patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/netdev.patch
-#patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/gperf31.patch
 patch -p0 -E --backup --verbose -i ${SBO_PATCHDIR}/udev-microsoft-3000-keymap.patch
-#patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/udev-rootlibdir.patch
+patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/libmount.patch
+patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/gpg-error.patch
 # From Slackware
 patch -p0 -E --backup --verbose -i ${SBO_PATCHDIR}/60-cdrom_id.rules.diff
-
 patch -p1 -E --backup --verbose -i ${SBO_PATCHDIR}/Don-t-enable-audit-by-default.patch
-
 
 # Set to YES if autogen is needed
 SBO_AUTOGEN=NO
