@@ -23,7 +23,7 @@
 # Slackware build script for util-linux
 
 PKGNAM=util-linux
-VERSION=${VERSION:-2.31}
+VERSION=${VERSION:-2.32}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -94,6 +94,8 @@ fi
 sed -i -e 's|${prefix}/${localstatedir}|${localstatedir}|g' configure || exit 1
 
 CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64" \
+
+configure_with_python(){
 ./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
@@ -127,13 +129,29 @@ CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BI
   --enable-libmount \
   --enable-libuuid \
   --disable-chfn-chsh \
-  --with-python=3 \
+  --with-python=$1 \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --with-systemd \
   --build=$ARCH-slackware-linux || exit 1
+}
 
-make || exit 1
-make install DESTDIR=$PKG || make install DESTDIR=$PKG
+CFLAGS="$SLKCFLAGS" \
+  configure_with_python 2 || exit 1
+
+make $NUMJOBS || make || exit 1
+make install DESTDIR=$PKG || exit 1
+
+# Build python3 bindings for libmount:
+make clean
+CFLAGS="$SLKCFLAGS" \
+  configure_with_python 3 || exit 1
+make \
+  install-pylibmountexecLTLIBRARIES \
+  install-pylibmountexecPYTHON \
+  DESTDIR=$PKG || exit 1
+
+# Remove all overlap with the shadow package, since --disable-login doesn't quite do that:
+rm $PKG/sbin/nologin $PKG/usr/man/man8/nologin.8 $PKG/sbin/sulogin $PKG/usr/man/man8/sulogin.8
 
 mkdir -p $PKG/lib${LIBDIRSUFFIX}
 
@@ -144,6 +162,20 @@ do
   oldlink=$(readlink ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so)
   ln -sf ${reldir}/$(basename ${oldlink}) ${PKG}/usr/lib${LIBDIRSUFFIX}/${libname}.so || exit 1
 done
+
+# Moving things around that have been in the same place
+# for 15 years is, IMHO, not a wise idea AT ALL.
+# If this had to be moved, some place out of /usr might
+# have shown a grain of insight...
+if [ -r $PKG/usr/sbin/fdformat ]; then
+  mkdir -p $PKG/usr/bin
+  mv $PKG/usr/sbin/fdformat $PKG/usr/bin/fdformat
+  # Now since stuff will start looking in this new place,
+  # we have no choice but to link these:
+  ( cd $PKG/usr/sbin
+    ln -sf ../bin/fdformat .
+  )
+fi
 
 # Build ziptool
 cd $TMP || exit 1
