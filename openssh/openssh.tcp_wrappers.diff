@@ -1,0 +1,141 @@
+diff -uprN openssh-7.7p1.orig/configure.ac openssh-7.7p1/configure.ac
+--- openssh-7.7p1.orig/configure.ac	2018-04-02 14:38:28.000000000 +0900
++++ openssh-7.7p1/configure.ac	2018-04-04 17:46:13.798168547 +0900
+@@ -1542,6 +1542,62 @@ AC_ARG_WITH([skey],
+ 	]
+ )
+ 
++# Check whether user wants TCP wrappers support
++TCPW_MSG="no"
++AC_ARG_WITH([tcp-wrappers],
++	[  --with-tcp-wrappers[[=PATH]] Enable tcpwrappers support (optionally in PATH)],
++	[
++		if test "x$withval" != "xno" ; then
++			saved_LIBS="$LIBS"
++			saved_LDFLAGS="$LDFLAGS"
++			saved_CPPFLAGS="$CPPFLAGS"
++			if test -n "${withval}" && \
++			    test "x${withval}" != "xyes"; then
++				if test -d "${withval}/lib"; then
++					if test -n "${need_dash_r}"; then
++						LDFLAGS="-L${withval}/lib -R${withval}/lib ${LDFLAGS}"
++					else
++						LDFLAGS="-L${withval}/lib ${LDFLAGS}"
++					fi
++				else
++					if test -n "${need_dash_r}"; then
++						LDFLAGS="-L${withval} -R${withval} ${LDFLAGS}"
++					else
++						LDFLAGS="-L${withval} ${LDFLAGS}"
++					fi
++				fi
++				if test -d "${withval}/include"; then
++					CPPFLAGS="-I${withval}/include ${CPPFLAGS}"
++				else
++					CPPFLAGS="-I${withval} ${CPPFLAGS}"
++				fi
++			fi
++			LIBS="-lwrap -lnsl $LIBS"
++			AC_MSG_CHECKING([for libwrap])
++			AC_LINK_IFELSE([AC_LANG_PROGRAM([[
++#include <sys/types.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
++#include <tcpd.h>
++int deny_severity = 0, allow_severity = 0;
++				]], [[
++	hosts_access(0);
++				]])], [
++					AC_MSG_RESULT([yes])
++					AC_DEFINE([LIBWRAP], [1],
++						[Define if you want
++						TCP Wrappers support])
++					SSHDLIBS="$SSHDLIBS -lwrap -lnsl"
++					TCPW_MSG="yes"
++				], [
++					AC_MSG_ERROR([*** libwrap missing])
++				
++			])
++			LIBS="$saved_LIBS"
++		fi
++	]
++)
++
+ # Check whether user wants to use ldns
+ LDNS_MSG="no"
+ AC_ARG_WITH(ldns,
+@@ -5216,6 +5272,7 @@ echo "                   OSF SIA support
+ echo "                 KerberosV support: $KRB5_MSG"
+ echo "                   SELinux support: $SELINUX_MSG"
+ echo "                     S/KEY support: $SKEY_MSG"
++echo "              TCP Wrappers support: $TCPW_MSG"
+ echo "              MD5 password support: $MD5_MSG"
+ echo "                   libedit support: $LIBEDIT_MSG"
+ echo "                   libldns support: $LDNS_MSG"
+diff -uprN openssh-7.7p1.orig/sshd.8 openssh-7.7p1/sshd.8
+--- openssh-7.7p1.orig/sshd.8	2018-04-02 14:38:28.000000000 +0900
++++ openssh-7.7p1/sshd.8	2018-04-04 17:46:13.799168500 +0900
+@@ -845,6 +845,12 @@ the user's home directory becomes access
+ This file should be writable only by the user, and need not be
+ readable by anyone else.
+ .Pp
++.It Pa /etc/hosts.allow
++.It Pa /etc/hosts.deny
++Access controls that should be enforced by tcp-wrappers are defined here.
++Further details are described in
++.Xr hosts_access 5 .
++.Pp
+ .It Pa /etc/hosts.equiv
+ This file is for host-based authentication (see
+ .Xr ssh 1 ) .
+@@ -947,6 +953,7 @@ The content of this file is not sensitiv
+ .Xr ssh-keygen 1 ,
+ .Xr ssh-keyscan 1 ,
+ .Xr chroot 2 ,
++.Xr hosts_access 5 ,
+ .Xr login.conf 5 ,
+ .Xr moduli 5 ,
+ .Xr sshd_config 5 ,
+diff -uprN openssh-7.7p1.orig/sshd.c openssh-7.7p1/sshd.c
+--- openssh-7.7p1.orig/sshd.c	2018-04-02 14:38:28.000000000 +0900
++++ openssh-7.7p1/sshd.c	2018-04-04 18:24:08.499515628 +0900
+@@ -122,6 +122,12 @@
+ #include "auth-options.h"
+ #include "version.h"
+ #include "ssherr.h"
++#ifdef LIBWRAP
++#include <tcpd.h>
++#include <syslog.h>
++int allow_severity;
++int deny_severity;
++#endif /* LIBWRAP */
+ 
+ /* Re-exec fds */
+ #define REEXEC_DEVCRYPTO_RESERVED_FD	(STDERR_FILENO + 1)
+@@ -2005,6 +2011,26 @@ main(int ac, char **av)
+ 	packet_set_server();
+ 	ssh = active_state; /* XXX */
+ 
++/* Moved LIBWRAP check here */
++#ifdef LIBWRAP
++        allow_severity = options.log_facility|LOG_INFO;
++        deny_severity = options.log_facility|LOG_WARNING;
++        /* Check whether logins are denied from this host. */
++        if (packet_connection_is_on_socket()) {	/* This check must be after packet_set_connection() */
++		struct request_info req;
++
++		request_init(&req, RQ_DAEMON, __progname, RQ_FILE, sock_in, 0);
++		fromhost(&req);
++
++		if (!hosts_access(&req)) {
++			debug("Connection refused by tcp wrapper");
++			refuse(&req);
++			/* NOTREACHED */
++			fatal("libwrap refuse returns");
++		}
++	}
++#endif /* LIBWRAP */
++
+ 	check_ip_options(ssh);
+ 
+ 	/* Prepare the channels layer */

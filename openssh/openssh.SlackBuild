@@ -24,7 +24,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=openssh
-VERSION=${VERSION:-7.6p1}
+VERSION=${VERSION:-7.7p1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -68,15 +68,14 @@ mkdir -p $TMP $PKG $OUTPUT
 
 # Prepare the framework and extract the package:
 cd $TMP
-rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.?z* || exit 1
-cd $PKGNAM-$VERSION
+rm -rf $PKG openssh-$VERSION
+tar xvf $CWD/openssh-$VERSION.tar.gz || tar xvf $CWD/openssh-$VERSION.tar.?z* || exit 1
+cd openssh-$VERSION || exit 1
 chown -R root:root .
-find . \
- \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
- -exec chmod 755 {} \; -o \
- \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
- -exec chmod 644 {} \;
+
+# Restore support for tcpwrappers:
+cat $CWD/openssh.tcp_wrappers.diff | patch -p1 --verbose || exit 1
+autoreconf -vif
 
 cat $CWD/sshd_config-pam.diff | patch -p1
 
@@ -92,6 +91,7 @@ CFLAGS="$SLKCFLAGS" \
   --with-pam \
   --libexecdir=/usr/lib${LIBDIRSUFFIX}/security \
   --with-md5-passwords \
+  --with-tcp-wrappers \
   --with-default-path=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin \
   ${krb_flag} \
   --with-privsep-path=/var/empty \
