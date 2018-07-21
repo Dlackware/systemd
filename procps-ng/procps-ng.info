@@ -1,11 +1,11 @@
 PKGNAM="procps-ng"
-VERSION="3.3.14"
+VERSION="3.3.15"
 HOMEPAGE="https://sourceforge.net/projects/procps-ng/"
-DOWNLOAD="http://prdownloads.sourceforge.net/procps-ng/procps-ng-3.3.14.tar.xz \
-          ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-18.tar.xz \
-          ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/procinfo-ng-2.0.304.tar.xz \
-          ftp://ftp.slackware.com/pub/slackware/slackware-current/source/a/procps-ng/psmisc-22.21.tar.xz"
-MD5SUM="957e42e8b193490b2111252e4a2b443c \
+DOWNLOAD="https://prdownloads.sourceforge.net/procps-ng/procps-ng-3.3.15.tar.xz \
+          https://mirrors.slackware.com/slackware/slackware-current/source/a/procps-ng/procinfo-18.tar.xz \
+          https://mirrors.slackware.com/slackware/slackware-current/source/a/procps-ng/procinfo-ng-2.0.304.tar.xz \
+          https://mirrors.slackware.com/slackware/slackware-current/source/a/procps-ng/psmisc-23.1.tar.xz"
+MD5SUM="2b0717a7cb474b3d6dfdeedfbad2eccc \
         9c62b234519cd78169b8ac531ca6444b \
         a174f43d2e747a53218ea1522f5943b4 \
-        df10c3779ef2c24d133d57165fe2c918"
+        bbba1f701c02fb50d59540d1ff90d8d1"

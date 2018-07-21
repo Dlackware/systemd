@@ -23,8 +23,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=procps-ng
-VERSION=${VERSION:-3.3.14}
-PSMISCVER=${PSMISCVER:-22.21}
+VERSION=${VERSION:-3.3.15}
+PSMISCVER=${PSMISCVER:-23.1}
 PROCINFONGVER=${PROCINFONGVER:-2.0.304}
 PROCINFOVER=${PROCINFOVER:-18}
 BUILD=${BUILD:-1}
@@ -33,14 +33,11 @@ TAG=${TAG:-_dlack}
 NUMJOBS=${NUMJOBS:--j7}
 
 # Automatically determine the architecture we're building on:
-MARCH=$( uname -m )
 if [ -z "$ARCH" ]; then
-  case "$MARCH" in
-    i?86)    export ARCH=i586 ;;
-    armv7hl) export ARCH=$MARCH ;;
-    arm*)    export ARCH=arm ;;
-    # Unless $ARCH is already set, use uname -m for all other archs:
-    *)       export ARCH=$MARCH ;;
+  case "$( uname -m )" in
+    i?86) export ARCH=i586 ;;
+    arm*) export ARCH=arm ;;
+        *) export ARCH=$( uname -m ) ;;
   esac
 fi
 
@@ -58,18 +55,10 @@ elif [ "$ARCH" = "i686" ]; then
 elif [ "$ARCH" = "x86_64" ]; then
   SLKCFLAGS="-O2 -fPIC"
   LIBDIRSUFFIX="64"
-elif [ "$ARCH" = "armv7hl" ]; then
-  SLKCFLAGS="-O2 -march=armv7-a -mfpu=vfpv3-d16"
-  LIBDIRSUFFIX=""
 else
   SLKCFLAGS="-O2"
   LIBDIRSUFFIX=""
 fi
-
-case "$ARCH" in
-    arm*) TARGET=$ARCH-slackware-linux-gnueabi ;;
-    *)    TARGET=$ARCH-slackware-linux ;;
-esac
 
 rm -rf $TMP
 mkdir -p $TMP $PKG $OUTPUT
@@ -82,11 +71,11 @@ tar xvf $CWD/procinfo-ng-$PROCINFONGVER.tar.xz || exit 1
 tar xvf $CWD/procinfo-$PROCINFOVER.tar.xz || exit 1
 chown -R root:root .
 
-find . \
- \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
- -exec chmod 755 {} \; -o \
- \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
- -exec chmod 644 {} \;
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+  -o -perm 511 \) -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+ -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
 unset DLACK_AUTOGEN
 if [ -r ${CWD}/apply-patches.sh ]; then
@@ -122,7 +111,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --disable-kill \
   --enable-timeout-stat \
   --with-systemd \
-  --build=$TARGET || exit 1
+  --build=$ARCH-slackware-linux || exit 1
 
 make $NUMJOBS || make || exit 1
 make install DESTDIR=${PKG} || exit 1
