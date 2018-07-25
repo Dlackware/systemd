@@ -25,7 +25,7 @@
 
 PKGNAM=openssh
 VERSION=${VERSION:-7.7p1}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 CWD=$(pwd)
@@ -73,8 +73,18 @@ tar xvf $CWD/openssh-$VERSION.tar.gz || tar xvf $CWD/openssh-$VERSION.tar.?z* ||
 cd openssh-$VERSION || exit 1
 chown -R root:root .
 
+# OpenSSL 1.1.x support:
+cat $CWD/openssl-1.1.0.patch | patch -p1 --verbose || exit 1
+
+# Don't bail on finding OpenSSL 1.1.x it's fine:
+cat $CWD/openssh.no.openssl.version.check.diff | patch -p1 --verbose || exit 1
+
 # Restore support for tcpwrappers:
 cat $CWD/openssh.tcp_wrappers.diff | patch -p1 --verbose || exit 1
+
+# Fix tunnel forwarding with -w option:
+cat $CWD/openssh.fix_tunnel_forwarding.diff | patch -p1 --verbose || exit 1
+
 autoreconf -vif
 
 cat $CWD/sshd_config-pam.diff | patch -p1

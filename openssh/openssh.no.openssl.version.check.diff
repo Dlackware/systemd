@@ -1,0 +1,12 @@
+--- ./configure.ac.orig	2018-04-02 00:38:28.000000000 -0500
++++ ./configure.ac	2018-05-07 12:56:07.220003323 -0500
+@@ -2641,9 +2641,6 @@
+ 			                ;;
+ 				100*)   ;; # 1.0.x
+ 				200*)   ;; # LibreSSL
+-			        *)
+-					AC_MSG_ERROR([OpenSSL >= 1.1.0 is not yet supported (have "$ssl_library_ver")])
+-			                ;;
+ 			esac
+ 			AC_MSG_RESULT([$ssl_library_ver])
+ 		],
