@@ -191,9 +191,6 @@ DESTDIR=$PKG ninja install || exit 1
 
 cd ..
 
-#ninja -v -C builddir/
-#DESTDIR=${PKG} ninja -C builddir/ install
-
 rm -rf ${PKG}/etc/init.d
 rm -rf ${PKG}/etc/rc.d/init.d
 
