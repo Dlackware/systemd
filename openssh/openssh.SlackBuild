@@ -24,8 +24,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=openssh
-VERSION=${VERSION:-7.7p1}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-7.8p1}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 CWD=$(pwd)
@@ -83,7 +83,7 @@ cat $CWD/openssh.no.openssl.version.check.diff | patch -p1 --verbose || exit 1
 cat $CWD/openssh.tcp_wrappers.diff | patch -p1 --verbose || exit 1
 
 # Fix tunnel forwarding with -w option:
-cat $CWD/openssh.fix_tunnel_forwarding.diff | patch -p1 --verbose || exit 1
+#cat $CWD/openssh.fix_tunnel_forwarding.diff | patch -p1 --verbose || exit 1
 
 autoreconf -vif
 

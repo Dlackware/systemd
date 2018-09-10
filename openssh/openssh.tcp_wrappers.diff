@@ -1,9 +1,8 @@
-diff -uprN openssh-7.7p1.orig/configure.ac openssh-7.7p1/configure.ac
---- openssh-7.7p1.orig/configure.ac	2018-04-02 14:38:28.000000000 +0900
-+++ openssh-7.7p1/configure.ac	2018-04-04 17:46:13.798168547 +0900
-@@ -1542,6 +1542,62 @@ AC_ARG_WITH([skey],
- 	]
- )
+--- ./configure.ac.orig	2018-08-23 00:41:42.000000000 -0500
++++ ./configure.ac	2018-08-25 19:14:10.706002529 -0500
+@@ -1502,6 +1502,62 @@
+ 	AC_MSG_RESULT([no])
+ fi
  
 +# Check whether user wants TCP wrappers support
 +TCPW_MSG="no"
@@ -64,41 +63,16 @@ diff -uprN openssh-7.7p1.orig/configure.ac openssh-7.7p1/configure.ac
  # Check whether user wants to use ldns
  LDNS_MSG="no"
  AC_ARG_WITH(ldns,
-@@ -5216,6 +5272,7 @@ echo "                   OSF SIA support
+@@ -5177,6 +5233,7 @@
+ echo "                   OSF SIA support: $SIA_MSG"
  echo "                 KerberosV support: $KRB5_MSG"
  echo "                   SELinux support: $SELINUX_MSG"
- echo "                     S/KEY support: $SKEY_MSG"
 +echo "              TCP Wrappers support: $TCPW_MSG"
  echo "              MD5 password support: $MD5_MSG"
  echo "                   libedit support: $LIBEDIT_MSG"
  echo "                   libldns support: $LDNS_MSG"
-diff -uprN openssh-7.7p1.orig/sshd.8 openssh-7.7p1/sshd.8
---- openssh-7.7p1.orig/sshd.8	2018-04-02 14:38:28.000000000 +0900
-+++ openssh-7.7p1/sshd.8	2018-04-04 17:46:13.799168500 +0900
-@@ -845,6 +845,12 @@ the user's home directory becomes access
- This file should be writable only by the user, and need not be
- readable by anyone else.
- .Pp
-+.It Pa /etc/hosts.allow
-+.It Pa /etc/hosts.deny
-+Access controls that should be enforced by tcp-wrappers are defined here.
-+Further details are described in
-+.Xr hosts_access 5 .
-+.Pp
- .It Pa /etc/hosts.equiv
- This file is for host-based authentication (see
- .Xr ssh 1 ) .
-@@ -947,6 +953,7 @@ The content of this file is not sensitiv
- .Xr ssh-keygen 1 ,
- .Xr ssh-keyscan 1 ,
- .Xr chroot 2 ,
-+.Xr hosts_access 5 ,
- .Xr login.conf 5 ,
- .Xr moduli 5 ,
- .Xr sshd_config 5 ,
-diff -uprN openssh-7.7p1.orig/sshd.c openssh-7.7p1/sshd.c
---- openssh-7.7p1.orig/sshd.c	2018-04-02 14:38:28.000000000 +0900
-+++ openssh-7.7p1/sshd.c	2018-04-04 18:24:08.499515628 +0900
+--- ./sshd.c.orig	2018-08-23 00:41:42.000000000 -0500
++++ ./sshd.c	2018-08-25 19:12:52.901002527 -0500
 @@ -122,6 +122,12 @@
  #include "auth-options.h"
  #include "version.h"
@@ -112,7 +86,7 @@ diff -uprN openssh-7.7p1.orig/sshd.c openssh-7.7p1/sshd.c
  
  /* Re-exec fds */
  #define REEXEC_DEVCRYPTO_RESERVED_FD	(STDERR_FILENO + 1)
-@@ -2005,6 +2011,26 @@ main(int ac, char **av)
+@@ -2063,6 +2069,26 @@
  	packet_set_server();
  	ssh = active_state; /* XXX */
  
@@ -139,3 +113,26 @@ diff -uprN openssh-7.7p1.orig/sshd.c openssh-7.7p1/sshd.c
  	check_ip_options(ssh);
  
  	/* Prepare the channels layer */
+--- ./sshd.8.orig	2018-08-23 00:41:42.000000000 -0500
++++ ./sshd.8	2018-08-25 19:12:52.899002527 -0500
+@@ -873,6 +873,12 @@
+ This file should be writable only by the user, and need not be
+ readable by anyone else.
+ .Pp
++.It Pa /etc/hosts.allow
++.It Pa /etc/hosts.deny
++Access controls that should be enforced by tcp-wrappers are defined here.
++Further details are described in
++.Xr hosts_access 5 .
++.Pp
+ .It Pa /etc/hosts.equiv
+ This file is for host-based authentication (see
+ .Xr ssh 1 ) .
+@@ -975,6 +981,7 @@
+ .Xr ssh-keygen 1 ,
+ .Xr ssh-keyscan 1 ,
+ .Xr chroot 2 ,
++.Xr hosts_access 5 ,
+ .Xr login.conf 5 ,
+ .Xr moduli 5 ,
+ .Xr sshd_config 5 ,
