@@ -27,7 +27,7 @@ VERSION=${VERSION:-3.3.15}
 PSMISCVER=${PSMISCVER:-23.1}
 PROCINFONGVER=${PROCINFONGVER:-2.0.304}
 PROCINFOVER=${PROCINFOVER:-18}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:--j7}
@@ -129,19 +129,37 @@ mkdir -p $PKG/lib${LIBDIRSUFFIX}
 # Remove .la file(s):
 rm -f $PKG/usr/lib${LIBDIRSUFFIX}/*.la
 
-# Move "free" to the traditional location:
-mv $PKG/usr/bin/free $PKG/bin
-( cd $PKG/usr/bin ; ln -sf /bin/free . )
+# It seems that upstream has shuffled the location of many tools with the
+# 3.3.11 release.  To me, this just doesn't make sense to break any existing
+# scripts that might be using an absolute path, or to move tools that might
+# be needed before /usr is mounted into /usr.  So, we will make sure that
+# everything is moved back to where the Slackware locations have always been.
+# These tools belong in /bin:
+mkdir -p $PKG/bin
+for file in free killall ps ; do
+  find $PKG -name $file -exec mv "{}" $PKG/bin \;
+done
+# These tools belong in /sbin:
+mkdir -p $PKG/sbin
+for file in pidof sysctl ; do
+  find $PKG -name $file -exec mv "{}" $PKG/sbin \;
+done
+mkdir -p $PKG/usr/bin
+# These tools belong in /usr/bin:
+for file in fuser lsdev peekfd pgrep pkill pmap procinfo prtstat pstree pwdx skill slabtop snice socklist tload top uptime vmstat w watch ; do
+  find $PKG -name $file -exec mv "{}" $PKG/usr/bin \;
+done
+# These symlinks belong in /bin:
+rm -f $PKG/bin/pidof
+ln -sf /sbin/pidof $PKG/bin/pidof
+# These symlinks belong in /usr/bin:
+rm -f $PKG/usr/bin/free $PKG/usr/bin/pidof $PKG/usr/bin/ps
+ln -sf /bin/free $PKG/usr/bin/free
+ln -sf /sbin/pidof $PKG/usr/bin/pidof
+ln -sf /bin/ps $PKG/usr/bin/ps
 
-# Move pidof to /sbin (where the sysvinit package had it, and is a hardcoded
-# path in at least rc.udev).  We'll link to the new location.
-mv $PKG/usr/bin/pidof $PKG/sbin/pidof
-( cd $PKG/usr/bin ; ln -sf /sbin/pidof . )
-# We never had a copy of pidof here, but since /sbin doesn't really make sense:
-( cd $PKG/bin ; ln -sf /sbin/pidof . )
-
-# Link ps in /usr/bin:
-( cd $PKG/usr/bin ; ln -sf /bin/ps . )
+# Create /etc/sysctl.d:
+mkdir -p $PKG/etc/sysctl.d
 
 cd psmisc-$PSMISCVER || exit 1
 
