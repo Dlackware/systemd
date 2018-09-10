@@ -27,7 +27,7 @@
 #
 
 PKGNAM=systemd
-VERSION=${VERSION:-238}
+VERSION=${VERSION:-239}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
