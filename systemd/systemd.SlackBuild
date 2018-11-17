@@ -84,7 +84,6 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-unset SBO_AUTOGEN
 if [ -r ${CWD}/apply-patches.sh ]; then
   . ${CWD}/apply-patches.sh
 fi
@@ -229,15 +228,6 @@ mv ${PKG}/lib/systemd/systemd ${PKG}/lib/systemd/systemd.new || exit 1
 chmod 0755 ${PKG}/lib/systemd/systemd.new
 ln -sf ../lib/systemd/systemd ${PKG}/bin/systemd || exit 1
 
-mkdir -p ${PKG}/sbin
-  ln -s ../lib/systemd/systemd ${PKG}/sbin/init
-  ln -s ../bin/systemctl ${PKG}/sbin/reboot
-  ln -s ../bin/systemctl ${PKG}/sbin/halt
-  ln -s ../bin/systemctl ${PKG}/sbin/poweroff
-  ln -s ../bin/systemctl ${PKG}/sbin/shutdown
-  ln -s ../bin/systemctl ${PKG}/sbin/telinit
-  ln -s ../bin/systemctl ${PKG}/sbin/runlevel
-
 install -pm0644 ${CWD}/config/services/var-lock.mount ${PKG}/lib/systemd/system/ || exit 1
 install -pm0644 ${CWD}/config/services/var-run.mount ${PKG}/lib/systemd/system/ || exit 1
 
@@ -370,9 +360,6 @@ done
 install -pm0644 ${CWD}/config/scripts/20-eth-dhcp.network ${PKG}/lib/systemd/network/ || exit 1
 
 chmod 755 ${PKG}/lib/udev/*
-
-cp -R $PKG/lib${LIBDIRSUFFIX}/libudev.la $PKG/usr/lib${LIBDIRSUFFIX}/libudev.la
-cp -R $PKG/lib${LIBDIRSUFFIX}/libsystemd.la $PKG/usr/lib${LIBDIRSUFFIX}/libsystemd.la
 
 
 ################################# End of udev ##################################
