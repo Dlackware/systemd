@@ -14,7 +14,6 @@ config etc/rc.d/rc.sshd.new
 config etc/pam.d/sshd.new
 config etc/default/sshd.new
 
-
 # If the sshd user/group/shadow don't exist, add them:
 
 if ! grep -q "^sshd:" etc/passwd ; then
@@ -38,9 +37,9 @@ if [ ! -r var/log/btmp ]; then
   ( cd var/log ; umask 077 ; touch btmp )
 fi
 
-if [ -x bin/systemctl ] ; then
-chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
-# Enable sshd in systemd
-chroot . /bin/systemctl enable sshd.socket
-chroot . /bin/systemctl start sshd.socket
+if [ -x bin/systemctl ]; then
+  chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
+  # Enable sshd in systemd
+  chroot . /bin/systemctl enable sshd.socket
+  chroot . /bin/systemctl start sshd.socket
 fi

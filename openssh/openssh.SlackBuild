@@ -2,8 +2,9 @@
 
 # Copyright 2000 BSDi, Inc. Concord, CA, USA
 # Copyright 2001, 2002, 2003, 2004  Slackware Linux, Inc. Concord, CA, USA
-# Copyright 2006, 2007, 2008, 2009, 2010, 2011  Patrick J. Volkerding, Sebeka, MN, USA
+# Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2018  Patrick J. Volkerding, Sebeka, MN, USA
 # Copyright 2013  Bart van der Hall, Istanbul, TR
+# Copyright 2018 Eugene Wissner, Dachau, Germany
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -24,7 +25,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=openssh
-VERSION=${VERSION:-7.8p1}
+VERSION=${VERSION:-$(echo openssh-*.tar.?z | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -73,24 +74,12 @@ tar xvf $CWD/openssh-$VERSION.tar.gz || tar xvf $CWD/openssh-$VERSION.tar.?z* ||
 cd openssh-$VERSION || exit 1
 chown -R root:root .
 
-# OpenSSL 1.1.x support:
-cat $CWD/openssl-1.1.0.patch | patch -p1 --verbose || exit 1
-
-# Don't bail on finding OpenSSL 1.1.x it's fine:
-cat $CWD/openssh.no.openssl.version.check.diff | patch -p1 --verbose || exit 1
-
 # Restore support for tcpwrappers:
 cat $CWD/openssh.tcp_wrappers.diff | patch -p1 --verbose || exit 1
-
-# Fix tunnel forwarding with -w option:
-#cat $CWD/openssh.fix_tunnel_forwarding.diff | patch -p1 --verbose || exit 1
 
 autoreconf -vif
 
 cat $CWD/sshd_config-pam.diff | patch -p1
-
-krb_flag="--with-kerberos5"
-
 
 # Compile package:
 CFLAGS="$SLKCFLAGS" \
@@ -103,7 +92,7 @@ CFLAGS="$SLKCFLAGS" \
   --with-md5-passwords \
   --with-tcp-wrappers \
   --with-default-path=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin \
-  ${krb_flag} \
+  --with-kerberos5 \
   --with-privsep-path=/var/empty \
   --with-privsep-user=sshd \
   --build=$ARCH-slackware-linux
@@ -135,6 +124,10 @@ fi
 mkdir -p $PKG/var/empty
 chmod 755 $PKG/var/empty
 
+# Install defaults file
+mkdir -p $PKG/etc/default
+cat $CWD/sshd.default > $PKG/etc/default/sshd.new
+
 # Install docs:
 mkdir -p $PKG/usr/doc/openssh-$VERSION
 cp -a \
@@ -157,28 +150,6 @@ fi
   chmod 755 $PKG/usr/bin/ssh-copy-id
   cat ssh-copy-id.1 | gzip -9c > $PKG/usr/man/man1/ssh-copy-id.1.gz
 )
-
-mkdir -p $PKG/etc/default
-cat > ${PKG}/etc/default/sshd.new <<EOF
-# Configuration file for the sshd service.
-
-# The server keys are automatically generated if they ommited
-# to change the automatic creation uncomment the approprite
-# line.
-
-# AUTOCREATE_SERVER_KEYS=RSAONLY
-# AUTOCREATE_SERVER_KEYS=NO
-AUTOCREATE_SERVER_KEYS=YES
-
-# Do not change this option unless you have hardware random
-# generator and you REALLY know what you are doing/
-
-SSH_USE_STRONG_RNG=0
-# SSH_USE_STRONG_RNG=1
-
-# Daemon options
-# OPTIONS=
-EOF
 
 ( cd $PKG
 
@@ -213,7 +184,6 @@ EOF
 
   cat $CWD/sshd.socket > lib/systemd/system/sshd.socket
   chmod 644 lib/systemd/system/sshd.socket
-
 
   # Add the pam stuff:
   mkdir -p etc/pam.d
