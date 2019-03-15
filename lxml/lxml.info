@@ -1,5 +1,5 @@
 PKGNAM="lxml"
-VERSION="4.1.0"
+VERSION="4.3.2"
 HOMEPAGE="http://lxml.de/"
-DOWNLOAD="https://files.pythonhosted.org/packages/source/l/lxml/lxml-4.1.0.tar.gz"
-MD5SUM="247580bd5d942872bd972ad0086e5cbf"
+DOWNLOAD="https://files.pythonhosted.org/packages/source/l/lxml/lxml-4.3.2.tar.gz"
+MD5SUM="8d1698a48f4ef68484de5bab457cc787"
