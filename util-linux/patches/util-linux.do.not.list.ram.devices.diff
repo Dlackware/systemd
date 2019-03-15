@@ -1,0 +1,13 @@
+--- ./disk-utils/fdisk-list.c.orig	2018-09-20 07:38:55.845404951 -0500
++++ ./disk-utils/fdisk-list.c	2019-01-02 15:53:21.256868721 -0600
+@@ -337,6 +337,10 @@
+ 		if (devno <= 0)
+ 			continue;
+ 
++		/* Don't list /dev/ram* devices */
++		if (strstr(line, "ram") && devno >= 256)
++			continue;
++
+ 		if (sysfs_devno_is_dm_private(devno, NULL) ||
+ 		    sysfs_devno_is_wholedisk(devno) <= 0)
+ 			continue;

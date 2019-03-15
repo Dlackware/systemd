@@ -23,7 +23,7 @@
 # Slackware build script for util-linux
 
 PKGNAM=util-linux
-VERSION=${VERSION:-2.32.1}
+VERSION=${VERSION:-2.33.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
@@ -84,6 +84,11 @@ DATE=$(LC_ALL=C date +%d-%b-%Y)
 # 83 back to "Linux swap":
 patch -p1 --verbose< $SBO_PATCHDIR/util-linux-ng.fdisk-no-solaris.diff || exit 1
 # patch -p1 --verbose< $SBO_PATCHDIR/2.23-login-lastlog-create.patch || exit 1
+
+# Revert to the behavior of earlier versions of fdisk which did not list the
+# /dev/ram* devices in 'fdisk -l' output:
+patch -p1 --verbose< $SBO_PATCHDIR/util-linux.do.not.list.ram.devices.diff || exit 1
+
 
 export ac_cv_header_security_pam_misc_h=yes
 
