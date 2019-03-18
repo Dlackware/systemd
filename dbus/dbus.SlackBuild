@@ -24,7 +24,7 @@
 
 PKGNAM=dbus
 VERSION=${VERSION:-1.12.12}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:-" -j7 "}
@@ -119,7 +119,7 @@ if [ -d $PKG/usr/man ]; then
 fi
 
 # Install a custom init script for dbus - the included one is not good for us
-rm $PKG/etc/rc.d/*
+mkdir -p $PKG/etc/rc.d/
 cat $CWD/rc.messagebus > $PKG/etc/rc.d/rc.messagebus.new
 chmod 0755 $PKG/etc/rc.d/rc.messagebus.new
 
@@ -133,7 +133,7 @@ install -pm0755 ${CWD}/00-start-message-bus.sh \
 # Add documentation
 mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
 cp -a \
-  AUTHORS COPYING* HACKING INSTALL NEWS README* doc/*.{txt,html,dtd} \
+  AUTHORS COPYING* INSTALL NEWS README* doc/*.{txt,html,dtd} \
   $PKG/usr/doc/$PKGNAM-$VERSION
 find $PKG/usr/doc/$PKGNAM-$VERSION -type f -exec chmod 0644 {} \;
 
