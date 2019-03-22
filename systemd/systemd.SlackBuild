@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-$(ls $PKGNAM-*.tar.?z | cut -d - -f 2 | rev | cut -f 3- -d . | rev)}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -156,6 +156,7 @@ meson --prefix=/usr \
   -Dpolkit=true \
   -Dldconfig=true \
   -Dlogind=true \
+  -Dvalgrind=true \
   -Dmicrohttpd=false \
   -Dlibcryptsetup=false \
   -Dfirstboot=false \
@@ -164,25 +165,27 @@ meson --prefix=/usr \
   -Dtimedated=true \
   -Dtimesyncd=true \
   -Dsplit-usr=true \
-  -Dsystem-uid-max=99 \
-  -Dsystem-gid-max=99 \
+  -Dsystem-uid-max=999 \
+  -Dsystem-gid-max=999 \
+  -Dnobody-user=systemd-nobody \
+  -Dnobody-group=systemd-nobody \
   -Dpam=true \
   -Daudit=false \
   -Dselinux=false \
   -Drpmmacrosdir=no \
-  -Dsysvinit-path=/etc/init.d \
+  -Dsysvinit-path=/etc/rc.d \
   -Dsysvrcnd-path=/etc/rc.d \
   -Drc-local=/etc/rc.d/rc.local \
   -Dhalt-local=/etc/rc.d/rc.local_shutdown \
   -Dtelinit-path=/sbin/telinit \
-  -Ddbuspolicydir=/etc/dbus-1/system.d \
+  -Ddbuspolicydir=/usr/share/dbus-1/system.d \
   -Ddbussessionservicedir=/usr/share/dbus-1/session.d \
   -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
   -Dpkgconfigdatadir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
   -Dpkgconfiglibdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
   -Dpamlibdir=/usr/lib${LIBDIRSUFFIX}/security \
   -Dpamconfdir=/etc/pam.d \
-  -Dpkgconfiglibdir=/usr//lib${LIBDIRSUFFIX}/pkgconfig || exit 1
+  -Dpkgconfiglibdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig || exit 1
 #  --build=$ARCH-slackware-linux || exit 1
 
 ninja || exit 1
