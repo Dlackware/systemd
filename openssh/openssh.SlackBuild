@@ -26,7 +26,7 @@
 
 PKGNAM=openssh
 VERSION=${VERSION:-$(echo openssh-*.tar.?z | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 CWD=$(pwd)
@@ -95,6 +95,7 @@ CFLAGS="$SLKCFLAGS" \
   --with-kerberos5 \
   --with-privsep-path=/var/empty \
   --with-privsep-user=sshd \
+  --with-pid-dir=/run \
   --build=$ARCH-slackware-linux
 
 make $NUMJOBS || make || exit 1
@@ -161,9 +162,15 @@ fi
   rm -f etc/ssh/ssh_host_key
   rm -f etc/ssh/ssh_host_key.pub
 
+
+sed -e '/^#ChallengeResponseAuthentication yes$/c ChallengeResponseAuthentication no' \
+    -e '/^#PrintMotd yes$/c PrintMotd no # pam does that' \
+    -e '/^#UsePAM no$/c UsePAM yes' \
+    -i "${PKG}"/etc/ssh/sshd_config
+
   # Set up the config script installation:
-  mv etc/ssh/ssh_config etc/ssh/ssh_config.new
-  mv etc/ssh/sshd_config etc/ssh/sshd_config.new
+  #mv etc/ssh/ssh_config etc/ssh/ssh_config.new
+  #mv etc/ssh/sshd_config etc/ssh/sshd_config.new
 
   # Add the init script as fallback if needed:
   mkdir -p etc/rc.d

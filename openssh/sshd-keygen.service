@@ -1,11 +1,15 @@
 [Unit]
-Description=OpenSSH Server Key Generation
-ConditionPathExists=|!/etc/ssh/ssh_host_rsa_key
+Description=SSH Key Generation
+ConditionPathExists=|!/etc/ssh/ssh_host_dsa_key
+ConditionPathExists=|!/etc/ssh/ssh_host_dsa_key.pub
 ConditionPathExists=|!/etc/ssh/ssh_host_ecdsa_key
+ConditionPathExists=|!/etc/ssh/ssh_host_ecdsa_key.pub
 ConditionPathExists=|!/etc/ssh/ssh_host_ed25519_key
-PartOf=sshd.service sshd.socket
+ConditionPathExists=|!/etc/ssh/ssh_host_ed25519_key.pub
+ConditionPathExists=|!/etc/ssh/ssh_host_rsa_key
+ConditionPathExists=|!/etc/ssh/ssh_host_rsa_key.pub
 
 [Service]
-ExecStart=/usr/sbin/sshd-keygen
+ExecStart=/usr/bin/ssh-keygen -A
 Type=oneshot
 RemainAfterExit=yes
