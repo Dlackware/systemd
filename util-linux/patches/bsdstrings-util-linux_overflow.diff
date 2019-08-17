@@ -1,0 +1,20 @@
+From db281fc97f1d665a61acabfd8d5933130996b29f Mon Sep 17 00:00:00 2001
+From: mancha <mancha1@zoho.com>
+Date: Wed, 29 Oct 2014
+Subject: Heap overflow
+
+Fix heap-buffer-overflow in strings.c as bundled by util-linux
+through version 2.9 and as shipped by Slackware Linux and 
+Slackware derivatives.
+
+--- a/strings.c
++++ b/strings.c
+@@ -124,7 +124,7 @@ main(argc, argv)
+ 	if (minlen == -1)
+ 		minlen = DEF_LEN;
+ 
+-	if (!(bfr = malloc((u_int)minlen))) {
++	if (!(bfr = malloc((u_int)minlen + 1))) {
+ 		(void)fprintf(stderr, "strings: %s\n", strerror(errno));
+ 		exit(1);
+ 	}
