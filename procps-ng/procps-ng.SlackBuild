@@ -2,7 +2,8 @@
 
 # Slackware build script for procps
 
-# Copyright 2014  Bart van der Hall, Almere, NL
+# Copyright 2005-2018  Patrick J. Volkerding, Sebeka, Minnesota, USA
+# Copyright 2019  Bart van der Hall, Almere, NL
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -23,11 +24,11 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PKGNAM=procps-ng
-VERSION=${VERSION:-3.3.15}
+VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
 PSMISCVER=${PSMISCVER:-23.1}
 PROCINFONGVER=${PROCINFONGVER:-2.0.304}
 PROCINFOVER=${PROCINFOVER:-18}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-3}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:--j7}
@@ -77,16 +78,6 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-unset DLACK_AUTOGEN
-if [ -r ${CWD}/apply-patches.sh ]; then
-  . ${CWD}/apply-patches.sh
-fi
-
-if [ ! -r configure ] || [ "${DLACK_AUTOGEN}" = "YES" ]; then
-  sed -i -e '/^po\/update-potfiles/d' autogen.sh
-  sh ./autogen.sh || exit $?
-fi
-
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
@@ -103,14 +94,14 @@ CXXFLAGS="$SLKCFLAGS" \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
   --enable-static=no \
   --disable-silent-rules \
-  --disable-modern-top \
   --disable-rpath \
   --enable-watch8bit \
   --enable-skill \
   --enable-sigwinch \
+  --enable-w-from \
   --disable-kill \
-  --enable-timeout-stat \
   --with-systemd \
+  --disable-modern-top \
   --build=$ARCH-slackware-linux || exit 1
 
 make $NUMJOBS || make || exit 1
@@ -163,9 +154,6 @@ mkdir -p $PKG/etc/sysctl.d
 
 cd psmisc-$PSMISCVER || exit 1
 
-# Fix fuser -s:
-cat $CWD/patches/psmisc.diff | patch -p1 --verbose || exit 1
-
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
@@ -214,7 +202,7 @@ make $NUMJOBS || exit 1
 make install DESTDIR=$PKG || exit 1
 
 mkdir -p $PKG/usr/doc/procinfo-ng-$PROCINFONGVER
-cp -a GPL-2.txt LGPL-2.1.txt LICENSE.txt COPYING* README* $PKG/usr/doc/procinfo-ng-$PROCINFONGVER
+cp -a GPL-2.txt LGPL-2.1.txt LICENSE.txt $PKG/usr/doc/procinfo-ng-$PROCINFONGVER
 
 # Now install a couple of scripts from the original procinfo package.
 cd ../procinfo-$PROCINFOVER || exit 1
@@ -248,16 +236,8 @@ cd ..
 
 mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
 cp -a \
-  AUTHORS ChangeLog COPYING* NEWS README* \
+  AUTHORS ChangeLog COPYING* NEWS \
   $PKG/usr/doc/$PKGNAM-$VERSION
-
-# If there's a ChangeLog, installing at least part of the recent history
-# is useful, but don't let it get totally out of control:
-if [ -r ChangeLog ]; then
-  DOCSDIR=$PKG/usr/doc/$PKGNAM-$VERSION
-  cat ChangeLog | head -n 1000 > $DOCSDIR/ChangeLog
-  touch -r ChangeLog $DOCSDIR/ChangeLog
-fi
 
 # Create /etc/sysctl.d:
 mkdir -p $PKG/etc/sysctl.d
