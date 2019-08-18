@@ -9,10 +9,24 @@ config() {
   fi
   # Otherwise, we leave the .new copy for the admin to consider...
 }
+preserve_perms() {
+  NEW="$1"
+  OLD="$(dirname ${NEW})/$(basename ${NEW} .new)"
+  if [ -e ${OLD} ]; then
+    cp -a ${OLD} ${NEW}.incoming
+    cat ${NEW} > ${NEW}.incoming
+    touch -r ${NEW} ${NEW}.incoming
+    mv ${NEW}.incoming ${NEW}
+  fi
+  config ${NEW}
+}
 
-config etc/rc.d/rc.sshd.new
 config etc/pam.d/sshd.new
 config etc/default/sshd.new
+preserve_perms etc/rc.d/rc.sshd.new
+if [ -e etc/rc.d/rc.sshd.new ]; then
+  mv etc/rc.d/rc.sshd.new etc/rc.d/rc.sshd
+fi
 
 # If the sshd user/group/shadow don't exist, add them:
 

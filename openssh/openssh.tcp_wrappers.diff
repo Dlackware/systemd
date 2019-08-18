@@ -1,6 +1,6 @@
---- ./configure.ac.orig	2018-08-23 00:41:42.000000000 -0500
-+++ ./configure.ac	2018-08-25 19:14:10.706002529 -0500
-@@ -1502,6 +1502,62 @@
+--- ./configure.ac.orig	2019-04-17 17:52:57.000000000 -0500
++++ ./configure.ac	2019-04-18 15:13:25.404941727 -0500
+@@ -1494,6 +1494,62 @@
  	AC_MSG_RESULT([no])
  fi
  
@@ -63,7 +63,7 @@
  # Check whether user wants to use ldns
  LDNS_MSG="no"
  AC_ARG_WITH(ldns,
-@@ -5177,6 +5233,7 @@
+@@ -5245,6 +5301,7 @@
  echo "                   OSF SIA support: $SIA_MSG"
  echo "                 KerberosV support: $KRB5_MSG"
  echo "                   SELinux support: $SELINUX_MSG"
@@ -71,8 +71,8 @@
  echo "              MD5 password support: $MD5_MSG"
  echo "                   libedit support: $LIBEDIT_MSG"
  echo "                   libldns support: $LDNS_MSG"
---- ./sshd.c.orig	2018-08-23 00:41:42.000000000 -0500
-+++ ./sshd.c	2018-08-25 19:12:52.901002527 -0500
+--- ./sshd.c.orig	2019-04-17 17:52:57.000000000 -0500
++++ ./sshd.c	2019-04-18 15:13:25.406941726 -0500
 @@ -122,6 +122,12 @@
  #include "auth-options.h"
  #include "version.h"
@@ -86,16 +86,16 @@
  
  /* Re-exec fds */
  #define REEXEC_DEVCRYPTO_RESERVED_FD	(STDERR_FILENO + 1)
-@@ -2063,6 +2069,26 @@
- 	packet_set_server();
- 	ssh = active_state; /* XXX */
+@@ -2022,6 +2028,26 @@
+ 	the_active_state = ssh;
+ 	ssh_packet_set_server(ssh);
  
 +/* Moved LIBWRAP check here */
 +#ifdef LIBWRAP
 +        allow_severity = options.log_facility|LOG_INFO;
 +        deny_severity = options.log_facility|LOG_WARNING;
 +        /* Check whether logins are denied from this host. */
-+        if (packet_connection_is_on_socket()) {	/* This check must be after packet_set_connection() */
++        if (ssh_packet_connection_is_on_socket(ssh)) {	/* This check must be after ssh_packet_set_connection() */
 +		struct request_info req;
 +
 +		request_init(&req, RQ_DAEMON, __progname, RQ_FILE, sock_in, 0);
@@ -113,8 +113,8 @@
  	check_ip_options(ssh);
  
  	/* Prepare the channels layer */
---- ./sshd.8.orig	2018-08-23 00:41:42.000000000 -0500
-+++ ./sshd.8	2018-08-25 19:12:52.899002527 -0500
+--- ./sshd.8.orig	2019-04-17 17:52:57.000000000 -0500
++++ ./sshd.8	2019-04-18 15:13:25.407941726 -0500
 @@ -873,6 +873,12 @@
  This file should be writable only by the user, and need not be
  readable by anyone else.
