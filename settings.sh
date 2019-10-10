@@ -5,12 +5,12 @@
 
 # Required:
 #
-# Make sure the /tmp directory is atleast 4GB
+# Make sure the /tmp directory is atleast 6GB
 # The below line needs to be replaced with a check and add or alter size
 #
 # /tmp is half your RAM
 
-echo 'tmpfs   /tmp         tmpfs   nodev,nosuid,size=4G          0  0' >> /etc/fstab || exit 1
+echo 'tmpfs   /tmp         tmpfs   nodev,nosuid,size=6G          0  0' >> /etc/fstab || exit 1
 
 # Optional:
 #
