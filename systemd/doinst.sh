@@ -354,7 +354,7 @@ fi
 enableservice getty@tty1.service || :
 enableservice remote-fs.target || :
 
-#${CHROOT} /bin/systemd-machine-id-setup > /dev/null 2>&1 || :
+${CHROOT} /bin/systemd-machine-id-setup > /dev/null 2>&1 || :
 ${CHROOT} /lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 ${CHROOT} /bin/systemctl daemon-reexec > /dev/null 2>&1 || :
 sleep 1

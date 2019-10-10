@@ -28,7 +28,7 @@
 
 PKGNAM=systemd
 VERSION=${VERSION:-$(ls $PKGNAM-*.tar.?z | cut -d - -f 2 | rev | cut -f 3- -d . | rev)}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 # Set YES to set systemd as default init
@@ -105,8 +105,7 @@ sed -i \
   -e '/^After=/s|$| local-fs.target|g' \
   -e '/^ExecStart/s| start||g' \
   -e 's|^Type=.*$|ExecStop=/etc/rc.d/rc.local_shutdown|g' \
-units/rc-local.service.in units/halt-local.service.in || exit 1
-
+units/rc-local.service.in || exit 1
 
 sed -i -e '/^exec_prefix=/s|=.*$|=/|g' \
   src/libudev/libudev.pc.in || exit 1
@@ -146,36 +145,52 @@ meson --prefix=/usr \
   -Drootprefix=/ \
   -Drootlibdir=/lib${LIBDIRSUFFIX} \
   -Dlink-udev-shared=true \
+  -Dsysvinit-path=/etc/rc.d \
+  -Dsysvrcnd-path=/etc/rc.d \
+  -Drc-local=/etc/rc.d/rc.local \
   -Dkmod=true \
-  -Dxz=true \
-  -Dnetworkd=true \
-  -Dvconsole=true \
-  -Dtmpfiles=true \
-  -Drfkill=true \
-  -Dlocaled=true \
-  -Dpolkit=true \
-  -Dldconfig=true \
-  -Dlogind=true \
-  -Dvalgrind=true \
-  -Dmicrohttpd=false \
-  -Dlibcryptsetup=false \
-  -Dfirstboot=false \
-  -Dusers-gid=100 \
+  -Dxkbcommon=true \
+  -Dblkid=true \
+  -Dima=true \
+  -Dselinux=false \
   -Dapparmor=false \
-  -Dtimedated=true \
-  -Dtimesyncd=true \
+  -Dpolkit=true \
+  -Dxz=true \
+  -Dzlib=true \
+  -Dbzip2=true \
+  -Dpam=true \
+  -Dacl=true \
+  -Dgcrypt=true \
+  -Daudit=false \
+  -Delfutils=true \
+  -Dlibcryptsetup=true \
+  -Delfutils=true \
+  -Dgnutls=true \
+  -Dmicrohttpd=false \
+  -Dlibidn2=true \
+  -Dlibiptc=true \
+  -Dlibcurl=true \
+  -Dtpm=true \
+  -Defi=false \
+  -Dhwdb=true \
+  -Dsysusers=true \
+  -Ddefault-kill-user-processes=false \
+  -Dtests=unsafe \
+  -Dinstall-tests=true \
+  -Dtty-gid=5 \
+  -Dusers-gid=100 \
+  -Dnobody-user=nobody \
+  -Dnobody-group=nobody \
   -Dsplit-usr=true \
+  -Dsplit-bin=true \
+  -Db_lto=true \
+  -Db_ndebug=false \
+  -Dman=true \
   -Dsystem-uid-max=999 \
   -Dsystem-gid-max=999 \
   -Dnobody-user=systemd-nobody \
   -Dnobody-group=systemd-nobody \
-  -Dpam=true \
-  -Daudit=false \
-  -Dselinux=false \
   -Drpmmacrosdir=no \
-  -Dsysvinit-path=/etc/rc.d \
-  -Dsysvrcnd-path=/etc/rc.d \
-  -Drc-local=/etc/rc.d/rc.local \
   -Dhalt-local=/etc/rc.d/rc.local_shutdown \
   -Dtelinit-path=/sbin/telinit \
   -Ddbuspolicydir=/usr/share/dbus-1/system.d \
@@ -220,11 +235,6 @@ install -pm0644 units/rc-local.service.in \
 ln -s ../rc-local.service \
   ${PKG}/lib/systemd/system/multi-user.target.wants/rc-local.service || exit 1
 
-install -pm0644 units/halt-local.service.in \
-  ${PKG}/lib/systemd/system/halt-local.service || exit 1
-ln -s ../halt-local.service \
-  ${PKG}/lib/systemd/system/multi-user.target.wants/halt-local.service || exit 1
-
 install -pm0644 tmpfiles.d/legacy.conf ${PKG}/usr/lib/tmpfiles.d/ || exit 1
 
 mv ${PKG}/lib/systemd/systemd ${PKG}/lib/systemd/systemd.new || exit 1
@@ -264,7 +274,21 @@ mkdir -p ${PKG}/usr/lib/systemd/ntp-units.d/
 # Make sure directories in /var exist
 mkdir -p ${PKG}/var/lib/systemd/coredump
 mkdir -p ${PKG}/var/lib/systemd/catalog
+mkdir -p ${PKG}/var/log
+mkdir -p ${PKG}/var/run
+mkdir -p ${PKG}/var/lib/systemd/backlight
+mkdir -p ${PKG}/var/lib/systemd/rfkill
+mkdir -p ${PKG}/var/lib/systemd/linger
+mkdir -p ${PKG}/var/lib/private
+mkdir -p ${PKG}/var/log/private
+mkdir -p ${PKG}/var/cache/private
+mkdir -p ${PKG}/var/lib/private/systemd/journal-upload
+mkdir -p ${PKG}/var/lib/systemd/timesync
+ln -s ../private/systemd/journal-upload ${PKG}/var/lib/systemd/journal-upload
 mkdir -p ${PKG}/var/log/journal
+touch ${PKG}/var/lib/systemd/random-seed.new
+touch ${PKG}/var/lib/systemd/timesync/clock.new
+touch ${PKG}/var/lib/private/systemd/journal-upload/state.new
 touch ${PKG}/var/lib/systemd/catalog/database.new
 touch ${PKG}/etc/udev/hwdb.bin
 
@@ -275,15 +299,15 @@ mkdir -p ${PKG}/lib/systemd/system/default.target.wants
 mkdir -p ${PKG}/etc/systemd/system/default.target.wants
 mkdir -p ${PKG}/lib/systemd/system/dbus.target.wants
 mkdir -p ${PKG}/etc/systemd/system/dbus.target.wants
-mkdir -p ${PKG}/lib/systemd/system/graphical.target.wants
+#mkdir -p ${PKG}/lib/systemd/system/graphical.target.wants
 mkdir -p ${PKG}/etc/systemd/system/graphical.target.wants
-mkdir -p ${PKG}/lib/systemd/system/local-fs.target.wants
+#mkdir -p ${PKG}/lib/systemd/system/local-fs.target.wants
 mkdir -p ${PKG}/etc/systemd/system/local-fs.target.wants
-mkdir -p ${PKG}/lib/systemd/system/multi-user.target.wants
+#mkdir -p ${PKG}/lib/systemd/system/multi-user.target.wants
 mkdir -p ${PKG}/etc/systemd/system/multi-user.target.wants
-mkdir -p ${PKG}/lib/systemd/system/network.target.wants
+#mkdir -p ${PKG}/lib/systemd/system/network.target.wants
 mkdir -p ${PKG}/etc/systemd/system/network.target.wants
-mkdir -p ${PKG}/lib/systemd/system/shutdown.target.wants
+#mkdir -p ${PKG}/lib/systemd/system/shutdown.target.wants
 mkdir -p ${PKG}/lib/systemd/system/syslog.target.wants
 
 # Make sure the user generators dir exists too
@@ -309,7 +333,7 @@ for file in ${CWD}/config/services/* ;do
 done
 
 ln -s ../../../../lib/systemd/system/slackware-motd.service \
-  ${PKG}/etc/systemd/system/multi-user.target.wants/slackware-motd.service || exit 1
+  ${PKG}/etc/systemd/system/slackware-motd.service || exit 1
 ln -s ../../../../lib/systemd/system/slackware-lvm-init.service \
   ${PKG}/etc/systemd/system/local-fs.target.wants/slackware-lvm-init.service || exit 1
 ln -sf ../../../../lib/systemd/system/display-manager.service \
