@@ -1,5 +1,5 @@
 PKGNAM="openssh"
-VERSION="8.0p1"
+VERSION="8.1p1"
 HOMEPAGE="https://www.openssh.com/"
-DOWNLOAD="https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.0p1.tar.gz"
-MD5SUM="bf050f002fe510e1daecd39044e1122d"
+DOWNLOAD="https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.1p1.tar.gz"
+MD5SUM="513694343631a99841e815306806edf0"
