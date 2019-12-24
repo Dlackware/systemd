@@ -25,10 +25,10 @@
 
 PKGNAM=procps-ng
 VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-PSMISCVER=${PSMISCVER:-23.2}
+PSMISCVER=${PSMISCVER:-23.3}
 PROCINFONGVER=${PROCINFONGVER:-2.0.304}
 PROCINFOVER=${PROCINFOVER:-18}
-BUILD=${BUILD:-3}
+BUILD=${BUILD:-4}
 TAG=${TAG:-_dlack}
 
 NUMJOBS=${NUMJOBS:--j7}
@@ -88,7 +88,6 @@ CXXFLAGS="$SLKCFLAGS" \
   --includedir=/usr/include \
   --sysconfdir=/etc \
   --localstatedir=/var \
-  --infodir=/usr/info \
   --mandir=/usr/man \
   --datarootdir=/usr/share \
   --docdir=/usr/doc/${PKGNAM}-${VERSION} \
@@ -172,7 +171,7 @@ make install DESTDIR=$PKG || exit 1
 
 # Move "killall" to the traditional location:
 mv $PKG/usr/bin/killall $PKG/bin
-( cd $PKG/usr/bin ; ln -sf /bin/killall . )
+ln -s /bin/killall $PKG/usr/bin/killall
 
 mkdir -p $PKG/usr/doc/psmisc-$PSMISCVER
 cp -a ChangeLog COPYING* NEWS README* $PKG/usr/doc/psmisc-$PSMISCVER
@@ -202,7 +201,7 @@ make $NUMJOBS || exit 1
 make install DESTDIR=$PKG || exit 1
 
 mkdir -p $PKG/usr/doc/procinfo-ng-$PROCINFONGVER
-cp -a GPL-2.txt LGPL-2.1.txt LICENSE.txt $PKG/usr/doc/procinfo-ng-$PROCINFONGVER
+cp -a GPL-2.txt LGPL-2.1.txt LICENSE.txt COPYING* README* $PKG/usr/doc/procinfo-ng-$PROCINFONGVER
 
 # Now install a couple of scripts from the original procinfo package.
 cd ../procinfo-$PROCINFOVER || exit 1
@@ -238,9 +237,6 @@ mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
 cp -a \
   AUTHORS ChangeLog COPYING* NEWS \
   $PKG/usr/doc/$PKGNAM-$VERSION
-
-# Create /etc/sysctl.d:
-mkdir -p $PKG/etc/sysctl.d
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
