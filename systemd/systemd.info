@@ -1,5 +1,5 @@
 PKGNAM="systemd"
-VERSION="243"
+VERSION="245"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd/"
-DOWNLOAD="https://github.com/systemd/systemd/archive/v243/systemd-243.tar.gz"
-MD5SUM="ca2403fa7dff73afd2e896b4cb25021b"
+DOWNLOAD="https://github.com/systemd/systemd/archive/v245/systemd-245.tar.gz"
+MD5SUM="04f02d9841ea5992a16f6b03c873da28"

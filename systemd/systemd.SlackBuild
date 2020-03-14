@@ -37,7 +37,6 @@ SBO_INIT=${SBO_INIT:-YES}
 # If you have set NO for default init, you need to change your boot loader startup
 # Add the kernel parameter " init=/lib/systemd/systemd"
 
-
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
     i?86) ARCH=i586 ;;
@@ -84,9 +83,8 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-if [ -r ${CWD}/apply-patches.sh ]; then
-  . ${CWD}/apply-patches.sh
-fi
+patch -p1 --verbose -i $CWD/patches/60-cdrom_id.rules.diff
+patch -p1 --verbose -i $CWD/patches/Don-t-enable-audit-by-default.patch
 
 # Force file regeneration
 ( cd units
@@ -105,15 +103,13 @@ sed -i \
   -e '/^After=/s|$| local-fs.target|g' \
   -e '/^ExecStart/s| start||g' \
   -e 's|^Type=.*$|ExecStop=/etc/rc.d/rc.local_shutdown|g' \
-units/rc-local.service.in || exit 1
+  units/rc-local.service.in || exit 1
 
 sed -i -e '/^exec_prefix=/s|=.*$|=/|g' \
   src/libudev/libudev.pc.in || exit 1
 
 sed -i -e '/udevadm/s|@rootbindir@|/sbin|g' \
-  src/login/71-seat.rules.in \
-  units/systemd-udev-settle.service.in \
-  units/systemd-udev-trigger.service.in || exit 1
+  src/login/71-seat.rules.in || exit 1
 
 # Slackware file is upper case
 sed -i -e 's|/etc/hostname|/etc/HOSTNAME|g' \
@@ -198,7 +194,7 @@ meson --prefix=/usr \
   -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
   -Dpkgconfigdatadir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
   -Dpkgconfiglibdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig \
-  -Dpamlibdir=/usr/lib${LIBDIRSUFFIX}/security \
+  -Dpamlibdir=/lib${LIBDIRSUFFIX}/security \
   -Dpamconfdir=/etc/pam.d \
   -Dpkgconfiglibdir=/usr/lib${LIBDIRSUFFIX}/pkgconfig || exit 1
 #  --build=$ARCH-slackware-linux || exit 1
