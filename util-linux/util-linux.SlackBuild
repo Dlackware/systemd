@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2018  Patrick J. Volkerding, Sebeka, MN, USA
+# Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2018, 2020  Patrick J. Volkerding, Sebeka, MN, USA
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -24,7 +24,7 @@
 
 PKGNAM=util-linux
 VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 ADJTIMEXVERS=1.29
@@ -73,58 +73,60 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-# Set to YES to use with shadow with pam support.
-SBO_PAMD_DIR=${CWD}/pamd
-SBO_PATCHDIR=${CWD}/patches
-
-DATE=$(LC_ALL=C date +%d-%b-%Y)
+# Add su default file to ensure using ENV_SUPATH with 'su':
+mkdir -p $PKG/etc/default
+cp -a $CWD/su.default $PKG/etc/default/su.new
+chown root:root $PKG/etc/default/su.new
+chmod 644 $PKG/etc/default/su.new
+# Add /etc/pam.d config files:
+rm -rf $PKG/etc/pam.d
+mkdir -p $PKG/etc/pam.d
+for file in $CWD/pam.d/* ; do
+  cp -a ${file} $PKG/etc/pam.d/
+done
+# Ensure correct perms/ownership on files in /etc/pam.d/:
+chown root:root $PKG/etc/pam.d/*
+chmod 644 $PKG/etc/pam.d/*
+# Don't clobber existing config files:
+find $PKG/etc/pam.d -type f -exec mv {} {}.new \;
 
 # Changing the fdisk -l output (this was done prior to util-linux-ng) broke
 # our installation scripts, so we have changed the name of partition type
 # 83 back to "Linux swap":
-patch -p1 --verbose< $SBO_PATCHDIR/util-linux-ng.fdisk-no-solaris.diff || exit 1
+patch -p1 --verbose -i $CWD/patches/util-linux-ng.fdisk-no-solaris.diff || exit 1
 
 # Revert to the behavior of earlier versions of fdisk which did not list the
 # /dev/ram* devices in 'fdisk -l' output:
-patch -p1 --verbose< $SBO_PATCHDIR/util-linux.do.not.list.ram.devices.diff || exit 1
+patch -p1 --verbose -i $CWD/patches/util-linux.do.not.list.ram.devices.diff || exit 1
 
-
-export ac_cv_header_security_pam_misc_h=yes
-
-if [ "${SB_AUTOGEN}" = "YES" ] ;then
-  sh ./autogen.sh || exit $?
-fi
-
-sed -i -e 's|${prefix}/${localstatedir}|${localstatedir}|g' configure || exit 1
-
-CFLAGS="${SLKCFLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64" \
-
+# This just call the configure script with $1 either being 2 for python2
+# or 3 for python3.
+#
+# The releasenotes say to use --runstatedir, but it doesn't work and the
+# configure script fails. So we'll leave things using localstatedir, but
+# check again later:
+#
+#   --runstatedir=/run
 configure_with_python(){
 ./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
-  --sbindir=/sbin \
   --localstatedir=/var \
   --mandir=/usr/man \
   --infodir=/usr/info \
   --docdir=/usr/doc/util-linux-$VERSION \
   --disable-static \
-  --without-readline \
   --enable-agetty \
-  --disable-eject \
   --enable-kill \
   --disable-last \
+  --enable-libmount-support-mtab \
   --enable-line \
   --enable-mesg \
   --enable-partx \
+  --enable-pg \
   --enable-raw \
   --enable-rename \
-  --enable-reset \
-  --disable-login \
-  --disable-sulogin \
-  --disable-nologin \
-  --disable-su \
   --enable-schedutils \
   --enable-wall \
   --enable-write \
@@ -132,7 +134,6 @@ configure_with_python(){
   --enable-libblkid \
   --enable-libmount \
   --enable-libuuid \
-  --disable-chfn-chsh \
   --with-python=$1 \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --with-systemd \
@@ -145,6 +146,14 @@ CFLAGS="$SLKCFLAGS" \
 make $NUMJOBS || make || exit 1
 make install DESTDIR=$PKG || exit 1
 
+# These need to be setuid root to work properly (only built for PAM):
+if [ -r $PKG/usr/bin/chfn ]; then
+  chmod 4711 $PKG/usr/bin/chfn
+fi
+if [ -r $PKG/usr/bin/chsh ]; then
+  chmod 4711 $PKG/usr/bin/chsh
+fi
+
 # Build python3 bindings for libmount:
 make clean
 CFLAGS="$SLKCFLAGS" \
@@ -156,6 +165,23 @@ make \
 
 # Remove all overlap with the shadow package, since --disable-login doesn't quite do that:
 rm $PKG/sbin/nologin $PKG/usr/man/man8/nologin.8 $PKG/sbin/sulogin $PKG/usr/man/man8/sulogin.8
+
+# Move the libblkid, libfdisk, libmount, libsmartcols, and
+# libuuid libraries to /lib${LIBSUFFIX}:
+mkdir -p $PKG/lib${LIBDIRSUFFIX}
+( cd $PKG/usr/lib${LIBDIRSUFFIX}
+  mv libblkid.so.1* $PKG/lib${LIBDIRSUFFIX}
+  mv libfdisk.so.1* $PKG/lib${LIBDIRSUFFIX}
+  mv libmount.so.1* $PKG/lib${LIBDIRSUFFIX}
+  mv libsmartcols.so.1* $PKG/lib${LIBDIRSUFFIX}
+  mv libuuid.so.1* $PKG/lib${LIBDIRSUFFIX}
+  rm -f libblkid.so libfdisk.so libmount.so libsmartcols.so libuuid.so
+  ln -sf ../../lib${LIBDIRSUFFIX}/libblkid.so.1 libblkid.so
+  ln -sf ../../lib${LIBDIRSUFFIX}/libfdisk.so.1 libfdisk.so
+  ln -sf ../../lib${LIBDIRSUFFIX}/libmount.so.1 libmount.so
+  ln -sf ../../lib${LIBDIRSUFFIX}/libsmartcols.so.1 libsmartcols.so
+  ln -sf ../../lib${LIBDIRSUFFIX}/libuuid.so.1 libuuid.so
+)
 
 mkdir -p $PKG/lib${LIBDIRSUFFIX}
 
@@ -188,28 +214,30 @@ cp -a ddate $PKG/usr/bin
 cat ddate.1 > $PKG/usr/man/man1/ddate.1
 chown root:root $PKG/usr/bin/ddate
 
-# Build ziptool
+# Build ziptool (install as jaztool to avoid conflict with libzip):
 cd $TMP || exit 1
 rm -rf ziptool-$ZIPTOOLVERS
 tar xvf $CWD/ziptool-$ZIPTOOLVERS.tar.xz || exit 1
 cd ziptool-$ZIPTOOLVERS || exit 1
-patch -p0 -E --backup --verbose< $SBO_PATCHDIR/ziptool-1.4.0-llh.patch || exit 1
+patch -p1 --verbose -i $CWD/patches/ziptool-fix_build.patch || exit 1
+mkdir scsi
+cat $CWD/scsi_ioctl.h > scsi/scsi_ioctl.h
 chown -R root:root .
-make LINUX_SRC_DIR=/usr || exit 1
+make || exit 1
 strip ziptool
-cat ziptool > $PKG/sbin/ziptool
-chmod 0755 $PKG/sbin/ziptool
+cat ziptool > $PKG/sbin/jaztool
+chmod 0755 $PKG/sbin/jaztool
 mkdir -p $PKG/usr/doc/ziptool-$ZIPTOOLVERS
 cp -a README $PKG/usr/doc/ziptool-$ZIPTOOLVERS
 chmod 644 $PKG/usr/doc/ziptool-$ZIPTOOLVERS/*
-cat ziptool.1.gz > $PKG/usr/man/man1/ziptool.1.gz
+cat ziptool.1.gz > $PKG/usr/man/man1/jaztool.1.gz
 
 # Build bsdstrings
 cd $TMP || exit 1
 rm -rf bsdstrings
 tar xvf $CWD/bsdstrings.tar.gz || exit 1
 cd bsdstrings || exit 1
-patch -p1 --verbose < $SBO_PATCHDIR/bsdstrings-util-linux_overflow.diff || exit 1
+patch -p1 --verbose -i $CWD/patches/bsdstrings-util-linux_overflow.diff || exit 1
 make || exit 1
 strip strings
 cat strings > $PKG/usr/bin/strings-BSD
@@ -222,7 +250,7 @@ rm -rf adjtimex-$ADJTIMEXVERS
 tar xvf $CWD/adjtimex_${ADJTIMEXVERS}.orig.tar.gz || exit 1
 cd adjtimex-$ADJTIMEXVERS || exit 1
 chown -R root:root .
-patch -p1< $SBO_PATCHDIR/adjtimex_1.29-2.2.diff || exit 1
+patch -p1 -i $CWD/patches/adjtimex_1.29-2.2.diff || exit 1
 CFLAGS=-O2 ./configure --prefix=/usr || exit 1
 make || exit 1
 strip adjtimex
@@ -239,9 +267,10 @@ rm -rf setserial-$SETSERIALVERS
 tar xvf $CWD/setserial-$SETSERIALVERS.tar.gz || exit 1
 cd setserial-$SETSERIALVERS || exit 1
 chown -R root:root .
-patch -E -p1 --verbose< $SBO_PATCHDIR/setserial-rc.serial.diff || exit 1
-patch -E -p1 --verbose< $SBO_PATCHDIR/setserial-hayesesp.patch || exit 1
-
+patch -E -p1 --verbose -i $CWD/patches/setserial-rc.serial.diff || exit 1
+patch -E -p1 --verbose -i $CWD/patches/setserial-undef_TIOCGHAYESESP.diff || exit 1
+# The original config.{guess,sub} do not work on x86_64
+cp -p /usr/share/libtool/config/config.{guess,sub} .
 ./configure --prefix=/usr || exit 1
 make || exit 1
 strip setserial
@@ -267,7 +296,7 @@ cd $TMP/util-linux-$VERSION # Go back home :)
 ( cd $PKG/sbin
   ln -s ../bin/mount .
   ln -s ../bin/umount .
-  ln -s ziptool jaztool
+  #ln -s ziptool jaztool
   ln -s hwclock clock
   cd $PKG/usr/sbin
   ln -s ../../sbin/cfdisk .
@@ -275,25 +304,23 @@ cd $TMP/util-linux-$VERSION # Go back home :)
   ln -s ../../sbin/sfdisk .
   cd $PKG/usr/bin
   ln -s ../sbin/readprofile .
-  ln -s ../sbin/tunelp .
+  # tunelp was removed by upstream:
+  #ln -s ../sbin/tunelp .
   ln -s ../../bin/more .
   ln -s ../../sbin/raw .
   cd $PKG/usr/man/man1
-  ln -s ziptool.1 jaztool.1
+  #ln -s ziptool.1 jaztool.1
   cd $PKG/usr/man/man8
   ln -s hwclock.8 clock.8
 )
-
-mkdir -p ${PKG}/etc/pam.d ${PKG}/etc/security/console.apps ${PKG}/usr/man/man8
-for pamd in runuser runuser-l ; do
-  install -m 644 ${SBO_PAMD_DIR}/${pamd}.pamd \
-    ${PKG}/etc/pam.d/${pamd}.new || exit 1
-done
 
 mkdir -p $PKG/run/uuidd || exit 1
 
 find $PKG | xargs file | grep -e "executable" -e "shared object" \
   | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+# Don't ship .la files:
+rm -f $PKG/{,usr/}lib${LIBDIRSUFFIX}/*.la
 
 # Compress and if needed symlink the man pages:
 if [ -d $PKG/usr/man ]; then
@@ -315,8 +342,9 @@ rm $PKG/usr/info/dir
 gzip -9 $PKG/usr/info/*
 
 mkdir -p $PKG/usr/doc/util-linux-$VERSION
-cp -a AUTHORS COPYING DEPRECATED NEWS README* TODO \
-  docs/v${VERSION}-ReleaseNotes \
+cp -a AUTHORS COPYING* DEPRECATED NEWS README* \
+  Documentation/v${VERSION}-ReleaseNotes \
+  Documentation/licenses/* Documentation/{TODO,*.txt} \
   $PKG/usr/doc/util-linux-$VERSION
 
 mkdir $PKG/install

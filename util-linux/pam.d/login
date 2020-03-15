@@ -1,0 +1,14 @@
+#%PAM-1.0
+auth            required        pam_securetty.so
+# To set a limit on failed authentications, the pam_tally2 module
+# can be enabled. See pam_tally2(8) for options.
+#auth            required        pam_tally2.so deny=4 unlock_time=1200
+auth            include         system-auth
+auth            include         postlogin
+account         required        pam_nologin.so
+account         include         system-auth
+password        include         system-auth
+session         include         system-auth
+session         include         postlogin
+session         required        pam_loginuid.so
+session         optional        pam_ck_connector.so nox11

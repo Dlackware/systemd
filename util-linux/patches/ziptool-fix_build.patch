@@ -1,0 +1,24 @@
+diff -Nur ziptool-1.4.0.orig/Makefile ziptool-1.4.0/Makefile
+--- ziptool-1.4.0.orig/Makefile	2002-08-23 17:13:48.000000000 -0500
++++ ziptool-1.4.0/Makefile	2009-02-09 16:33:12.913637302 -0600
+@@ -5,10 +5,6 @@
+ #
+ CFLAGS = -O2 -g -Wall
+ 
+-# Path to linux kernel sources.
+-#
+-LINUX_SRC_DIR = /usr/src/linux
+-
+ # Installation directories
+ #
+ INSTALL_BIN_DIR = /usr/bin
+@@ -30,7 +26,7 @@
+ 	cd $(INSTALL_MAN_DIR)/man1; ln -sf ziptool.1.gz jaztool.1.gz
+ 
+ ziptool: ziptool.c
+-	cc $(CFLAGS) -I$(LINUX_SRC_DIR)/include -o ziptool ziptool.c
++	cc $(CFLAGS) -I. -o ziptool ziptool.c
+ 
+ jaztool: ziptool.c
+-	cc $(CFLAGS) -I$(LINUX_SRC_DIR)/include -o jaztool ziptool.c
++	cc $(CFLAGS) -I. -o jaztool ziptool.c

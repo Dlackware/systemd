@@ -67,12 +67,6 @@ config() {
 }
 
 # Fix permissions
-chroot . /bin/chmod 4755 /bin/mount
-chroot . /bin/chmod 4755 /bin/umount
-chroot . /bin/chown root:tty /usr/bin/wall
-chroot . /bin/chmod 2755 /usr/bin/wall
-chroot . /bin/chown root:tty /usr/bin/write
-chroot . /bin/chmod 2755 /usr/bin/write
 chroot . /bin/chown uuidd:uuidd /usr/sbin/uuidd
 chroot . /bin/chown uuidd:uuidd /run/uuidd
 chroot . /bin/chmod 2775 /run/uuidd
@@ -81,12 +75,16 @@ if [ -x /bin/systemctl ] ; then
   chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
 
-if [ -e etc/mtab ] ;then
-  rm -f etc/mtab
-  ln -s proc/self/mounts etc/mtab
-fi
-
-config etc/pam.d/runuser-l.new
-config etc/pam.d/runuser.new
 config etc/rc.d/rc.serial.new
+config etc/rc.d/rc.setterm.new
 config etc/serial.conf.new
+
+for configfile in chfn.new chsh.new login.new runuser.new runuser-l.new su.new su-l.new ; do
+  if [ -r etc/pam.d/$configfile ]; then
+    config etc/pam.d/$configfile
+  fi
+done
+
+if [ -r etc/default/su.new ]; then
+  config etc/default/su.new
+fi
