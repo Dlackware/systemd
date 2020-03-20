@@ -1,6 +1,4 @@
 ### [systemd-min] begin
-wayland
-wayland-protocols
 valgrind
 lxml
 #### If you are updating you can use just systemd here - filename issue check for md5sum
