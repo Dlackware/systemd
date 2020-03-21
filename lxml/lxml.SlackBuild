@@ -3,6 +3,7 @@
 # Slackware build script for lxml
 
 # Copyright 2009-2014 Larry Hajali <larryhaja[at]gmail[dot]com>
+# Copyright 2020 Eugene Wissner, Dachau, Germany
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -66,20 +67,14 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-python setup.py build --with-unicode-strings
-python setup.py install --skip-build --root=$PKG
-
-if $(python3 -c 'import os' 2>/dev/null); then
-  python3 setup.py build --with-unicode-strings
-  python3 setup.py install --skip-build --root=$PKG
-fi
+python3 setup.py build --with-unicode-strings
+python3 setup.py install --skip-build --root=$PKG
 
 find $PKG | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
 cp -a *.txt PKG-INFO doc/licenses/* doc/FAQ.txt $PKG/usr/doc/$PKGNAM-$VERSION
-rm $PKG/usr/doc/$PKGNAM-$VERSION/version.txt
 cat $CWD/$PKGNAM.SlackBuild > $PKG/usr/doc/$PKGNAM-$VERSION/$PKGNAM.SlackBuild
 
 mkdir -p $PKG/install
