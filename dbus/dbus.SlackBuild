@@ -1,8 +1,9 @@
 #!/bin/sh
 
 # Copyright 2007-2010  Robby Workman, Northport, Alabama, USA
-# Copyright 2007-2012  Patrick Volkerding, Sebeka, MN, USA
-# Copyright 2013-2013  Bart van der Hall, Istanbul, TR
+# Copyright 2007-2018  Patrick Volkerding, Sebeka, MN, USA
+# Copyright 2013  Bart van der Hall, Istanbul, TR
+# Copyright 2020  Eugene Wissner, Dachau, Germany
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -24,10 +25,8 @@
 
 PKGNAM=dbus
 VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
-
-NUMJOBS=${NUMJOBS:-" -j7 "}
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -58,20 +57,20 @@ else
   LIBDIRSUFFIX=""
 fi
 
+set -e # Exit on most errors
+
 rm -rf $PKG
 mkdir -p $TMP $PKG
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.?z* || exit 1
-cd $PKGNAM-$VERSION || exit 1
+tar xvf $CWD/$PKGNAM-$VERSION.tar.?z*
+cd $PKGNAM-$VERSION
 chown -R root:root .
 find . \
  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
  -exec chmod 755 {} \; -o \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
-
-patch -p1 --verbose <$CWD/dbus-1.12.x-allow_root_globally.diff || exit 1
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
@@ -97,26 +96,15 @@ CXXFLAGS="$SLKCFLAGS" \
   --with-systemdsystemunitdir=/lib/systemd/system \
   --build=$ARCH-slackware-linux
 
-make $NUMJOBS || make || exit 1
+make
 make install DESTDIR=$PKG
 
 find $PKG | xargs file | grep -e "executable" -e "shared object" \
   | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 
 # Compress and link manpages, if any:
-if [ -d $PKG/usr/man ]; then
-  ( cd $PKG/usr/man
-    for manpagedir in $(find . -type d -name "man*") ; do
-      ( cd $manpagedir
-        for eachpage in $( find . -type l -maxdepth 1) ; do
-          ln -s $( readlink $eachpage ).gz $eachpage.gz
-          rm $eachpage
-        done
-        gzip -9 *.?
-      )
-    done
-  )
-fi
+find $PKG/usr/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
 # Install a custom init script for dbus - the included one is not good for us
 mkdir -p $PKG/etc/rc.d/
@@ -128,7 +116,7 @@ chown messagebus $PKG/var/lib/dbus
 
 mkdir -p ${PKG}/etc/X11/xinit/xinitrc.d
 install -pm0755 ${CWD}/00-start-message-bus.sh \
-  ${PKG}/etc/X11/xinit/xinitrc.d/00-start-message-bus.sh || exit 1
+  ${PKG}/etc/X11/xinit/xinitrc.d/00-start-message-bus.sh
 
 # Add documentation
 mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
@@ -136,14 +124,6 @@ cp -a \
   AUTHORS COPYING* INSTALL NEWS README* doc/*.{txt,html,dtd} \
   $PKG/usr/doc/$PKGNAM-$VERSION
 find $PKG/usr/doc/$PKGNAM-$VERSION -type f -exec chmod 0644 {} \;
-
-# If there's a ChangeLog, installing at least part of the recent history
-# is useful, but don't let it get totally out of control:
-if [ -r ChangeLog ]; then
-  DOCSDIR=$(echo $PKG/usr/doc/*-$VERSION)
-  cat ChangeLog | head -n 1000 > $DOCSDIR/ChangeLog
-  touch -r ChangeLog $DOCSDIR/ChangeLog
-fi
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc

@@ -1,11 +1,3 @@
-# Figure out our root directory
-ROOTDIR=$(pwd)
-unset CHROOT
-if test "${ROOTDIR}" != "/"; then
-  CHROOT="chroot ${ROOTDIR} "
-  ROOTDIR="${ROOTDIR}/"
-fi
-
 config() {
   NEW="$1"
   OLD="$(dirname $NEW)/$(basename $NEW .new)"
@@ -33,5 +25,5 @@ if [ -r etc/rc.d/rc.messagebus.new ]; then
 fi
 
 if [ -x bin/systemctl ] ; then
-  ${CHROOT} /bin/systemctl --system daemon-reload >/dev/null 2>&1
+  chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
