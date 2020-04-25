@@ -66,25 +66,35 @@ config() {
   # Otherwise, we leave the .new copy for the admin to consider...
 }
 
+compare_config() {
+  CONFIG=$1
+  SED_CMD=$2
+
+  if [ ! -r $OLD ] \
+      || diff $CONFIG $CONFIG.new > /dev/null \
+      || sed -e $SED_CMD $CONFIG.new | diff $CONFIG - > /dev/null; then
+    mv $CONFIG.new $CONFIG
+  fi
+}
+
 # Fix permissions
 chroot . /bin/chown uuidd:uuidd /usr/sbin/uuidd
 chroot . /bin/chown uuidd:uuidd /run/uuidd
 chroot . /bin/chmod 2775 /run/uuidd
 
-if [ -x /bin/systemctl ] ; then
+if [ -x /bin/systemctl ]; then
   chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
 fi
 
 config etc/rc.d/rc.serial.new
-config etc/rc.d/rc.setterm.new
 config etc/serial.conf.new
 
-for configfile in chfn.new chsh.new login.new runuser.new runuser-l.new su.new su-l.new ; do
-  if [ -r etc/pam.d/$configfile ]; then
-    config etc/pam.d/$configfile
-  fi
+for configfile in chfn.new chsh.new runuser.new su.new su-l.new; do
+  config etc/pam.d/$configfile
 done
 
-if [ -r etc/default/su.new ]; then
-  config etc/default/su.new
-fi
+# We need to load pam_systemd and remove pam_ck_connector.
+compare_config etc/pam.d/runuser-l '4d'
+compare_config etc/pam.d/login '13asession         optional        pam_ck_connector.so nox11'
+
+config etc/default/su.new
