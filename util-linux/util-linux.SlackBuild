@@ -24,7 +24,7 @@
 
 PKGNAM=util-linux
 VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_dlack}
 
 ADJTIMEXVERS=1.29
@@ -73,20 +73,38 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-# Add su default file to ensure using ENV_SUPATH with 'su':
-mkdir -p $PKG/etc/default
-cp -a $CWD/su.default $PKG/etc/default/su.new
-chown root:root $PKG/etc/default/su.new
-chmod 644 $PKG/etc/default/su.new
-# Add /etc/pam.d config files:
-rm -rf $PKG/etc/pam.d
-mkdir -p $PKG/etc/pam.d
-for file in $CWD/pam.d/* ; do
-  cp -a ${file} $PKG/etc/pam.d/
-done
-# Ensure correct perms/ownership on files in /etc/pam.d/:
-chown root:root $PKG/etc/pam.d/*
-chmod 644 $PKG/etc/pam.d/*
+# Choose correct options depending on whether PAM is installed:
+if [ -L /lib${LIBDIRSUFFIX}/libpam.so.? ]; then
+  LOGIN_OPTIONS=""
+  # By default, don't use the util-linux version of /bin/su:
+  SHIP_SU=${SHIP_SU:-NO}
+  # Add /etc/pam.d config files:
+  rm -rf $PKG/etc/pam.d
+  mkdir -p $PKG/etc/pam.d
+  for file in $CWD/pam.d/* ; do
+    cp -a ${file} $PKG/etc/pam.d/
+  done
+  if [ "$SHIP_SU" = "YES" ]; then
+    # Add su default file to ensure using ENV_SUPATH with 'su':
+    mkdir -p $PKG/etc/default
+    cp -a $CWD/su.default $PKG/etc/default/su.new
+    chown root:root $PKG/etc/default/su.new
+    chmod 644 $PKG/etc/default/su.new
+    # Add su /etc/pam.d files:
+    cp -a $CWD/pam.d-su/* $PKG/etc/pam.d/
+  fi
+Ensure correct perms/ownership on files in /etc/pam.d/:
+  chown root:root $PKG/etc/pam.d/*
+  chmod 644 $PKG/etc/pam.d/*
+  # Don't clobber existing config files:
+  find $PKG/etc/pam.d -type f -exec mv {} {}.new \;
+else
+  # Don't use the util-linux version of /bin/su.
+  # It can't be built without PAM anyway.
+  SHIP_SU=NO
+  LOGIN_OPTIONS="--disable-login"
+fi
+
 # Don't clobber existing config files:
 find $PKG/etc/pam.d -type f -exec mv {} {}.new \;
 
@@ -128,6 +146,7 @@ configure_with_python(){
   --enable-raw \
   --enable-rename \
   --enable-schedutils \
+  $LOGIN_OPTIONS \
   --enable-wall \
   --enable-write \
   --enable-use-tty-group \
@@ -165,6 +184,13 @@ make \
 
 # Remove all overlap with the shadow package, since --disable-login doesn't quite do that:
 rm $PKG/sbin/nologin $PKG/usr/man/man8/nologin.8 $PKG/sbin/sulogin $PKG/usr/man/man8/sulogin.8
+
+# If we aren't shipping su, remove the files:
+if [ "$SHIP_SU" = "NO" ]; then
+  rm -f $PKG/bin/su
+  rm -f $PKG/usr/man/man1/su.1
+  rm -f $PKG/usr/share/bash-completion/completions/su
+fi
 
 # Move the libblkid, libfdisk, libmount, libsmartcols, and
 # libuuid libraries to /lib${LIBSUFFIX}:
