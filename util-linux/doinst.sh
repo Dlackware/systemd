@@ -1,100 +1,33 @@
-function free_user_id {
-  # Find a free user-ID >= 100 (should be < 1000 so it's not a normal user)
-  local FREE_USER_ID=100
-  while grep --quiet "^.*:.*:${FREE_USER_ID}:.*:.*:.*:" etc/passwd; do
-    let FREE_USER_ID++
-  done
-  echo ${FREE_USER_ID}
-}
-function free_group_id {
-  # Find a free group-ID >= 120 (should be < 1000 so it's not a normal group)
-  local FREE_GROUP_ID=100
-  while grep --quiet "^.*:.*:${FREE_GROUP_ID}:" etc/group; do
-    let FREE_GROUP_ID++
-  done
-  echo ${FREE_GROUP_ID}
-}
-
-# Set up groups.
-if ! grep --quiet '^uuidd:' etc/group ;then
-  chroot . /usr/sbin/groupadd \
-    -g $(free_group_id) \
-    uuidd 2> /dev/null
-fi
-
-# Set up user: add it if it doesn't exist, update it if it already does.
-if OLD_ENTRY=$(grep --max-count=1 '^uuidd:' etc/passwd) \
-  || OLD_ENTRY=$(grep --max-count=1 \
-  ':/run/uuidd:[a-z/]*$' etc/passwd)
-then
-  # Modify existing user
-  OLD_USER=$(echo ${OLD_ENTRY} | cut --fields=1 --delimiter=':')
-  USER_ID=$(echo ${OLD_ENTRY} | cut --fields=3 --delimiter=':')
-  test ${USER_ID} -ge 1000 && USER_ID=$(free_user_id)
-  if test "${OLD_USER}" = "uuidd"; then
-    echo -n "Updating unprivileged user " 1>&2
-  else
-    echo -ne "Changing unprivileged user \e[1m${OLD_USER}\e[0m to " 1>&2
-  fi
-  chroot . /usr/sbin/usermod \
-      -d '/run/uuidd' \
-      -u ${USER_ID} \
-      -s /bin/false \
-      -g uuidd \
-      ${OLD_USER}
-else
-  # Add new user
-  echo -n "Creating unprivileged user " 1>&2
-  chroot . /usr/sbin/useradd \
-    -c 'UUID generator helper daemon' \
-    -u $(free_user_id) \
-    -g uuidd \
-    -s /bin/false \
-    -d '/run/uuidd' \
-    uuidd 2> /dev/null
-fi
-
 config() {
   NEW="$1"
   OLD="$(dirname $NEW)/$(basename $NEW .new)"
   # If there's no config file by that name, mv it over:
   if [ ! -r $OLD ]; then
     mv $NEW $OLD
-  elif [ "$(cat $OLD | md5sum)" = "$(cat $NEW | md5sum)" ]; then # toss the redundant copy
+  elif [ "$(cat $OLD | md5sum)" = "$(cat $NEW | md5sum)" ]; then
+    # toss the redundant copy
     rm $NEW
   fi
   # Otherwise, we leave the .new copy for the admin to consider...
 }
 
-compare_config() {
-  CONFIG=$1
-  SED_CMD=$2
-
-  if [ ! -r $OLD ] \
-      || diff $CONFIG $CONFIG.new > /dev/null \
-      || sed -e $SED_CMD $CONFIG.new | diff $CONFIG - > /dev/null; then
-    mv $CONFIG.new $CONFIG
-  fi
-}
-
-# Fix permissions
-chroot . /bin/chown uuidd:uuidd /usr/sbin/uuidd
-chroot . /bin/chown uuidd:uuidd /run/uuidd
-chroot . /bin/chmod 2775 /run/uuidd
-
-if [ -x /bin/systemctl ]; then
-  chroot . /bin/systemctl --system daemon-reload >/dev/null 2>&1
+# Keep same perms on rc.serial.new:
+if [ -e etc/rc.d/rc.serial ]; then
+  cp -a etc/rc.d/rc.serial etc/rc.d/rc.serial.new.incoming
+  cat etc/rc.d/rc.serial.new > etc/rc.d/rc.serial.new.incoming
+  mv etc/rc.d/rc.serial.new.incoming etc/rc.d/rc.serial.new
 fi
 
 config etc/rc.d/rc.serial.new
+config etc/rc.d/rc.setterm.new
 config etc/serial.conf.new
 
-for configfile in chfn.new chsh.new runuser.new su.new su-l.new; do
-  config etc/pam.d/$configfile
+for configfile in chfn.new chsh.new login.new runuser.new runuser-l.new su.new su-l.new ; do
+  if [ -r etc/pam.d/$configfile ]; then
+    config etc/pam.d/$configfile
+  fi
 done
 
-# We need to load pam_systemd and remove pam_ck_connector.
-compare_config etc/pam.d/runuser-l '4d'
-compare_config etc/pam.d/login '13asession         optional        pam_ck_connector.so nox11'
-
-config etc/default/su.new
+if [ -r etc/default/su.new ]; then
+  config etc/default/su.new
+fi

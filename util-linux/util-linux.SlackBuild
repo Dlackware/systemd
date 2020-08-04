@@ -24,7 +24,7 @@
 
 PKGNAM=util-linux
 VERSION=${VERSION:-$(echo $PKGNAM-*.tar.?z* | rev | cut -f 3- -d . | cut -f 1 -d - | rev)}
-BUILD=${BUILD:-2}
+BUILD=${BUILD:-1}
 TAG=${TAG:-_dlack}
 
 ADJTIMEXVERS=1.29
@@ -232,6 +232,12 @@ if [ -r $PKG/usr/sbin/fdformat ]; then
     ln -sf ../bin/fdformat .
   )
 fi
+
+# Add the rc.setterm init script to set default terminal attributes:
+mkdir -p $PKG/etc/rc.d
+cp -a $CWD/rc.setterm $PKG/etc/rc.d/rc.setterm.new
+chown root:root $PKG/etc/rc.d/rc.setterm.new
+chmod 755 $PKG/etc/rc.d/rc.setterm.new
 
 # ddate.{1,c} taken from https://github.com/bo0ts/ddate:
 cp -a $CWD/ddate.? .

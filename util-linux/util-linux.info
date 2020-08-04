@@ -1,12 +1,12 @@
 PKGNAM="util-linux"
-VERSION="2.35.1"
+VERSION="2.36"
 HOMEPAGE="http://kernel.org/~kzak/util-linux/"
-DOWNLOAD="https://www.kernel.org/pub/linux/utils/util-linux/v2.35/util-linux-2.35.1.tar.xz \
+DOWNLOAD="https://www.kernel.org/pub/linux/utils/util-linux/v2.36/util-linux-2.36.tar.xz \
           https://deb.debian.org/debian/pool/main/a/adjtimex/adjtimex_1.29.orig.tar.gz \
           https://download.dlackware.com/slackware/slackware-current/source/a/util-linux/bsdstrings.tar.gz \
           https://sourceforge.net/projects/setserial/files/setserial/2.17/setserial-2.17.tar.gz \
           https://download.dlackware.com/slackware/slackware-current/source/a/util-linux/ziptool-1.4.0.tar.xz"
-MD5SUM="7f64882f631225f0295ca05080cee1bf \
+MD5SUM="fe7c0f7e439f08970e462c9d44599903 \
         7ff7731baf829fdf6ad9af963a526cda \
         fbb97d7b9b94ac8b3e5fb36dd794a28d \
         c4867d72c41564318e0107745eb7a0f2 \
