@@ -1,0 +1,20 @@
+--- ./pgrep.c.orig	2019-10-27 06:32:58.339230954 -0500
++++ ./pgrep.c	2019-12-21 13:38:57.229656940 -0600
+@@ -42,6 +42,8 @@
+ #define EXIT_FATAL 3
+ #define XALLOC_EXIT_CODE EXIT_FATAL
+ 
++#define CMDSTRSIZE 4096
++
+ #include "c.h"
+ #include "fileutils.h"
+ #include "nsutils.h"
+@@ -497,7 +499,7 @@
+ 	regex_t *preg;
+ 	pid_t myself = getpid();
+ 	struct el *list = NULL;
+-        long cmdlen = sysconf(_SC_ARG_MAX) * sizeof(char);
++        long cmdlen = CMDSTRSIZE;
+ 	char *cmdline = xmalloc(cmdlen);
+ 	char *cmdsearch = xmalloc(cmdlen);
+ 	char *cmdoutput = xmalloc(cmdlen);
