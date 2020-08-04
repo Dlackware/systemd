@@ -1,0 +1,12 @@
+diff -Nur openssh-6.6p1.orig/sshd_config openssh-6.6p1/sshd_config
+--- openssh-6.6p1.orig/sshd_config	2014-01-12 02:20:47.000000000 -0600
++++ openssh-6.6p1/sshd_config	2014-07-26 17:28:35.993833123 -0500
+@@ -94,7 +94,7 @@
+ # If you just want the PAM account and session checks to run without
+ # PAM authentication, then enable this but set PasswordAuthentication
+ # and ChallengeResponseAuthentication to 'no'.
+-#UsePAM no
++UsePAM yes
+ 
+ #AllowAgentForwarding yes
+ #AllowTcpForwarding yes
