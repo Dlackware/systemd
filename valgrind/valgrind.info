@@ -1,5 +1,5 @@
 PKGNAM="valgrind"
-VERSION="3.15.0"
+VERSION="3.16.1"
 HOMEPAGE="http://www.valgrind.org/"
-DOWNLOAD="http://sourceware.org/pub/valgrind/valgrind-3.15.0.tar.bz2"
-MD5SUM="46e5fbdcbc3502a5976a317a0860a975"
+DOWNLOAD="http://sourceware.org/pub/valgrind/valgrind-3.16.1.tar.bz2"
+MD5SUM="d1b153f1ab17cf1f311705e7a83ef589"
