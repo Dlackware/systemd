@@ -77,6 +77,17 @@ chown -R root:root .
 # Restore support for tcpwrappers:
 cat $CWD/openssh.tcp_wrappers.diff | patch -p1 --verbose || exit 1
 
+# Choose correct options depending on whether PAM is installed:
+if [ -L /lib${LIBDIRSUFFIX}/libpam.so.? ]; then
+  PAM_OPTIONS="--with-pam --with-kerberos5"
+  unset SHADOW_OPTIONS
+  # Enable PAM in sshd_config:
+  cat $CWD/sshd_config-pam.diff | patch -p1 --verbose || exit 1
+else
+  unset PAM_OPTIONS
+  SHADOW_OPTIONS="--without-pam"
+fi
+
 autoreconf -vif
 
 # Compile package:
@@ -85,12 +96,12 @@ CFLAGS="$SLKCFLAGS" \
   --prefix=/usr \
   --mandir=/usr/man \
   --sysconfdir=/etc/ssh \
-  --with-pam \
-  --libexecdir=/usr/lib${LIBDIRSUFFIX}/security \
+  $PAM_OPTIONS \
+  $SHADOW_OPTIONS \
+  --with-libedit \
   --with-md5-passwords \
   --with-tcp-wrappers \
   --with-default-path=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin \
-  --with-kerberos5 \
   --with-privsep-path=/var/empty \
   --with-privsep-user=sshd \
   --with-pid-dir=/run \
@@ -160,20 +171,21 @@ fi
   rm -f etc/ssh/ssh_host_key
   rm -f etc/ssh/ssh_host_key.pub
 
-
-sed -e '/^#ChallengeResponseAuthentication yes$/c ChallengeResponseAuthentication no' \
-    -e '/^#PrintMotd yes$/c PrintMotd no # pam does that' \
-    -e '/^#UsePAM no$/c UsePAM yes' \
-    -i "${PKG}"/etc/ssh/sshd_config
-
   # Set up the config script installation:
   mv etc/ssh/ssh_config etc/ssh/ssh_config.new
   mv etc/ssh/sshd_config etc/ssh/sshd_config.new
 
-  # Add the init script as fallback if needed:
+  # Add the init script:
   mkdir -p etc/rc.d
   cat $CWD/rc.sshd > etc/rc.d/rc.sshd.new
   chmod 755 etc/rc.d/rc.sshd.new
+
+  if [ ! -z "$PAM_OPTIONS" ]; then
+    # Add the pam stuff:
+    mkdir -p etc/pam.d
+    cat $CWD/sshd.pam > etc/pam.d/sshd.new
+    chmod 0644 /etc/pam.d/sshd.new
+  fi
 
   # Add the systemd unit files:
   mkdir -p lib/systemd/system
@@ -189,11 +201,6 @@ sed -e '/^#ChallengeResponseAuthentication yes$/c ChallengeResponseAuthenticatio
 
   cat $CWD/sshd.socket > lib/systemd/system/sshd.socket
   chmod 644 lib/systemd/system/sshd.socket
-
-  # Add the pam stuff:
-  mkdir -p etc/pam.d
-  cat $CWD/sshd.pam > etc/pam.d/sshd.new
-  chmod 0644 etc/pam.d/sshd.new
 
   # Copy runtime installation files:
   mkdir -p install

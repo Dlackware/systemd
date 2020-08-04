@@ -1,6 +1,6 @@
---- ./configure.ac.orig	2019-04-17 17:52:57.000000000 -0500
-+++ ./configure.ac	2019-04-18 15:13:25.404941727 -0500
-@@ -1494,6 +1494,62 @@
+--- ./configure.ac.orig	2020-02-13 18:40:54.000000000 -0600
++++ ./configure.ac	2020-02-14 19:28:45.566081482 -0600
+@@ -1532,6 +1532,62 @@
  	AC_MSG_RESULT([no])
  fi
  
@@ -63,7 +63,7 @@
  # Check whether user wants to use ldns
  LDNS_MSG="no"
  AC_ARG_WITH(ldns,
-@@ -5245,6 +5301,7 @@
+@@ -5389,6 +5445,7 @@
  echo "                   OSF SIA support: $SIA_MSG"
  echo "                 KerberosV support: $KRB5_MSG"
  echo "                   SELinux support: $SELINUX_MSG"
@@ -71,22 +71,23 @@
  echo "              MD5 password support: $MD5_MSG"
  echo "                   libedit support: $LIBEDIT_MSG"
  echo "                   libldns support: $LDNS_MSG"
---- ./sshd.c.orig	2019-04-17 17:52:57.000000000 -0500
-+++ ./sshd.c	2019-04-18 15:13:25.406941726 -0500
-@@ -122,6 +122,12 @@
- #include "auth-options.h"
- #include "version.h"
+--- ./sshd.c.orig	2020-02-13 18:40:54.000000000 -0600
++++ ./sshd.c	2020-02-14 19:30:12.694084273 -0600
+@@ -124,6 +124,13 @@
  #include "ssherr.h"
+ #include "sk-api.h"
+ 
 +#ifdef LIBWRAP
 +#include <tcpd.h>
 +#include <syslog.h>
 +int allow_severity;
 +int deny_severity;
 +#endif /* LIBWRAP */
- 
++
  /* Re-exec fds */
  #define REEXEC_DEVCRYPTO_RESERVED_FD	(STDERR_FILENO + 1)
-@@ -2022,6 +2028,26 @@
+ #define REEXEC_STARTUP_PIPE_FD		(STDERR_FILENO + 2)
+@@ -2107,6 +2114,26 @@
  	the_active_state = ssh;
  	ssh_packet_set_server(ssh);
  
@@ -113,9 +114,9 @@
  	check_ip_options(ssh);
  
  	/* Prepare the channels layer */
---- ./sshd.8.orig	2019-04-17 17:52:57.000000000 -0500
-+++ ./sshd.8	2019-04-18 15:13:25.407941726 -0500
-@@ -873,6 +873,12 @@
+--- ./sshd.8.orig	2020-02-13 18:40:54.000000000 -0600
++++ ./sshd.8	2020-02-14 19:28:45.574081482 -0600
+@@ -893,6 +893,12 @@
  This file should be writable only by the user, and need not be
  readable by anyone else.
  .Pp
@@ -128,7 +129,7 @@
  .It Pa /etc/hosts.equiv
  This file is for host-based authentication (see
  .Xr ssh 1 ) .
-@@ -975,6 +981,7 @@
+@@ -995,6 +1001,7 @@
  .Xr ssh-keygen 1 ,
  .Xr ssh-keyscan 1 ,
  .Xr chroot 2 ,

@@ -21,8 +21,12 @@ preserve_perms() {
   config ${NEW}
 }
 
-config etc/pam.d/sshd.new
+if [ -r etc/pam.d/sshd.new ]; then
+  config etc/pam.d/sshd.new
+fi
 config etc/default/sshd.new
+config etc/ssh/ssh_config.new
+config etc/ssh/sshd_config.new
 preserve_perms etc/rc.d/rc.sshd.new
 if [ -e etc/rc.d/rc.sshd.new ]; then
   mv etc/rc.d/rc.sshd.new etc/rc.d/rc.sshd
@@ -41,10 +45,6 @@ fi
 if ! grep -q "^sshd:" etc/shadow ; then
   echo "sshd:*:9797:0:::::" >> etc/shadow
 fi
-
-
-mv etc/ssh/ssh_config.new etc/ssh/ssh_config
-mv etc/ssh/sshd_config.new etc/ssh/sshd_config
 
 # Add a btmp file to store login failure if one doesn't exist:
 if [ ! -r var/log/btmp ]; then
