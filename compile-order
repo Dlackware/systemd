@@ -8,4 +8,5 @@ dbus
 util-linux
 openssh
 procps-ng
+systemd-service-files
 # !reboot
