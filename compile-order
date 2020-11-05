@@ -8,5 +8,6 @@ dbus
 util-linux
 openssh
 procps-ng
+polkit
 systemd-service-files
 # !reboot
